@@ -18,18 +18,18 @@ public:
     ~Packet();
 
 private:
-    UT::PacketType packetType;
-    QByteArray payload;
-    uint32_t sequenceNumber;
-    uint32_t waitingCycles;
-    uint32_t totalCycles;
-    QList<QString> path;
+    UT::PacketType  m_packetType;
+    QByteArray m_payload;
+    uint32_t m_sequenceNumber;
+    uint32_t m_waitingCycles;
+    uint32_t m_totalCycles;
+    QList<QString> m_path;
 
-    std::optional<UT::PacketControlType> controlType;
+    std::optional<UT::PacketControlType> m_controlType;
 
-    // IPHeader ipHeader;
-    // std::optional<BGPHeader> bgpHeader;
-    // std::optional<TCPHeader> tcpHeader;
+    // IPHeader m_ipHeader;
+    // std::optional<BGPHeader> m_bgpHeader;
+    // std::optional<TCPHeader> m_tcpHeader;
 
 
 };

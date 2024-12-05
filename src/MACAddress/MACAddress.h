@@ -17,7 +17,7 @@ public:
 
 
 private:
-    std::array<uint8_t, 6> addressBytes;
+    std::array<uint8_t, 6> m_address;
 };
 
 #endif // MACADDRESS_H

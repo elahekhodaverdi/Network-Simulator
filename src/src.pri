@@ -9,6 +9,7 @@ SOURCES += \
     $$PWD/DHCPServer/DHCPServer.cpp \
     $$PWD/EventsCoordinator/EventsCoordinator.cpp \
     $$PWD/Headers/BGPHeader.cpp \
+    $$PWD/Headers/DataLinkHeader.cpp \
     $$PWD/Headers/TCPHeader.cpp \
     $$PWD/IP/IP.cpp \
     $$PWD/MACAddress/MACAddress.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     $$PWD/EventsCoordinator/EventsCoordinator.h \
     $$PWD/Globals/Globals.h \
     $$PWD/Headers/BGPHeader.h \
+    $$PWD/Headers/DataLinkHeader.h \
     $$PWD/Headers/TCPHeader.h \
     $$PWD/IP/IP.h \
     $$PWD/MACAddress/MACAddress.h \
