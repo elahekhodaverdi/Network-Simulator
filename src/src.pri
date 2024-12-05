@@ -8,9 +8,11 @@ INCLUDEPATH += $$PWD\Globals
 SOURCES += \
     $$PWD/DHCPServer/DHCPServer.cpp \
     $$PWD/EventsCoordinator/EventsCoordinator.cpp \
+    $$PWD/Headers/BGPHeader.cpp \
     $$PWD/IP/IP.cpp \
     $$PWD/MACAddress/MACAddress.cpp \
     $$PWD/MACAddress/MACAddressGenerator.cpp \
+    $$PWD/Packet/Packet.cpp \
     $$PWD/PortBindingManager/PortBindingManager.cpp \
     $$PWD/Port/Port.cpp \
     $$PWD/main.cpp
@@ -19,8 +21,10 @@ HEADERS += \
     $$PWD/DHCPServer/DHCPServer.h \
     $$PWD/EventsCoordinator/EventsCoordinator.h \
     $$PWD/Globals/Globals.h \
+    $$PWD/Headers/BGPHeader.h \
     $$PWD/IP/IP.h \
     $$PWD/MACAddress/MACAddress.h \
     $$PWD/MACAddress/MACAddressGenerator.h \
+    $$PWD/Packet/Packet.h \
     $$PWD/PortBindingManager/PortBindingManager.h \
     $$PWD/Port/Port.h \

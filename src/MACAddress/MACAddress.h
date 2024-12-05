@@ -9,8 +9,8 @@
 class MACAddress
 {
 public:
-    MACAddress(std::array<uint8_t, 6> _address);
-    MACAddress(QString _address);
+    MACAddress(std::array<uint8_t, 6> address);
+    MACAddress(QString address);
     QString toString() const;
     bool isValid(const QString& address);
     bool operator==(const MACAddress& other) const;

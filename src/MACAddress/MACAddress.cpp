@@ -2,14 +2,14 @@
 #include <QDebug>
 #include <QRegularExpression>
 
-MACAddress::MACAddress(std::array<uint8_t, 6> _address)
-    : addressBytes(_address)
+MACAddress::MACAddress(std::array<uint8_t, 6> address)
+    : addressBytes(address)
 {}
 
-MACAddress::MACAddress(QString _address)
+MACAddress::MACAddress(QString address)
 {
-    if (isValid(_address)) {
-        QStringList byteStrings = _address.split(':');
+    if (isValid(address)) {
+        QStringList byteStrings = address.split(':');
         for (int i = 0; i < 6; i++) {
             addressBytes[i] = static_cast<uint8_t>(byteStrings[i].toUInt(nullptr, 16));
         }
