@@ -11,16 +11,15 @@ int main(int argc, char *argv[])
 
     EventsCoordinator *eventCoordinator = EventsCoordinator::instance();
 
-    QObject::connect(eventCoordinator, &EventsCoordinator::nextTick, [](int dataCount) {
-        std::cout << "Data generated in this cycle: " << dataCount << std::endl;
-    });
+    // QObject::connect(eventCoordinator, &EventsCoordinator::nextTick, [](int dataCount) {
+    //     std::cout << "Data generated in this cycle: " << dataCount << std::endl;
+    // });
+    qDebug() << 1;
+    std::vector<int> pcs = {1, 2, 3, 34, 5,};
+    eventCoordinator->startSimulation(200, 10000, pcs);
+    qDebug() << 2;
 
-    eventCoordinator->startSimulation(200, 10000);
 
-    int result = app.exec();
-
-    EventsCoordinator::release();
-
-    return result;
+    //return result;
 }
 

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <vector>
 #include <chrono>
 #include "../DataGenerator/DataGenerator.h"
 
@@ -19,14 +20,13 @@ class EventsCoordinator : public QThread
 public:
     ~EventsCoordinator() override;
     static EventsCoordinator *instance(QThread *parent = nullptr);
-    static void               release();
+    static void release();
 
-public:
-    void startSimulation(int intervalMs, int durationMs);
+    void startSimulation(int intervalMs, int durationMs, const std::vector<int> &pcs);
     void stopSimulation();
 
 Q_SIGNALS:
-    void nextTick(int dataCount); // Signal to emit data count
+    void nextTick(const std::vector<int> &selectedPCs);
 
 private:
     void run() override;
@@ -36,6 +36,8 @@ private:
     bool                             m_running {false};
     int                              m_intervalMs;
     int                              m_durationMs;
+    std::vector<int>                 m_dataArray;
+    std::vector<int>                 m_pcs;
     DataGenerator                   *m_dataGenerator {nullptr};
 };
 
