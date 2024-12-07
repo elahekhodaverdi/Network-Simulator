@@ -11,7 +11,7 @@ DataGenerator::DataGenerator(int minValue, QObject *parent)
     , m_minValue(minValue)
 {}
 
-int DataGenerator::generateParetoPacketCounts(int numSources, double alpha)
+int DataGenerator::generateParetoPacketCounts(double alpha)
 {
     QVector<int> packetCounts;
 

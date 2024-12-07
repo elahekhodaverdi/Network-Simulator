@@ -9,7 +9,7 @@ class DataGenerator : public QObject
 public:
     explicit DataGenerator(QObject *parent = nullptr);
     explicit DataGenerator(int minValue, QObject*parent = nullptr);
-    int generateParetoPacketCounts(int numSources, double alpha);
+    int generateParetoPacketCounts(double alpha);
 Q_SIGNALS:
 
 private:
