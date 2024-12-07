@@ -2,6 +2,7 @@
 #define TCPHEADER_H
 
 #include <QObject>
+#include <cstdint>
 
 class TCPHeader : public QObject
 {
@@ -17,7 +18,16 @@ public:
     void setDataOffset(uint8_t dataOffset);
     void setWindowSize(uint16_t windowSize);
     void setUrgentPointer(uint16_t urgentPointer);
-    void setOptionalData(const std::optional<std::vector<uint8_t>> &optionalData);
+
+    uint16_t sourcePort() const;
+    uint16_t destPort() const;
+    uint32_t sequenceNumber() const;
+    uint32_t acknowledgementNumber() const;
+    uint8_t flags() const;
+    uint8_t dataOffset() const;
+    uint16_t checksum() const;
+    uint16_t windowSize() const;
+    uint16_t urgentPointer() const;
 
 Q_SIGNALS:
 
@@ -26,12 +36,11 @@ private:
     uint16_t m_destPort;
     uint32_t m_sequenceNumber;
     uint32_t m_acknowledgementNumber;
-    uint8_t  m_flags;
-    uint8_t  m_dataOffset;
+    uint8_t m_flags;
+    uint8_t m_dataOffset;
     uint16_t m_checksum;
     uint16_t m_windowSize;
     uint16_t m_urgentPointer;
-    std::optional<std::vector<uint8_t>> m_optionalData;
 };
 
 #endif // TCPHEADER_H

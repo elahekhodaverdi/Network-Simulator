@@ -8,7 +8,13 @@ class DataLinkHeader : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataLinkHeader(QObject *parent = nullptr);
+    DataLinkHeader(MACAddress sourceMACAddress, MACAddress destMACAddress, QObject *parent = nullptr);
+
+    void setDestinationMACAddress(const MACAddress &destinationMACAddress);
+    void setSourceMACAddress(const MACAddress &sourceMACAddress);
+
+    MACAddress sourceMACAddress() const;
+    MACAddress destinationMACAddress() const;
 
 Q_SIGNALS:
 
