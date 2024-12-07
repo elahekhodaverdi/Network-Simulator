@@ -6,6 +6,8 @@
 #include <QList>
 #include <QString>
 #include "globals.h"
+#include "../Headers/DataLinkHeader.h"
+#include "../Headers/TCPHeader.h"
 // #include "IPHeader.h"
 // #include "TCPHeader.h"
 // #include "BGPHeader.h"
@@ -27,9 +29,11 @@ private:
 
     std::optional<UT::PacketControlType> m_controlType;
 
+    DataLinkHeader m_dataLinkHeader;
     // IPHeader m_ipHeader;
     // std::optional<BGPHeader> m_bgpHeader;
-    // std::optional<TCPHeader> m_tcpHeader;
+    std::optional<TCPHeader> m_tcpHeader;
+
 
 
 };
