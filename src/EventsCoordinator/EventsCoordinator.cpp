@@ -53,7 +53,7 @@ void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QV
     for (size_t i = 0; i < m_dataArray.size(); ++i) {
         res += ":" + QString::number(m_dataArray[i]);
     }
-    qDebug() << res;
+    qDebug() << "Number of Packets in each Cycle:" <<  res;
 
 
 
