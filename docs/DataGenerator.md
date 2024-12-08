@@ -1,5 +1,6 @@
 
-### DataGenerator Class
+## DataGenerator Class
+
 The `DataGenerator` class is responsible for generating data values based on the Pareto distribution, often used to model skewed distributions in various fields. The class is designed to provide flexibility in initialization and data generation parameters.
 
 
