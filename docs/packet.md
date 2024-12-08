@@ -32,28 +32,11 @@ The `Packet` class represents a network packet and provides methods to manipulat
 3. **`incTotalCycles()`**
    - Increments the `m_totalCycles` field by one.
 
-4. **`setPacketType(UT::PacketType packetType)`**
-   - Sets the packet's type to the specified `UT::PacketType`.
+4. **Setters**
+    - Each of the fields has a corresponding setter method.
 
-5. **`setPayload(QByteArray payload)`**
-   - Assigns a data payload to the packet.
-
-6. **`setSequenceNumber(uint32_t sequenceNumber)`**
-   - Sets the sequence number of the packet.
-
-7. **`setWaitingCycles(uint32_t waitingCycles)`**
-   - Updates the waiting cycles count for the packet.
-
-8. **`setTotalCycles(uint32_t totalCycles)`**
-   - Updates the total cycles count for the packet.
-
-9. **Accessors**
-   - **`packetType()`**: Returns the packet type.
-   - **`payload()`**: Retrieves the data payload.
-   - **`sequenceNumber()`**: Returns the sequence number.
-   - **`waitingCycles()`**: Retrieves the waiting cycles count.
-   - **`totalCycles()`**: Returns the total cycles count.
-   - **`path()`**: Retrieves the list of IP addresses in the packet's path.
+5. **Getters**
+    - Each of the fields has a corresponding getter method.
 
 ### Destructor
 

@@ -1,7 +1,7 @@
 
 ## DataGenerator Class
 
-The `DataGenerator` class is responsible for generating data values based on the Pareto distribution, often used to model skewed distributions in various fields. The class is designed to provide flexibility in initialization and data generation parameters.
+The `DataGenerator` class is responsible for generating data values based on the Pareto distribution. The class is designed to provide flexibility in initialization and data generation parameters.
 
 
 ### Fields
@@ -11,17 +11,14 @@ The `DataGenerator` class is responsible for generating data values based on the
 ### Method Explanations
 
 1. **Constructor**
-    - **Default**:
-        - Initializes the `DataGenerator` object with default values.
-        - `m_minValue` is set to its default value (`1`).
+    - **Default**: Initializes the `DataGenerator` object with default values (`m_minValue` = 1).
 
-    - **Parameterized**:
-        - Initializes the `DataGenerator` with a user-defined minimum value for the Pareto distribution.
+    - **Parameterized**: Initializes the `DataGenerator` with a user-defined minimum value for the Pareto distribution.
 
 2. **`generateParetoPacketCounts`**  
    - **Purpose**: Generates packet counts following the Pareto distribution using the formula:  
      $$
-     X = \text{minValue} \div (1 - U)^{\frac{1}{\alpha}}
+     X = \frac{\text{minValue}}  {(1 - U)^{\frac{1}{\alpha}}}
      $$  
      where $U$ is a uniformly distributed random value between 0 and 1, and $\alpha$ is the Pareto shape parameter.  
    - **Details**:  
