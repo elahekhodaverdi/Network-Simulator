@@ -14,7 +14,24 @@ class Packet : public QObject
 {
     Q_OBJECT
 public:
-    explicit Packet(QObject* parent = nullptr);
+    explicit Packet(DataLinkHeader dataLinkHeader, QObject* parent = nullptr);
+    void addToPath(QString ip);
+    void incWaitingCycles();
+    void incTotalCycles();
+
+    void setPacketType(UT::PacketType packetType);
+    void setPayload(QByteArray payload);
+    void setSequenceNumber(uint32_t sequenceNumber);
+    void setWaitingCycles(uint32_t waitingCycles);
+    void setTotalCycles(uint32_t totalCycles);
+
+    UT::PacketType packetType();
+    QByteArray payload();
+    uint32_t sequenceNumber();
+    uint32_t waitingCycles();
+    uint32_t totalCycles();
+    QList<QString> path();
+
     ~Packet();
 
 private:
@@ -24,12 +41,13 @@ private:
     uint32_t m_waitingCycles;
     uint32_t m_totalCycles;
     QList<QString> m_path;
-
-    std::optional<UT::PacketControlType> m_controlType;
-
     DataLinkHeader m_dataLinkHeader;
     // IPHeader m_ipHeader;
     std::optional<TCPHeader> m_tcpHeader;
+
+    std::optional<UT::PacketControlType> m_controlType;
+
+
 
 
 
