@@ -29,6 +29,10 @@ public:
     uint16_t windowSize() const;
     uint16_t urgentPointer() const;
 
+    uint16_t calculateChecksum(const QByteArray &data,
+                               const QByteArray &sourceIP,
+                               const QByteArray &destIP);
+
 Q_SIGNALS:
 
 private:
