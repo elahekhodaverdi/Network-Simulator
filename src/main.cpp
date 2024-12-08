@@ -1,27 +1,32 @@
-#include "../EventsCoordinator/EventsCoordinator.h"
-#include <QCoreApplication>
-#include <QObject>
+#include <QDebug>
+#include "MACAddress/MACAddress.h"
+#include "MACAddress/MACAddressGenerator.h"
 
-int main(int argc, char *argv[])
+int main()
 {
-    QCoreApplication app(argc, argv);
+    QList<MACAddress> generatedMACs;
 
-    EventsCoordinator *eventCoordinator = EventsCoordinator::instance();
+    for (int i = 0; i < 5; ++i) {
+        MACAddress randomMAC = MACAddressGenerator::getRandomMAC();
+        qDebug() << "Generated MAC Address #" << (i + 1) << ":" << randomMAC.toString();
 
-    QVector<QSharedPointer<PC>> pcs;
-    for (int i = 0; i < 10; i++) {
-        QSharedPointer<PC> pc = QSharedPointer<PC>::create(i);
-        pcs.append(pc);
+        bool isUnique = true;
+        for (const auto& mac : generatedMACs) {
+            if (mac == randomMAC) {
+                isUnique = false;
+                break;
+            }
+        }
 
-        QObject::connect(eventCoordinator, &EventsCoordinator::nextTick, pc.get(), &PC::sendPacket);
+        if (isUnique) {
+            qDebug() << "The MAC address is unique.";
+        } else {
+            qDebug() << "The MAC address is not unique.";
+        }
+
+        generatedMACs.append(randomMAC);
     }
-
-    eventCoordinator->startSimulation(200, 10000, pcs);
-    int result = app.exec();
-
-    EventsCoordinator::release();
-
-    return result;
-
+    MACAddress tempMac(generatedMACs.first().toString());
+    qDebug() << "is mac assigned?: " << MACAddressGenerator::isMACAssigned(tempMac);
+    return 0;
 }
-

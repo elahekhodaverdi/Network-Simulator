@@ -25,10 +25,11 @@ QString MACAddress::toString() const
     for (size_t i = 0; i < m_address.size(); ++i) {
         if (i != 0)
             string.append(":");
-        string.append(QString("%1").arg(m_address[i], 0, 16, QChar('0')).toUpper());
+        string.append(QString("%1").arg(m_address[i], 2, 16, QChar('0')).toUpper());
     }
     return string;
 }
+
 
 
 bool MACAddress::isValid(const QString& address)

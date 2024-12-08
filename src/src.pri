@@ -13,8 +13,8 @@ SOURCES += \
     # $$PWD/Headers/DataLinkHeader.cpp \
     # $$PWD/Headers/TCPHeader.cpp \
     # $$PWD/IP/IP.cpp \
-    # $$PWD/MACAddress/MACAddress.cpp \
-    # $$PWD/MACAddress/MACAddressGenerator.cpp \
+    $$PWD/MACAddress/MACAddress.cpp \
+    $$PWD/MACAddress/MACAddressGenerator.cpp \
     # $$PWD/Packet/Packet.cpp \
     # $$PWD/PortBindingManager/PortBindingManager.cpp \
     # $$PWD/Port/Port.cpp \
@@ -32,8 +32,8 @@ HEADERS += \
     # $$PWD/Headers/DataLinkHeader.h \
     # $$PWD/Headers/TCPHeader.h \
     # $$PWD/IP/IP.h \
-    # $$PWD/MACAddress/MACAddress.h \
-    # $$PWD/MACAddress/MACAddressGenerator.h \
+    $$PWD/MACAddress/MACAddress.h \
+    $$PWD/MACAddress/MACAddressGenerator.h \
     # $$PWD/Packet/Packet.h \
     # $$PWD/PortBindingManager/PortBindingManager.h \
     # $$PWD/Port/Port.h \
