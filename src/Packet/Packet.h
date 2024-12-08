@@ -9,8 +9,6 @@
 #include "../Headers/DataLinkHeader.h"
 #include "../Headers/TCPHeader.h"
 // #include "IPHeader.h"
-// #include "TCPHeader.h"
-// #include "BGPHeader.h"
 
 class Packet : public QObject
 {
@@ -31,7 +29,6 @@ private:
 
     DataLinkHeader m_dataLinkHeader;
     // IPHeader m_ipHeader;
-    // std::optional<BGPHeader> m_bgpHeader;
     std::optional<TCPHeader> m_tcpHeader;
 
 
