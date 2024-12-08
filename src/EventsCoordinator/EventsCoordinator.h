@@ -6,6 +6,7 @@
 #include <vector>
 #include <chrono>
 #include "../DataGenerator/DataGenerator.h"
+#include "../PC/PC.h"
 
 class DataGenerator;
 
@@ -22,11 +23,11 @@ public:
     static EventsCoordinator *instance(QThread *parent = nullptr);
     static void release();
 
-    void startSimulation(int intervalMs, int durationMs, const std::vector<int> &pcs);
+    void startSimulation(int intervalMs, int durationMs, const QVector<QSharedPointer<PC>> &pcs);
     void stopSimulation();
 
 Q_SIGNALS:
-    void nextTick(const std::vector<int> &selectedPCs);
+    void nextTick(const QVector<QSharedPointer<PC>> &selectedPCs);
 
 private:
     void run() override;
@@ -37,7 +38,7 @@ private:
     int                              m_intervalMs;
     int                              m_durationMs;
     std::vector<int>                 m_dataArray;
-    std::vector<int>                 m_pcs;
+    QVector<QSharedPointer<PC>>                 m_pcs;
     DataGenerator                   *m_dataGenerator {nullptr};
 };
 

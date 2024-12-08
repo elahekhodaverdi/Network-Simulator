@@ -14,12 +14,21 @@ int main(int argc, char *argv[])
     // QObject::connect(eventCoordinator, &EventsCoordinator::nextTick, [](int dataCount) {
     //     std::cout << "Data generated in this cycle: " << dataCount << std::endl;
     // });
-    qDebug() << 1;
-    std::vector<int> pcs = {1, 2, 3, 34, 5,};
+    QVector<QSharedPointer<PC>> pcs;
+    for (int i = 0; i < 10; i++) {
+        QSharedPointer<PC> pc = QSharedPointer<PC>::create(i);
+        pcs.append(pc);
+
+        QObject::connect(eventCoordinator, &EventsCoordinator::nextTick, pc.get(), &PC::sendPacket);
+    }
+
     eventCoordinator->startSimulation(200, 10000, pcs);
-    qDebug() << 2;
+    int result = app.exec();
+
+    EventsCoordinator::release();
+
+    return result;
 
 
-    //return result;
 }
 
