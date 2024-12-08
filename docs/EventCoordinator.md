@@ -1,10 +1,8 @@
-### Event Coordinator System  
+## Event Coordinator System  
 
 The **`EventsCoordinator`** class is the backbone of this project, managing the simulation of events and distributing data across PCs at defined intervals.  
 
----
-
-#### **Header File Explanation**  
+### **Header File Explanation**  
 
 The header file defines the structure of the `EventsCoordinator` class:  
 
@@ -23,11 +21,10 @@ The header file defines the structure of the `EventsCoordinator` class:
   - `run`: The main function executed by the thread to manage events.  
   - `instance` and `release`: Manage the lifecycle of the singleton instance.  
 
----
 
-#### **Source File Explanation**  
+### **Source File Explanation**  
 
-##### **Constructor (`EventsCoordinator`)**  
+#### **Constructor (`EventsCoordinator`)**  
 
 ```cpp
 EventsCoordinator::EventsCoordinator(QThread *parent)
@@ -41,9 +38,7 @@ EventsCoordinator::EventsCoordinator(QThread *parent)
 - Allocates memory for `m_dataGenerator`.  
 - Fills `m_dataArray` with zeros initially.  
 
----
-
-##### **Destructor**  
+#### **Destructor**  
 
 ```cpp
 EventsCoordinator::~EventsCoordinator()
@@ -54,9 +49,7 @@ EventsCoordinator::~EventsCoordinator()
 
 - Ensures proper cleanup by deleting the `DataGenerator` instance.  
 
----
-
-##### **Singleton Management**  
+#### **Singleton Management**  
 
 - **`instance` Function**:  
   ```cpp
@@ -81,9 +74,8 @@ EventsCoordinator::~EventsCoordinator()
   ```
   - Deletes the singleton instance and sets the pointer to `nullptr`.  
 
----
 
-##### **`startSimulation` Function**  
+#### **`startSimulation` Function**  
 
 This is where the simulation setup happens:  
 
@@ -134,9 +126,8 @@ void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QV
 
 4. Starts the thread by setting `m_running` to `true` and calling `start()`.  
 
----
 
-##### **`stopSimulation` Function**  
+#### **`stopSimulation` Function**  
 
 ```cpp
 void EventsCoordinator::stopSimulation()
@@ -148,9 +139,8 @@ void EventsCoordinator::stopSimulation()
 
 - Stops the simulation and ensures the thread completes its work before exiting.  
 
----
 
-##### **`run` Function**  
+#### **`run` Function**  
 
 The `run` function is the heart of the simulation:  
 
@@ -188,9 +178,8 @@ void EventsCoordinator::run()
 4. **Delay**:  
    - Waits for `m_intervalMs` milliseconds before moving to the next interval.  
 
----
 
-#### **Code Flow Summary**  
+### **Code Flow Summary**  
 
 1. The `startSimulation` function prepares the simulation by initializing variables and distributing data.  
 2. The thread begins running the `run` function.  

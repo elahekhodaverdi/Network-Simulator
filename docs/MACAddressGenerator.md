@@ -1,5 +1,5 @@
 
-### MACAddressGenerator Class
+## MACAddressGenerator Class
 
 The `MACAddressGenerator` class provides functionality to generate and manage random MAC addresses. It ensures uniqueness by keeping track of previously assigned addresses and generates new ones based on a predefined Organizationally Unique Identifier (OUI).
 

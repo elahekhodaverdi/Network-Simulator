@@ -1,5 +1,5 @@
 
-### MACAddress Class
+## MACAddress Class
 
 The `MACAddress` class represents and validates MAC addresses, providing functionality to store, convert, and validate MAC addresses. It supports initialization from both a string and a byte array.
 
