@@ -5,6 +5,8 @@
 
 class Router : public Node
 {
+    Q_OBJECT
+
 public:
     explicit Router(QObject *parent = nullptr);
 };

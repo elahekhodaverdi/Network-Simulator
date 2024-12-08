@@ -2,9 +2,12 @@
 #define PC_H
 
 #include "../Node/Node.h"
+#include <QVector>
+#include <QSharedPointer>
 
 class PC : public Node
 {
+    Q_OBJECT
 
 public:
     explicit PC(int id, QObject *parent = nullptr);

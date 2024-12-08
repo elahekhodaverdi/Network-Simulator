@@ -1,5 +1,6 @@
 #include "Router.h"
 
-Router::Router(QObject *parent) :
-    Node {parent}
-{}
+Router::Router(QObject *parent)
+    : Node(parent)
+{
+}

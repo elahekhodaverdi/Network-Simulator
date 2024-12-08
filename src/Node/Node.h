@@ -1,18 +1,15 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <QObject>
+#include <QThread>
 #include <QDebug>
 
-class Node : public QObject
+class Node : public QThread
 {
     Q_OBJECT
 
 public:
     explicit Node(QObject *parent = nullptr);
-
-Q_SIGNALS:
-
 };
 
 #endif    // NODE_H

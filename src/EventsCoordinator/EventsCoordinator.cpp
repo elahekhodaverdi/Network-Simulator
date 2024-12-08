@@ -53,7 +53,7 @@ void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QV
     for (size_t i = 0; i < m_dataArray.size(); ++i) {
         res += ":" + QString::number(m_dataArray[i]);
     }
-    qDebug() << "Number of Packets in each Cycle:" <<  res;
+    qDebug() << "Number of Packets in each Cycle: " << res;
 
 
 
@@ -70,7 +70,6 @@ void EventsCoordinator::stopSimulation()
 void EventsCoordinator::run()
 {
     int cycleCount = m_durationMs / m_intervalMs;
-    qDebug() << "here";
     for (int i = 0; i < cycleCount && m_running; ++i) {
         QVector<QSharedPointer<PC>> selectedPCs;
         if (m_dataArray[i] > 0) {
