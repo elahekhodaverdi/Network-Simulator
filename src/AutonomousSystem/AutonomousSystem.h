@@ -4,26 +4,23 @@
 #include <QList>
 #include <QString>
 
+#include "../Globals/Globals.h"
+#include "../PC/PC.h"
+#include "../Router/Router.h"
 class AutonomousSystem
 {
 public:
     int id;
-    QString topologyType;
+    UT::TopologyType topologyType;
     int nodeCount;
-    QList<int> asGateways;
-    QList<int> userGateways;
-    int dhcpServer;
-    QList<int> brokenRouters;
-    QList<QPair<int, QList<QPair<int, int>>>> connections;
+    QList<Router *> asGateways;
+    QList<Router *> userGateways;
+    Router *dhcpServer;
+    QList<Router *> brokenRouters;
+    QList<QPair<Router *, QList<PC *>>> connections;
     AutonomousSystem();
-    AutonomousSystem(int asId,
-                     const QString &topoType,
-                     int nodes,
-                     const QList<int> &asGates,
-                     const QList<int> &userGates,
-                     int dhcp,
-                     const QList<int> &broken,
-                     const QList<QPair<int, QList<QPair<int, int>>>> &connects);
+    AutonomousSystem(int asId, UT::TopologyType type);
+    void build(QJsonObject config);
 };
 
 #endif // AUTONOMOUSSYSTEM_H

@@ -16,9 +16,7 @@ public:
 
 private:
     static SimulationConfig parseSimulationConfig(const QJsonObject &config);
-    static QList<AutonomousSystem> parseAutonomousSystems(const QJsonArray &systemsArray);
-    QList<QMap<QString, QVariant>> convertASJsonArrayToQMap(const QJsonArray &jsonArray);
-    QMap<QString, QVariant> convertASJsonToQMap(const QJsonObject &jsonObj);
+    static QList<AutonomousSystem *> parseAutonomousSystems(const QJsonArray &systemsArray);
 };
 
 #endif // CONFIGREADER_H

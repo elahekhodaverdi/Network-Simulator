@@ -10,7 +10,7 @@ class NetworkConfig
 {
 public:
     SimulationConfig simulationConfig;
-    QList<AutonomousSystem> autonomousSystems;
+    QList<AutonomousSystem *> autonomousSystems;
 };
 
 #endif // NETWORKCONFIG_H
