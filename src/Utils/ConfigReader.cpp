@@ -63,11 +63,42 @@ QList<AutonomousSystem *> ConfigReader::parseAutonomousSystems(const QJsonArray 
     for (const QJsonValue &jsonValue : systemsArray) {
         if (jsonValue.isObject()) {
             QJsonObject ASsystem = jsonValue.toObject();
+
+            QString topologyTypeString = ASsystem["topology_type"].toString();
+            QList<UT::TopologyType> topologyTypes = parseTopologyTypes(topologyTypeString);
+
+            UT::TopologyType primaryTopologyType = !topologyTypes.isEmpty()
+                                                       ? topologyTypes.first()
+                                                       : UT::TopologyType::Mesh;
+
             AutonomousSystem *system = new AutonomousSystem(ASsystem["id"].toInt(),
-                                                            UT::TopologyType::Mesh);
+                                                            primaryTopologyType);
             system->build(ASsystem);
             systems.append(system);
         }
     }
     return systems;
+}
+
+QList<UT::TopologyType> ConfigReader::parseTopologyTypes(const QString &topologyTypeString)
+{
+    QList<UT::TopologyType> topologyTypes;
+
+    QStringList topologyList = topologyTypeString.split('|', Qt::SkipEmptyParts);
+    for (QString typeString : topologyList) {
+        topologyTypes.append(stringToTopologyType(typeString));
+    }
+    return topologyTypes;
+}
+
+UT::TopologyType ConfigReader::stringToTopologyType(const QString &typeString)
+{
+    if (typeString == "Mesh") {
+        return UT::TopologyType::Mesh;
+    } else if (typeString == "RingStar") {
+        return UT::TopologyType::RingStar;
+    } else if (typeString == "Torus") {
+        return UT::TopologyType::Torus;
+    }
+    return UT::TopologyType::Mesh;
 }

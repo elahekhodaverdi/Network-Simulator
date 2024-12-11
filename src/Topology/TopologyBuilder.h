@@ -8,12 +8,12 @@ class TopologyBuilder
 {
 public:
     TopologyBuilder();
-    QList<Router*> buildTopology(int nodeNumber, UT::TopologyType topologyType);
+    static QList<Router*> buildTopology(int nodeNumber, UT::TopologyType topologyType);
 
 private:
-    int routersNum;
-    void buildMeshTopology(QList<Router*>& routers);
-    void buildRingStarTopology(QList<Router*>& routers);
+    static int routersNum;
+    static void buildMeshTopology(QList<Router*>& routers);
+    static void buildRingStarTopology(QList<Router*>& routers);
 };
 
 #endif // TOPOLOGYBUILDER_H

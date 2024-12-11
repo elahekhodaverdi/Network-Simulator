@@ -1,14 +1,12 @@
 #include "TopologyBuilder.h"
 
-TopologyBuilder::TopologyBuilder()
-    : routersNum(1)
-{}
+int TopologyBuilder::routersNum = 1;
 
 QList<Router*> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyType topologyType)
 {
     QList<Router*> routers;
     for (int i = 0; i < nodeNumber; i++)
-        routers.append(new Router());
+        routers.append(new Router(routersNum++));
 
     switch (topologyType) {
     case UT::TopologyType::Mesh:
@@ -22,6 +20,9 @@ QList<Router*> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyType t
     default:
         break;
     }
+
+    return routers;
 }
+
 void TopologyBuilder::buildMeshTopology(QList<Router*>& routers) {}
 void TopologyBuilder::buildRingStarTopology(QList<Router*>& routers) {}

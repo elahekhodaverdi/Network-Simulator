@@ -1,6 +1,7 @@
 #include "Router.h"
 
-Router::Router(QObject *parent)
+Router::Router(int nodeId, QObject *parent)
     : Node(parent)
+    , Id(nodeId)
 {
 }
