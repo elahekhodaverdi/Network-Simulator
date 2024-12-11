@@ -11,7 +11,6 @@
     "routing_per_port": true,
     "routing_table_size": 10,
     "routing_packets_per_port_cycle": 1,
-    "put your needed parameters here": "value",
     "Autonomous_systems":
     [
         {

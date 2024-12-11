@@ -8,7 +8,10 @@ class Router : public Node
     Q_OBJECT
 
 public:
-    explicit Router(QObject *parent = nullptr);
+    explicit Router(int nodeId, QObject *parent = nullptr);
+
+private:
+    int Id;
 };
 
 #endif    // ROUTER_H

@@ -4,11 +4,7 @@
 namespace UT
 {
 
-enum class IPVersion
-{
-    IPv4,
-    IPv6
-};
+enum class IPVersion { IPv4, IPv6 };
 
 enum class PacketType
 {
