@@ -1,9 +1,8 @@
 #include "PC.h"
 
-PC::PC(int id, QObject *parent) :
-    Node(parent)
+PC::PC(int id, MACAddress macAddress, QObject *parent)
+    : Node(id, macAddress, parent)
 {
-    m_id = id;
 }
 
 void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs) {

@@ -1,22 +1,25 @@
 #ifndef PC_H
 #define PC_H
 
-#include "../Node/Node.h"
-#include <QVector>
 #include <QSharedPointer>
+#include <QVector>
+#include "../Node/Node.h"
+#include "../Port/Port.h"
 
 class PC : public Node
 {
     Q_OBJECT
 
 public:
-    explicit PC(int id, QObject *parent = nullptr);
+    explicit PC(int id, MACAddress macAddress, QObject *parent = nullptr);
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
 
-protected:
-    int m_id;
+private:
+    PortPtr_t gateaway;
 };
 
-#endif    // PC_H
+typedef QSharedPointer<PC> PCPtr_t;
+
+#endif // PC_H

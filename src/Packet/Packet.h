@@ -53,4 +53,6 @@ private:
 
 };
 
+typedef QSharedPointer<Packet> PacketPtr_t;
+
 #endif // PACKET_H
