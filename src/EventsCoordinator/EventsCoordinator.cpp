@@ -30,7 +30,7 @@ void EventsCoordinator::release()
     qDebug() << "done";
 }
 
-void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QVector<QSharedPointer<PC>> &pcs)
+void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QVector<PCPtr_t> &pcs)
 {
     m_intervalMs = intervalMs;
     m_durationMs = durationMs;
@@ -71,7 +71,7 @@ void EventsCoordinator::run()
 {
     int cycleCount = m_durationMs / m_intervalMs;
     for (int i = 0; i < cycleCount && m_running; ++i) {
-        QVector<QSharedPointer<PC>> selectedPCs;
+        QVector<PCPtr_t> selectedPCs;
         if (m_dataArray[i] > 0) {
             std::vector<int> indices(m_pcs.size());
             std::iota(indices.begin(), indices.end(), 0);

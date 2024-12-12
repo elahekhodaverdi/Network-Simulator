@@ -16,13 +16,24 @@ public:
     void setRouterBroken();
     bool routerIsBroken();
     void addPort(const PortPtr_t &port);
+    int remainingPorts() const;
 
 private:
+    struct RoutingTableEntry
+    {
+        IPv4_t destination;
+        IPv4_t nextHop;
+        PortPtr_t outPort;
+    };
+
     QList<PortPtr_t> ports;
     UT::IPVersion ipVersion = UT::IPVersion::IPv4;
     QList<PacketPtr_t> buffer;
     bool DHCPServer = false;
     bool broken = false;
+    QList<RoutingTableEntry> routingTable;
+
+    const int maxPorts = 4;
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;

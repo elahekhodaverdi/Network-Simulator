@@ -22,3 +22,8 @@ void Router::addPort(const PortPtr_t &port)
 {
     ports.append(port);
 }
+
+int Router::remainingPorts() const
+{
+    return maxPorts - ports.size();
+}

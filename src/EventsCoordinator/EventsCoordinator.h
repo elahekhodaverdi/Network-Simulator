@@ -23,11 +23,11 @@ public:
     static EventsCoordinator *instance(QThread *parent = nullptr);
     static void release();
 
-    void startSimulation(int intervalMs, int durationMs, const QVector<QSharedPointer<PC>> &pcs);
+    void startSimulation(int intervalMs, int durationMs, const QVector<PCPtr_t> &pcs);
     void stopSimulation();
 
 Q_SIGNALS:
-    void nextTick(const QVector<QSharedPointer<PC>> &selectedPCs);
+    void nextTick(const QVector<PCPtr_t> &selectedPCs);
 
 private:
     void run() override;
@@ -38,7 +38,7 @@ private:
     int                              m_intervalMs;
     int                              m_durationMs;
     std::vector<int>                 m_dataArray;
-    QVector<QSharedPointer<PC>>                 m_pcs;
+    QVector<PCPtr_t> m_pcs;
     DataGenerator                   *m_dataGenerator {nullptr};
 };
 

@@ -40,44 +40,64 @@ void TopologyBuilder::buildMeshTopology(QList<Router*>& routers,
         for (int col = 0; col < n; ++col) {
             int currentIndex = getRouterIndexAtMesh(row, col, n);
 
+            if (routers[currentIndex]->remainingPorts() == 0)
+                continue; // Skip if no ports are available
+
+            // Left neighbor
             if (col > 0) {
                 int leftIndex = getRouterIndexAtMesh(row, col - 1, n);
-                PortPtr_t port1 = QSharedPointer<Port>::create();
-                PortPtr_t port2 = QSharedPointer<Port>::create();
-                portBinderManager.bind(port1, port2);
-                routers[currentIndex]->addPort(port1);
-                routers[leftIndex]->addPort(port2);
+                if (routers[leftIndex]->remainingPorts() > 0
+                    && routers[currentIndex]->remainingPorts() > 0) {
+                    PortPtr_t port1 = PortPtr_t::create();
+                    PortPtr_t port2 = PortPtr_t::create();
+                    portBinderManager.bind(port1, port2);
+                    routers[currentIndex]->addPort(port1);
+                    routers[leftIndex]->addPort(port2);
+                }
             }
 
+            // Right neighbor
             if (col < n - 1) {
                 int rightIndex = getRouterIndexAtMesh(row, col + 1, n);
-                PortPtr_t port1 = QSharedPointer<Port>::create();
-                PortPtr_t port2 = QSharedPointer<Port>::create();
-                portBinderManager.bind(port1, port2);
-                routers[currentIndex]->addPort(port1);
-                routers[rightIndex]->addPort(port2);
+                if (routers[rightIndex]->remainingPorts() > 0
+                    && routers[currentIndex]->remainingPorts() > 0) {
+                    PortPtr_t port1 = PortPtr_t::create();
+                    PortPtr_t port2 = PortPtr_t::create();
+                    portBinderManager.bind(port1, port2);
+                    routers[currentIndex]->addPort(port1);
+                    routers[rightIndex]->addPort(port2);
+                }
             }
 
+            // Upper neighbor
             if (row > 0) {
                 int upIndex = getRouterIndexAtMesh(row - 1, col, n);
-                PortPtr_t port1 = QSharedPointer<Port>::create();
-                PortPtr_t port2 = QSharedPointer<Port>::create();
-                portBinderManager.bind(port1, port2);
-                routers[currentIndex]->addPort(port1);
-                routers[upIndex]->addPort(port2);
+                if (routers[upIndex]->remainingPorts() > 0
+                    && routers[currentIndex]->remainingPorts() > 0) {
+                    PortPtr_t port1 = PortPtr_t::create();
+                    PortPtr_t port2 = PortPtr_t::create();
+                    portBinderManager.bind(port1, port2);
+                    routers[currentIndex]->addPort(port1);
+                    routers[upIndex]->addPort(port2);
+                }
             }
 
+            // Lower neighbor
             if (row < n - 1) {
                 int downIndex = getRouterIndexAtMesh(row + 1, col, n);
-                PortPtr_t port1 = QSharedPointer<Port>::create();
-                PortPtr_t port2 = QSharedPointer<Port>::create();
-                portBinderManager.bind(port1, port2);
-                routers[currentIndex]->addPort(port1);
-                routers[downIndex]->addPort(port2);
+                if (routers[downIndex]->remainingPorts() > 0
+                    && routers[currentIndex]->remainingPorts() > 0) {
+                    PortPtr_t port1 = PortPtr_t::create();
+                    PortPtr_t port2 = PortPtr_t::create();
+                    portBinderManager.bind(port1, port2);
+                    routers[currentIndex]->addPort(port1);
+                    routers[downIndex]->addPort(port2);
+                }
             }
         }
     }
 }
+
 void TopologyBuilder::buildRingStarTopology(QList<Router*>& routers,
                                             PortBindingManager& portBinderManager)
 {}
