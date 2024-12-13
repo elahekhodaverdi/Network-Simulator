@@ -5,14 +5,14 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "../NetworkConfig/NetworkConfig.h"
+#include "../Network/Network.h"
 #include "src/AutonomousSystem/AutonomousSystem.h"
 
 class ConfigReader
 {
 public:
     static QJsonObject readJson(const QString &filePath);
-    static NetworkConfig readNetworkConfig(const QString &pathToConfFile);
+    static Network readNetwork(const QString &pathToConfFile);
 
 private:
     static SimulationConfig parseSimulationConfig(const QJsonObject &config);

@@ -26,7 +26,7 @@ QJsonObject ConfigReader::readJson(const QString &filePath)
     return doc.object();
 }
 
-NetworkConfig ConfigReader::readNetworkConfig(const QString &pathToConfFile)
+Network ConfigReader::readNetwork(const QString &pathToConfFile)
 {
     QJsonObject actualObj = readJson(pathToConfFile);
 
@@ -34,11 +34,11 @@ NetworkConfig ConfigReader::readNetworkConfig(const QString &pathToConfFile)
     generalSettings.remove("Autonomous_systems");
     QJsonArray autonomousSystems = actualObj.value("Autonomous_systems").toArray();
 
-    NetworkConfig networkConfig;
-    networkConfig.simulationConfig = parseSimulationConfig(generalSettings);
-    networkConfig.autonomousSystems = parseAutonomousSystems(autonomousSystems);
+    Network network;
+    network.simulationConfig = parseSimulationConfig(generalSettings);
+    network.autonomousSystems = parseAutonomousSystems(autonomousSystems);
 
-    return networkConfig;
+    return network;
 }
 
 SimulationConfig ConfigReader::parseSimulationConfig(const QJsonObject &config)

@@ -1,5 +1,5 @@
-#ifndef NETWORKCONFIG_H
-#define NETWORKCONFIG_H
+#ifndef NETWORK_H
+#define NETWORK_H
 
 #include <QList>
 #include <QString>
@@ -13,4 +13,4 @@ public:
     QList<AutonomousSystem *> autonomousSystems;
 };
 
-#endif // NETWORKCONFIG_H
+#endif // NETWORK_H
