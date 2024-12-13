@@ -1,13 +1,14 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <QObject>
 #include <QByteArray>
 #include <QList>
+#include <QObject>
+#include <QSharedPointer>
 #include <QString>
-#include "globals.h"
 #include "../Headers/DataLinkHeader.h"
 #include "../Headers/TCPHeader.h"
+#include "globals.h"
 // #include "IPHeader.h"
 
 class Packet : public QObject

@@ -63,16 +63,12 @@ uint64_t IP<UT::IPVersion::IPv4>::toValue() const
 }
 void IP<UT::IPVersion::IPv4>::fromString(const QString &ipString)
 {
-    try {
-        validateIPv4String(ipString);
-        QStringList parts = ipString.split('.');
-        m_ipValue = (static_cast<uint64_t>(parts[0].toUInt()) << 24)
-                    | (static_cast<uint64_t>(parts[1].toUInt()) << 16)
-                    | (static_cast<uint64_t>(parts[2].toUInt()) << 8)
-                    | static_cast<uint64_t>(parts[3].toUInt());
-    } catch (const std::exception &e) {
-        qWarning() << "Error in fromString:" << e.what();
-    }
+    validateIPv4String(ipString);
+    QStringList parts = ipString.split('.');
+    m_ipValue = (static_cast<uint64_t>(parts[0].toUInt()) << 24)
+                | (static_cast<uint64_t>(parts[1].toUInt()) << 16)
+                | (static_cast<uint64_t>(parts[2].toUInt()) << 8)
+                | static_cast<uint64_t>(parts[3].toUInt());
 }
 
 void IP<UT::IPVersion::IPv4>::validateIPv4String(const QString &ipString) const

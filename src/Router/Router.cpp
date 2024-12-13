@@ -55,3 +55,20 @@ void Router::setIP(IPv4Ptr_t ip)
         port->setRouterIP(ip->toString());
     }
 }
+
+void Router::printRoutingTable() const
+{
+    QTextStream out(stdout);
+
+    out << "Routing Table for Router ID: " << m_id << "\n";
+    out << "-------------------------------------------\n";
+    out << "Destination IP\tNext Hop IP\tOutgoing Port\n";
+    out << "-------------------------------------------\n";
+
+    for (const RoutingTableEntry &entry : routingTable) {
+        out << entry.destination.toString() << "\t" << entry.nextHop.toString() << "\t"
+            << (entry.outPort ? QString::number(entry.outPort->getPortNumber()) : "N/A") << "\n";
+    }
+
+    out << "-------------------------------------------\n";
+}

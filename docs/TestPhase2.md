@@ -1,3 +1,39 @@
+## IP Class
+
+```cpp
+#include <QCoreApplication>
+#include <QDebug>
+#include "../IP/IP.h"
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+
+    IPv4_t ip1("192.168.1.1");
+    qDebug() << "IP1:" << ip1.toString();
+
+    IPv4_t ip2(3232235777); //  192.168.1.1
+    qDebug() << "IP2:" << ip2.toString();
+
+    // Comparing
+    qDebug() << "IP1 == IP2:" << (ip1 == ip2);
+
+    // Convert to a numeric value
+    qDebug() << "IP1 Value:" << ip1.toValue();
+
+    // invalid
+    try {
+        IPv4_t invalidIP("300.300.300.300");
+    } catch (const std::exception &e) {
+        qDebug() << "Caught exception for invalid IP:" << e.what();
+    }
+
+    return app.exec();
+}
+```
+
+
+```cpp
 #include <QCoreApplication>
 #include <QDebug>
 #include "../Packet/Packet.h"
@@ -33,3 +69,4 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+```
