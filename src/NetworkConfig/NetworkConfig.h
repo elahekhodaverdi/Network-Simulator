@@ -4,7 +4,7 @@
 #include <QList>
 #include <QString>
 #include "../AutonomousSystem/AutonomousSystem.h"
-#include "./SimluationConfig.h"
+#include "./SimulationConfig.h"
 
 class NetworkConfig
 {

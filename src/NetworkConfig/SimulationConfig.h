@@ -6,8 +6,8 @@
 class SimulationConfig
 {
 public:
-    QString simulationDuration;
-    QString cycleDuration;
+    int simulationDurationMs;
+    int cycleDurationMs;
     int TTL;
     int packetsPerSimulation;
     QString statisticalDistribution;
@@ -33,6 +33,9 @@ public:
                      bool routePerPort,
                      int routeTableSize,
                      int packetsPerCycle);
+
+private:
+    int convertTimeToMs(const QString &timeString);
 };
 
 #endif // SIMULATIONCONFIG_H

@@ -17,7 +17,7 @@ SOURCES += \
     $$PWD/MACAddress/MACAddress.cpp \
     $$PWD/MACAddress/MACAddressGenerator.cpp \
     $$PWD/NetworkConfig/NetworkConfig.cpp \
-    $$PWD/NetworkConfig/SimluationConfig.cpp \
+    $$PWD/NetworkConfig/SimulationConfig.cpp \
     $$PWD/Packet/Packet.cpp \
     $$PWD/PortBindingManager/PortBindingManager.cpp \
     $$PWD/Port/Port.cpp \
@@ -41,7 +41,7 @@ HEADERS += \
     $$PWD/MACAddress/MACAddress.h \
     $$PWD/MACAddress/MACAddressGenerator.h \
     $$PWD/NetworkConfig/NetworkConfig.h \
-    $$PWD/NetworkConfig/SimluationConfig.h \
+    $$PWD/NetworkConfig/SimulationConfig.h \
     $$PWD/Packet/Packet.h \
     $$PWD/PortBindingManager/PortBindingManager.h \
     $$PWD/Port/Port.h \
