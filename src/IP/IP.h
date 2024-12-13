@@ -26,6 +26,7 @@ public:
 Q_SIGNALS:
 
 protected:
+    uint64_t m_ipValue;
 };
 
 /**
@@ -49,9 +50,10 @@ public:    // constructors
     explicit IP(const QString &ipString, QObject *parent = nullptr);
     explicit IP(uint64_t ipValue, QObject *parent = nullptr);
     ~IP() override;
-
 public:    // methods
-
+    QString toString() const;
+    uint64_t toValue() const;
+    void fromString(const QString &ipString);
 
 public:    // operators
     bool
@@ -61,7 +63,7 @@ public:    // operators
     }
 
 private:    // methods
-
+    void validateIPv4String(const QString &ipString) const;
 
 private:
 };
@@ -89,15 +91,12 @@ public:    // constructors
     ~IP() override;
 
 public:    // methods
-
-
 public:    // operators
-    bool
-    operator==(const IP<UT::IPVersion::IPv6> &other) const
-    {
-        return toValue() == other.toValue();
-    }
-
+           // bool
+           // operator==(const IP<UT::IPVersion::IPv6> &other) const
+           // {
+           //     return toValue() == other.toValue();
+           // }
 private:    // methods
 
 private:
