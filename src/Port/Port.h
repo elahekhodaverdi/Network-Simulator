@@ -12,7 +12,8 @@ class Port : public QObject
 public:
     explicit Port(QObject *parent = nullptr);
     ~Port() override;
-
+    uint8_t getPortNumber();
+    QString getRouterIP();
 Q_SIGNALS:
     void packetSent(const PacketPtr_t &data);
     void packetReceived(const PacketPtr_t &data);

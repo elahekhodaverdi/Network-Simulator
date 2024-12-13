@@ -12,10 +12,12 @@ class Router : public Node
 
 public:
     explicit Router(int id, MACAddress macAddress, QObject *parent = nullptr);
+
     void setRouterAsDHCPServer();
     void setRouterBroken();
-    bool routerIsBroken();
-    void addPort(const PortPtr_t &port);
+    bool routerIsBroken() const;
+
+    PortPtr_t getAnUnboundPort() const;
     int remainingPorts() const;
 
 private:
@@ -33,9 +35,9 @@ private:
     bool broken = false;
     QList<RoutingTableEntry> routingTable;
 
-    const int maxPorts = 4;
+    const int maxPorts = 5;
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;
 
-#endif    // ROUTER_H
+#endif // ROUTER_H

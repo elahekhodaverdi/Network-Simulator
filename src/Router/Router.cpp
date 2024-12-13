@@ -1,29 +1,46 @@
 #include "Router.h"
-
+#include "../PortBindingManager/PortBindingManager.h"
 Router::Router(int id, MACAddress macAddress, QObject *parent)
     : Node(id, macAddress, parent)
 {
+    for (int i = 0; i < maxPorts; ++i) {
+        PortPtr_t port = PortPtr_t::create(this);
+        ports.append(port);
+    }
 }
 
 void Router::setRouterAsDHCPServer()
 {
     DHCPServer = true;
 }
+
 void Router::setRouterBroken()
 {
     broken = true;
 }
-bool Router::routerIsBroken()
+
+bool Router::routerIsBroken() const
 {
     return broken;
 }
 
-void Router::addPort(const PortPtr_t &port)
+PortPtr_t Router::getAnUnboundPort() const
 {
-    ports.append(port);
+    for (const auto &port : ports) {
+        if (!PortBindingManager::isBounded(port)) {
+            return port;
+        }
+    }
+    return nullptr;
 }
 
 int Router::remainingPorts() const
 {
-    return maxPorts - ports.size();
+    int boundPorts = 0;
+    for (const auto &port : ports) {
+        if (PortBindingManager::isBounded(port)) {
+            ++boundPorts;
+        }
+    }
+    return maxPorts - boundPorts;
 }

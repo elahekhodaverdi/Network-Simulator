@@ -17,7 +17,7 @@ public:
 
     static void bind(const PortPtr_t &port1, const PortPtr_t &port2);
     static bool unbind(const PortPtr_t &port1, const PortPtr_t &port2);
-
+    static bool isBounded(const PortPtr_t &port);
 Q_SIGNALS:
     // for testing purposes
     static void bindingChanged(

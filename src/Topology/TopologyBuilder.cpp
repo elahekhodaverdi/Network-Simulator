@@ -47,11 +47,9 @@ void TopologyBuilder::buildMeshTopology(QList<RouterPtr_t>& routers)
                 int leftIndex = getRouterIndexAtMesh(row, col - 1, n);
                 if (routers[leftIndex]->remainingPorts() > 0
                    && routers[currentIndex]->remainingPorts() > 0) {
-                    PortPtr_t port1 = PortPtr_t::create();
-                    PortPtr_t port2 = PortPtr_t::create();
+                    PortPtr_t port1 = routers[currentIndex]->getAnUnboundPort();
+                    PortPtr_t port2 = routers[leftIndex]->getAnUnboundPort();
                     PortBindingManager::bind(port1, port2);
-                    routers[currentIndex]->addPort(port1);
-                    routers[leftIndex]->addPort(port2);
                 }
             }
 
@@ -60,11 +58,9 @@ void TopologyBuilder::buildMeshTopology(QList<RouterPtr_t>& routers)
                 int downIndex = getRouterIndexAtMesh(row + 1, col, n);
                 if (routers[downIndex]->remainingPorts() > 0
                    && routers[currentIndex]->remainingPorts() > 0) {
-                    PortPtr_t port1 = PortPtr_t::create();
-                    PortPtr_t port2 = PortPtr_t::create();
+                    PortPtr_t port1 = routers[currentIndex]->getAnUnboundPort();
+                    PortPtr_t port2 = routers[downIndex]->getAnUnboundPort();
                     PortBindingManager::bind(port1, port2);
-                    routers[currentIndex]->addPort(port1);
-                    routers[downIndex]->addPort(port2);
                 }
             }
         }
@@ -77,23 +73,19 @@ void TopologyBuilder::buildTorusTopology(QList<RouterPtr_t>& routers)
 
     int n = std::sqrt(routers.size());
     for (int row = 0; row < n; ++row) {
-        int current_index = getRouterIndexAtMesh(row, 0, n);
+        int currentIndex = getRouterIndexAtMesh(row, 0, n);
         int endRowIndex = getRouterIndexAtMesh(row, n - 1, n);
-        PortPtr_t port1 = PortPtr_t::create();
-        PortPtr_t port2 = PortPtr_t::create();
+        PortPtr_t port1 = routers[currentIndex]->getAnUnboundPort();
+        PortPtr_t port2 = routers[endRowIndex]->getAnUnboundPort();
         PortBindingManager::bind(port1, port2);
-        routers[current_index]->addPort(port1);
-        routers[endRowIndex]->addPort(port2);
     }
 
     for (int col = 0; col < n; ++col) {
-        int current_index = getRouterIndexAtMesh(0, col, n);
+        int currentIndex = getRouterIndexAtMesh(0, col, n);
         int endColIndex = getRouterIndexAtMesh(n - 1, col, n);
-        PortPtr_t port1 = PortPtr_t::create();
-        PortPtr_t port2 = PortPtr_t::create();
+        PortPtr_t port1 = routers[currentIndex]->getAnUnboundPort();
+        PortPtr_t port2 = routers[endColIndex]->getAnUnboundPort();
         PortBindingManager::bind(port1, port2);
-        routers[current_index]->addPort(port1);
-        routers[endColIndex]->addPort(port2);
     }
 }
 
@@ -111,21 +103,17 @@ void TopologyBuilder::buildRingStarTopology(QList<RouterPtr_t>& routers)
         int next = (i + 1) % n;
 
         if (routers[i]->remainingPorts() > 0 && routers[next]->remainingPorts() > 0) {
-            PortPtr_t port1 = PortPtr_t::create();
-            PortPtr_t port2 = PortPtr_t::create();
+            PortPtr_t port1 = routers[i]->getAnUnboundPort();
+            PortPtr_t port2 = routers[next]->getAnUnboundPort();
             PortBindingManager::bind(port1, port2);
-            routers[i]->addPort(port1);
-            routers[next]->addPort(port2);
         }
     }
 
     for (int i = 0; i < n; i += 2) {
         if (routers[i]->remainingPorts() > 0 && centralRouter->remainingPorts() > 0) {
-            PortPtr_t port1 = PortPtr_t::create();
-            PortPtr_t port2 = PortPtr_t::create();
+            PortPtr_t port1 = routers[i]->getAnUnboundPort();
+            PortPtr_t port2 = centralRouter->getAnUnboundPort();
             PortBindingManager::bind(port1, port2);
-            routers[i]->addPort(port1);
-            centralRouter->addPort(port2);
         }
     }
 }
