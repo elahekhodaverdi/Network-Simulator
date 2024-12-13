@@ -33,6 +33,13 @@ IP<UT::IPVersion::IPv4>::IP(uint64_t ipValue, QObject *parent) :
     m_ipValue = ipValue;
 }
 
+IP<UT::IPVersion::IPv4>::IP(const IP<UT::IPVersion::IPv4> &ipValue)
+    : AbstractIP(ipValue.parent())
+{
+    m_ipValue = ipValue.m_ipValue;
+}
+
+
 IP<UT::IPVersion::IPv4>::~IP() {};
 
 QString IP<UT::IPVersion::IPv4>::toString() const
@@ -74,11 +81,6 @@ void IP<UT::IPVersion::IPv4>::validateIPv4String(const QString &ipString) const
         if (!ok || value < 0 || value > 255)
             throw std::invalid_argument("IPv4 octet out of range.");
     }
-}
-
-IP<UT::IPVersion::IPv4>::IP(const IP &ipValue)
-{
-    m_ipValue = ipValue.m_ipValue;
 }
 
 /**
