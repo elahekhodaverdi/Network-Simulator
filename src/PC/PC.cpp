@@ -19,4 +19,5 @@ void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs) {
 void PC::setIP(IPv4Ptr_t ip)
 {
     m_IP = ip;
+    gateaway->setRouterIP(ip->toString());
 }
