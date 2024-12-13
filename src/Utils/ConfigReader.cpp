@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QStringList>
 #include <QVariant>
+#include "src/AutonomousSystem/AutonomousSystem.h"
 
 QJsonObject ConfigReader::readJson(const QString &filePath)
 {
@@ -26,7 +27,7 @@ QJsonObject ConfigReader::readJson(const QString &filePath)
     return doc.object();
 }
 
-Network ConfigReader::readNetwork(const QString &pathToConfFile)
+Network ConfigReader::readNetworkConfig(const QString &pathToConfFile)
 {
     QJsonObject actualObj = readJson(pathToConfFile);
 
