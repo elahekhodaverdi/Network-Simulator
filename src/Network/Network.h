@@ -10,6 +10,7 @@ class Network
 {
 public:
     Network();
+    ~Network();
     static AutonomousSystem *findASById(int id);
     static void run();
 
