@@ -2,11 +2,11 @@
 #include "../MACAddress/MACAddressGenerator.h"
 int TopologyBuilder::routersNum = 1;
 
-QList<Router*> TopologyBuilder::buildTopology(int nodeNumber,
-                                              UT::TopologyType topologyType,
-                                              PortBindingManager& portBinderManager)
+QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber,
+                                                  UT::TopologyType topologyType,
+                                                  PortBindingManager& portBinderManager)
 {
-    QList<Router*> routers;
+    QList<RouterPtr_t> routers;
     for (int i = 0; i < nodeNumber; i++)
         routers.append(new Router(routersNum++, MACAddressGenerator::getRandomMAC()));
 
@@ -26,8 +26,8 @@ QList<Router*> TopologyBuilder::buildTopology(int nodeNumber,
     return routers;
 }
 
-void TopologyBuilder::buildMeshTopology(QList<Router*>& routers,
-                                   PortBindingManager& portBinderManager)
+void TopologyBuilder::buildMeshTopology(QList<RouterPtr_t>& routers,
+                                        PortBindingManager& portBinderManager)
 {
     int n = std::sqrt(routers.size());
 
@@ -72,8 +72,8 @@ void TopologyBuilder::buildMeshTopology(QList<Router*>& routers,
     }
 }
 
-void TopologyBuilder::buildTorusTopology(QList<Router*>& routers,
-                                    PortBindingManager& portBinderManager)
+void TopologyBuilder::buildTorusTopology(QList<RouterPtr_t>& routers,
+                                         PortBindingManager& portBinderManager)
 {
     buildMeshTopology(routers, portBinderManager);
 
@@ -99,7 +99,7 @@ void TopologyBuilder::buildTorusTopology(QList<Router*>& routers,
     }
 }
 
-void TopologyBuilder::buildRingStarTopology(QList<Router*>& routers,
+void TopologyBuilder::buildRingStarTopology(QList<RouterPtr_t>& routers,
                                             PortBindingManager& portBindingManager)
 {
     int n = (routers.size() - 1) / 2;
@@ -108,7 +108,7 @@ void TopologyBuilder::buildRingStarTopology(QList<Router*>& routers,
         return;
     }
 
-    Router* centralRouter = routers.last();
+    RouterPtr_t centralRouter = routers.last();
 
     for (int i = 0; i < n; ++i) {
         int next = (i + 1) % n;
