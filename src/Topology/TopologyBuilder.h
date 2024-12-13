@@ -9,14 +9,15 @@ class TopologyBuilder
 {
 public:
     TopologyBuilder();
-    static QList<Router*> buildTopology(int nodeNumber,
-                                        UT::TopologyType topologyType,
-                                        PortBindingManager& portBinderManager);
+    static QList<RouterPtr_t> buildTopology(int nodeNumber,
+                                            UT::TopologyType topologyType,
+                                            PortBindingManager& portBinderManager);
 
 private:
     static int routersNum;
-    static void buildMeshTopology(QList<Router*>& routers, PortBindingManager& portBinderManager);
-    static void buildRingStarTopology(QList<Router*>& routers,
+    static void buildMeshTopology(QList<RouterPtr_t>& routers,
+                                  PortBindingManager& portBinderManager);
+    static void buildRingStarTopology(QList<RouterPtr_t>& routers,
                                       PortBindingManager& portBinderManager);
 
     static int getRouterIndexAtMesh(int row, int col, int n);

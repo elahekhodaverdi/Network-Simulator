@@ -13,12 +13,12 @@ public:
     int id;
     UT::TopologyType topologyType;
     int nodeCount;
-    QList<Router *> asGateways;
-    QList<Router *> userGateways;
-    Router *dhcpServer;
-    QList<Router *> brokenRouters;
-    QList<QPair<Router *, QList<PC *>>> connections;
-    QList<Router *> routers;
+    QList<RouterPtr_t> asGateways;
+    QList<RouterPtr_t> userGateways;
+    RouterPtr_t dhcpServer;
+    QList<RouterPtr_t> brokenRouters;
+    QList<QPair<RouterPtr_t, QList<PCPtr_t>>> connections;
+    QList<RouterPtr_t> routers;
     AutonomousSystem();
     AutonomousSystem(int asId, UT::TopologyType type);
     void build(QJsonObject config);
