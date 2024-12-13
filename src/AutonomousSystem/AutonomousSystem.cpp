@@ -52,6 +52,7 @@ void AutonomousSystem::setDHCPServer(int dhcpId)
     RouterPtr_t router = findRouterById(dhcpId);
     if (router) {
         dhcpServer = router;
+        router->setRouterAsDHCPServer();
     } else {
         qWarning() << "DHCP Server with ID" << dhcpId << "not found in the list of routers.";
     }
@@ -100,6 +101,7 @@ void AutonomousSystem::setBrokenRouters(QJsonArray brokenRouterIds)
 
         if (router) {
             brokenRouters.append(router);
+            router->setRouterBroken();
         } else {
             qWarning() << "Broken Router with ID" << routerId << "not found in the list of routers.";
         }
