@@ -20,7 +20,7 @@ SOURCES += \
     # $$PWD/Network/Network.cpp \
     # $$PWD/Network/SimulationConfig.cpp \
     $$PWD/Packet/Packet.cpp \
-    # $$PWD/PortBindingManager/PortBindingManager.cpp \
+    $$PWD/PortBindingManager/PortBindingManager.cpp \
     $$PWD/Port/Port.cpp \
     $$PWD/Node/Node.cpp \
     $$PWD/PC/PC.cpp \
@@ -45,7 +45,7 @@ HEADERS += \
     # $$PWD/Network/Network.h \
     # $$PWD/Network/SimulationConfig.h \
     $$PWD/Packet/Packet.h \
-    # $$PWD/PortBindingManager/PortBindingManager.h \
+    $$PWD/PortBindingManager/PortBindingManager.h \
     $$PWD/Port/Port.h \
     $$PWD/Node/Node.h \
     $$PWD/PC/PC.h \

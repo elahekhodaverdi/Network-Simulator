@@ -16,7 +16,7 @@ public:
     explicit PC(int id, QObject *parent = nullptr);
     void setIP(IPv4Ptr_t ip) override;
     PortPtr_t gateway();
-
+    void setGateway(PortPtr_t gateway);
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;

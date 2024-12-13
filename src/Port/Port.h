@@ -22,7 +22,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void sendPacket(const PacketPtr_t &data, uint8_t port_number);
-    void receivePacket(const PacketPtr_t &data, uint8_t port_number);
+    void receivePacket(const PacketPtr_t &data);
 
 private:
     uint8_t  m_number;

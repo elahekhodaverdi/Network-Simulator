@@ -1,12 +1,13 @@
 #include "PortBindingManager.h"
 #include <QPointer>
 
-PortBindingManager::PortBindingManager(QObject *parent) :
-    QObject {parent}
+QMap<PortPtr_t, QList<PortPtr_t>> PortBindingManager::bindings;
+
+PortBindingManager::PortBindingManager(QObject *parent)
+    : QObject{parent}
 {}
 
-void
-PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
+void PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
 {
     if (isBounded(port1) && bindings[port1].contains(port2)) {
         qWarning("Ports are already bound.");
@@ -17,15 +18,9 @@ PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
     bindings[port2].append(port1);
     connect(port1.get(), &Port::packetSent, port2.get(), &Port::receivePacket);
     connect(port2.get(), &Port::packetSent, port1.get(), &Port::receivePacket);
-    Q_EMIT bindingChanged(port1->getRouterIP(),
-                          port1->getPortNumber(),
-                          port2->getRouterIP(),
-                          port2->getPortNumber(),
-                          true);
 }
 
-bool
-PortBindingManager::unbind(const PortPtr_t &port1, const PortPtr_t &port2)
+bool PortBindingManager::unbind(const PortPtr_t &port1, const PortPtr_t &port2)
 {
     if (!bindings.contains(port1) || !bindings[port1].contains(port2)) {
         qWarning("Ports are not currently bound.");
@@ -38,11 +33,6 @@ PortBindingManager::unbind(const PortPtr_t &port1, const PortPtr_t &port2)
     disconnect(port1.get(), &Port::packetSent, port2.get(), &Port::receivePacket);
     disconnect(port2.get(), &Port::packetSent, port1.get(), &Port::receivePacket);
 
-    Q_EMIT bindingChanged(port1->getRouterIP(),
-                          port1->getPortNumber(),
-                          port2->getRouterIP(),
-                          port2->getPortNumber(),
-                          false);
     return true;
 }
 
