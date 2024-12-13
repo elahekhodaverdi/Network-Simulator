@@ -99,8 +99,38 @@ void TopologyBuilder::buildMeshTopology(QList<Router*>& routers,
 }
 
 void TopologyBuilder::buildRingStarTopology(QList<Router*>& routers,
-                                            PortBindingManager& portBinderManager)
-{}
+                                            PortBindingManager& portBindingManager)
+{
+    int n = (routers.size() - 1) / 2;
+    if (n < 1 || (2 * n + 1) != routers.size()) {
+        qWarning() << "Invalid number of routers for Ring-Star topology. Requires 2n+1 routers.";
+        return;
+    }
+
+    Router* centralRouter = routers.last();
+
+    for (int i = 0; i < n; ++i) {
+        int next = (i + 1) % n;
+
+        if (routers[i]->remainingPorts() > 0 && routers[next]->remainingPorts() > 0) {
+            PortPtr_t port1 = PortPtr_t::create();
+            PortPtr_t port2 = PortPtr_t::create();
+            portBindingManager.bind(port1, port2);
+            routers[i]->addPort(port1);
+            routers[next]->addPort(port2);
+        }
+    }
+
+    for (int i = 0; i < n; i += 2) {
+        if (routers[i]->remainingPorts() > 0 && centralRouter->remainingPorts() > 0) {
+            PortPtr_t port1 = PortPtr_t::create();
+            PortPtr_t port2 = PortPtr_t::create();
+            portBindingManager.bind(port1, port2);
+            routers[i]->addPort(port1);
+            centralRouter->addPort(port2);
+        }
+    }
+}
 
 int TopologyBuilder::getRouterIndexAtMesh(int row, int col, int n)
 {
