@@ -24,7 +24,7 @@ SOURCES += \
     $$PWD/Port/Port.cpp \
     $$PWD/Node/Node.cpp \
     $$PWD/PC/PC.cpp \
-    # $$PWD/Router/Router.cpp \
+    $$PWD/Router/Router.cpp \
     # $$PWD/Topology/TopologyBuilder.cpp \
     # $$PWD/Utils/ConfigReader.cpp \
     $$PWD/main.cpp
@@ -49,6 +49,6 @@ HEADERS += \
     $$PWD/Port/Port.h \
     $$PWD/Node/Node.h \
     $$PWD/PC/PC.h \
-    # $$PWD/Router/Router.h \
+    $$PWD/Router/Router.h \
     # $$PWD/Topology/TopologyBuilder.h \
     # $$PWD/Utils/ConfigReader.h

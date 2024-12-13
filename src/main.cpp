@@ -1,49 +1,70 @@
 #include <QCoreApplication>
-#include <QSharedPointer>
-#include <QVector>
-#include "src/IP/IP.h"
-#include "src/MACAddress/MACAddress.h"
+#include <QDebug>
 #include "src/MACAddress/MACAddressGenerator.h"
-#include "src/PC/PC.h"
 #include "src/Packet/Packet.h"
-#include "src/Port/Port.h"
 #include "src/PortBindingManager/PortBindingManager.h"
+#include "src/Router/Router.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    qDebug() << "PC class tests...";
+    qDebug() << "======= Testing Router =======";
 
-    MACAddress mac1({0x00, 0x1A, 0x2B, 0x3C, 0x4D, 0x5E});
-    MACAddress mac2({0x00, 0x2A, 0x2B, 0x3C, 0x4D, 0x5E});
-    IPv4Ptr_t ip1 = QSharedPointer<IPv4_t>::create("192.168.1.1");
-    IPv4Ptr_t ip2 = QSharedPointer<IPv4_t>::create("192.168.1.2");
+    // MAC address for the router
+    MACAddress macAddress = MACAddressGenerator::generateRandomMAC();
 
-    PCPtr_t pc1 = PCPtr_t::create(1, mac1);
-    PCPtr_t pc2 = PCPtr_t::create(1, mac2);
+    // Initialize Router
+    qDebug() << "Creating Router with ID 1...";
+    Router router(1, macAddress);
 
-    qDebug() << "PC 1 created with ID:" << pc1->getId();
-    qDebug() << "PC 1 MAC Address:" << mac1.toString();
+    // Check Router properties
+    qDebug() << "Router ID:" << router.getId();
+    qDebug() << "MAC Address:" << macAddress.toString();
+    qDebug() << "Router has" << router.remainingPorts() << "remaining ports.";
 
-    PortPtr_t port1 = PortPtr_t::create();
-    port1->setPortNumber(1);
-    pc1->setGateway(port1);
-    pc1->setIP(ip1);
-    qDebug() << "PC 1 assigned IP:" << pc1->getIP()->toString();
+    // Set Router as DHCP Server
+    router.setRouterAsDHCPServer();
+    qDebug() << "Is DHCP Server?" << router.isDHCPServer();
 
-    QVector<PCPtr_t> selectedPCs = {pc1};
-    pc1->sendPacket(selectedPCs);
+    // Break the Router
+    router.setRouterBroken();
+    qDebug() << "Is Router Broken?" << router.routerIsBroken();
 
+    // Bind Ports
+    qDebug() << "Binding Ports...";
+    PortPtr_t port1 = router.getAnUnboundPort();
     PortPtr_t port2 = PortPtr_t::create();
-    port2->setPortNumber(2);
+    port2->setPortNumber(11);
 
-    PortBindingManager::bind(port1, port2);
-    PacketPtr_t packet = PacketPtr_t::create(
-        DataLinkHeader(MACAddressGenerator::getRandomMAC(), MACAddressGenerator::getRandomMAC()));
-    packet->setPayload("Finally sent");
-    port2->sendPacket(packet, 2);
+    if (port1 && port2) {
+        PortBindingManager::bind(port1, port2);
+        qDebug() << "Bound port" << port1->getPortNumber() << "to port" << port2->getPortNumber();
+    } else {
+        qDebug() << "Not enough unbound ports!";
+    }
 
-    qDebug() << "PC 1 should now have received a packet.";
-    return 0;
+    // Check remaining unbound ports
+    qDebug() << "Router has" << router.remainingPorts() << "remaining ports.";
+
+    // Set Router IP
+    IPv4Ptr_t routerIP = IPv4Ptr_t::create("192.168.1.1");
+    router.setIP(routerIP);
+    qDebug() << "Router IP set to:" << router.getIP()->toString();
+
+    // Add a packet to the buffer and test packet forwarding
+    qDebug() << "Testing Packet Sending and Receiving...";
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(macAddress, macAddress));
+    packet->setPacketType(UT::PacketType::Data);
+    packet->setPayload("Test Router Recieving Packet");
+
+    port2->sendPacket(packet, 11);
+
+    // Print Routing Table
+    IPv4Ptr_t IP1 = IPv4Ptr_t::create("192.168.1.2");
+    IPv4Ptr_t IP2 = IPv4Ptr_t::create("192.168.1.3");
+    router.addRoutingTableEntry(IP1, IP2, port1);
+    router.printRoutingTable();
+
+    return app.exec();
 }

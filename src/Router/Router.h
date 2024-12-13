@@ -22,6 +22,8 @@ public:
 
     void setIP(IPv4Ptr_t ip) override;
     void printRoutingTable() const;
+    bool isDHCPServer() const;
+    void addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, PortPtr_t outPort);
 
 public Q_SLOTS:
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
@@ -29,8 +31,8 @@ public Q_SLOTS:
 private:
     struct RoutingTableEntry
     {
-        IPv4_t destination;
-        IPv4_t nextHop;
+        IPv4Ptr_t destination;
+        IPv4Ptr_t nextHop;
         PortPtr_t outPort;
     };
 

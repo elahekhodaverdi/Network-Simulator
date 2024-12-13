@@ -1,14 +1,43 @@
 #include "PortBindingManager.h"
+#include <QDebug>
 #include <QPointer>
-
 QMap<PortPtr_t, QList<PortPtr_t>> PortBindingManager::bindings;
 
 PortBindingManager::PortBindingManager(QObject *parent)
     : QObject{parent}
 {}
 
+void PortBindingManager::printBindings()
+{
+    qDebug() << "==================== Port Bindings ====================";
+    for (auto it = bindings.begin(); it != bindings.end(); ++it) {
+        PortPtr_t keyPort = it.key();
+        QList<PortPtr_t> boundPorts = it.value();
+
+        if (keyPort) {
+            qDebug() << "Port:" << keyPort->getPortNumber();
+        } else {
+            qDebug() << "Port: NULL";
+        }
+
+        qDebug() << "Bound to:";
+        for (const PortPtr_t &boundPort : boundPorts) {
+            if (boundPort) {
+                qDebug() << "   -> Port:" << boundPort->getPortNumber();
+            } else {
+                qDebug() << "   -> Port: NULL";
+            }
+        }
+    }
+    qDebug() << "======================================================";
+}
+
 void PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
 {
+    if (port1 == port2) {
+        qWarning("Can't bind port to itself.");
+        return;
+    }
     if (isBounded(port1) && bindings[port1].contains(port2)) {
         qWarning("Ports are already bound.");
         return;

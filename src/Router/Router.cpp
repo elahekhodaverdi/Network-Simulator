@@ -66,9 +66,25 @@ void Router::printRoutingTable() const
     out << "-------------------------------------------\n";
 
     for (const RoutingTableEntry &entry : routingTable) {
-        out << entry.destination.toString() << "\t" << entry.nextHop.toString() << "\t"
+        out << entry.destination->toString() << "\t" << entry.nextHop->toString() << "\t"
             << (entry.outPort ? QString::number(entry.outPort->getPortNumber()) : "N/A") << "\n";
     }
 
     out << "-------------------------------------------\n";
+}
+
+bool Router::isDHCPServer() const
+{
+    return DHCPServer;
+}
+
+void Router::receivePacket(const PacketPtr_t &data, uint8_t port_number)
+{
+    qDebug() << "Packet Received from: " << port_number << " Content:" << data->payload();
+}
+
+void Router::addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, PortPtr_t outPort)
+{
+    RoutingTableEntry entry{destination, nextHop, outPort};
+    routingTable.append(entry);
 }
