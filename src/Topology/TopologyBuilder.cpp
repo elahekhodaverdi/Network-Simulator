@@ -4,11 +4,20 @@
 
 int TopologyBuilder::routersNum = 1;
 
-QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyType topologyType)
+QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyType topologyType, int asId)
 {
     QList<RouterPtr_t> routers;
-    for (int i = 0; i < nodeNumber; i++)
-        routers.append(RouterPtr_t::create(routersNum++, MACAddressGenerator::getRandomMAC()));
+    for (int i = 0; i < nodeNumber; i++){
+        RouterPtr_t newRouter = RouterPtr_t::create(routersNum, MACAddressGenerator::getRandomMAC());
+        QString ipString = QString("192.168.%100.%2")
+                             .arg(asId)
+                             .arg(routersNum);
+        IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
+        newRouter->setIP(ip);
+        routers.append(newRouter);
+
+        routersNum++;
+    }
 
     switch (topologyType) {
     case UT::TopologyType::Mesh:

@@ -13,7 +13,7 @@ AutonomousSystem::AutonomousSystem(int asId, UT::TopologyType type)
 void AutonomousSystem::build(QJsonObject config)
 {
     nodeCount = config["node_count"].toInt();
-    routers = TopologyBuilder::buildTopology(nodeCount, topologyType);
+    routers = TopologyBuilder::buildTopology(nodeCount, topologyType, id);
 
     auto asGatewayIds = config["as_gateways"].toArray();
     setASGateaways(asGatewayIds);
@@ -117,6 +117,14 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
             for (const QJsonValue& userValue : userIds) {
                 int userId = userValue.toInt();
                 PCPtr_t pc = QSharedPointer<PC>::create(userId);
+
+                QString ipString = QString("192.168.%100.%2")
+                                     .arg(id)
+                                     .arg(userId);
+
+                IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
+
+                pc->setIP(ip);
                 pcs.append(pc);
             }
 
@@ -126,6 +134,7 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
         }
     }
 }
+
 
 
 

@@ -39,9 +39,12 @@ IP<UT::IPVersion::IPv4>::IP(uint64_t ipValue, QObject *parent) :
     m_ipValue = ipValue;
 }
 
-IP<UT::IPVersion::IPv4>::IP(const IP &ipValue, QObject *parent)
-    : AbstractIP(ipValue, parent)
-{}
+IP<UT::IPVersion::IPv4>::IP(const IP<UT::IPVersion::IPv4> &ipValue)
+    : AbstractIP(ipValue.parent())
+{
+    m_ipValue = ipValue.m_ipValue;
+}
+
 
 IP<UT::IPVersion::IPv4>::~IP() {};
 

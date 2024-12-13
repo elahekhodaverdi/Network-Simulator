@@ -14,10 +14,6 @@ Node::Node(int id, QObject *parent)
 {
     m_MACAddress = MACAddressGenerator::getRandomMAC();
 }
-void Node::setIPAddress(QString ip)
-{
-    m_IP = IP<UT::IPVersion::IPv4>::IP(ip);
-}
 
 int Node::getId(){
     return m_id;

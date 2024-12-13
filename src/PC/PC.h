@@ -13,10 +13,10 @@ class PC : public Node
 public:
     explicit PC(int id, MACAddress macAddress, QObject *parent = nullptr);
     explicit PC(int id, QObject *parent = nullptr);
+    void setIP(IPv4Ptr_t ip) override;
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
-    void setIP(IPv4_t ip);
 
 private:
     PortPtr_t gateaway;

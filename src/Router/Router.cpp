@@ -46,10 +46,10 @@ int Router::remainingPorts() const
     return maxPorts - boundPorts;
 }
 
-void Router::setIP(IPv4_t ip)
+void Router::setIP(IPv4Ptr_t ip)
 {
     m_IP = ip;
     for (const auto &port : ports) {
-        port->setRouterIP(ip.toString());
+        port->setRouterIP(ip->toString());
     }
 }
