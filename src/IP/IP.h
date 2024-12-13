@@ -50,6 +50,7 @@ public:    // constructors
     explicit IP(const QString &ipString, QObject *parent = nullptr);
     explicit IP(uint64_t ipValue, QObject *parent = nullptr);
     explicit IP(const IP &ipValue, QObject *parent = nullptr);
+    explicit IP(const IP<UT::IPVersion::IPv4> &ipValue);
     ~IP() override;
 public:    // methods
     QString toString() const;

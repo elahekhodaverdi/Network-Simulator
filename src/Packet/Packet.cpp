@@ -1,10 +1,20 @@
 #include "Packet.h"
 
 Packet::Packet(DataLinkHeader dataLinkHeader, QObject *parent)
-    : QObject{parent}, m_dataLinkHeader(dataLinkHeader)
+    : QObject(parent)
+    , m_packetType(UT::PacketType::Data)
+    , m_sequenceNumber(0)
+    , m_waitingCycles(0)
+    , m_totalCycles(0)
+    , m_dataLinkHeader(dataLinkHeader)
+{}
+
+Packet::~Packet()
 {
-    m_totalCycles = 0;
-    m_waitingCycles = 0;
+    m_path.clear();
+    m_payload.clear();
+    m_tcpHeader.reset();
+    m_controlType.reset();
 }
 
 void Packet::addToPath(QString ip){

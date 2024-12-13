@@ -21,6 +21,7 @@ public:
     int remainingPorts() const;
 
     void setIP(IPv4Ptr_t ip) override;
+    void printRoutingTable() const;
 
 public Q_SLOTS:
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
