@@ -8,7 +8,7 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber,
 {
     QList<RouterPtr_t> routers;
     for (int i = 0; i < nodeNumber; i++)
-        routers.append(new Router(routersNum++, MACAddressGenerator::getRandomMAC()));
+        routers.append(RouterPtr_t::create(routersNum++, MACAddressGenerator::getRandomMAC()));
 
     switch (topologyType) {
     case UT::TopologyType::Mesh:

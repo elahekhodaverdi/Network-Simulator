@@ -19,7 +19,8 @@ private:
                                   PortBindingManager& portBinderManager);
     static void buildRingStarTopology(QList<RouterPtr_t>& routers,
                                       PortBindingManager& portBinderManager);
-
+    static void buildTorusTopology(QList<RouterPtr_t>& routers,
+                                   PortBindingManager& portBinderManager);
     static int getRouterIndexAtMesh(int row, int col, int n);
 };
 
