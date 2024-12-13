@@ -6,11 +6,12 @@
 #include "../AutonomousSystem/AutonomousSystem.h"
 #include "./SimulationConfig.h"
 
-class NetworkConfig
+class Network
 {
 public:
-    SimulationConfig simulationConfig;
-    QList<AutonomousSystem *> autonomousSystems;
+    static QList<PCPtr_t> PCs;
+    static SimulationConfig simulationConfig;
+    static QList<AutonomousSystem *> autonomousSystems;
 };
 
 #endif // NETWORK_H

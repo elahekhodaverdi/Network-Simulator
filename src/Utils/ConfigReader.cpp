@@ -36,7 +36,7 @@ Network ConfigReader::readNetwork(const QString &pathToConfFile)
 
     Network network;
     network.simulationConfig = parseSimulationConfig(generalSettings);
-    network.autonomousSystems = parseAutonomousSystems(autonomousSystems);
+    parseAutonomousSystems(autonomousSystems);
 
     return network;
 }
@@ -57,9 +57,8 @@ SimulationConfig ConfigReader::parseSimulationConfig(const QJsonObject &config)
                             config["routing_packets_per_port_cycle"].toInt());
 }
 
-QList<AutonomousSystem *> ConfigReader::parseAutonomousSystems(const QJsonArray &systemsArray)
+void ConfigReader::parseAutonomousSystems(const QJsonArray &systemsArray)
 {
-    QList<AutonomousSystem *> systems;
     for (const QJsonValue &jsonValue : systemsArray) {
         if (jsonValue.isObject()) {
             QJsonObject ASsystem = jsonValue.toObject();
@@ -74,10 +73,9 @@ QList<AutonomousSystem *> ConfigReader::parseAutonomousSystems(const QJsonArray 
             AutonomousSystem *system = new AutonomousSystem(ASsystem["id"].toInt(),
                                                             primaryTopologyType);
             system->build(ASsystem);
-            systems.append(system);
+            Network::autonomousSystems.append(system);
         }
     }
-    return systems;
 }
 
 QList<UT::TopologyType> ConfigReader::parseTopologyTypes(const QString &topologyTypeString)

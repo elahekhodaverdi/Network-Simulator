@@ -16,7 +16,7 @@ public:
 
 private:
     static SimulationConfig parseSimulationConfig(const QJsonObject &config);
-    static QList<AutonomousSystem *> parseAutonomousSystems(const QJsonArray &systemsArray);
+    static void parseAutonomousSystems(const QJsonArray &systemsArray);
     static UT::TopologyType stringToTopologyType(const QString &typeString);
     static QList<UT::TopologyType> parseTopologyTypes(const QString &topologyTypeString);
 };

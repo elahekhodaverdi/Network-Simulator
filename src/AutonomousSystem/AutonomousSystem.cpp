@@ -1,8 +1,9 @@
 #include "AutonomousSystem.h"
-#include "../Topology/TopologyBuilder.h"
-#include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
+#include "../Network/Network.h"
+#include "../Topology/TopologyBuilder.h"
 
 AutonomousSystem::AutonomousSystem() {}
 
@@ -126,6 +127,7 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
 
                 pc->setIP(ip);
                 pcs.append(pc);
+                Network::PCs.append(pc);
             }
 
             connections.append(QPair<RouterPtr_t, QList<PCPtr_t>>(router, pcs));
