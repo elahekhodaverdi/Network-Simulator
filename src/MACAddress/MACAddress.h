@@ -9,6 +9,7 @@
 class MACAddress
 {
 public:
+    MACAddress();
     MACAddress(std::array<uint8_t, 6> address);
     MACAddress(QString address);
     QString toString() const;

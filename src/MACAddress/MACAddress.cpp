@@ -2,6 +2,11 @@
 #include <QDebug>
 #include <QRegularExpression>
 
+MACAddress::MACAddress()
+{
+    m_address.fill(0);
+}
+
 MACAddress::MACAddress(std::array<uint8_t, 6> address)
     : m_address(address)
 {}
