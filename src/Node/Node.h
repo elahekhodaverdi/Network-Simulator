@@ -15,6 +15,7 @@ public:
     explicit Node(int id, MACAddress macAddress, QObject *parent = nullptr);
     explicit Node(int id, QObject *parent = nullptr);
     int getId();
+    IPv4Ptr_t getIP();
     virtual void setIP(IPv4Ptr_t ip) = 0;
 
 Q_SIGNALS:

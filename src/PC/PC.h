@@ -4,6 +4,7 @@
 #include <QSharedPointer>
 #include <QVector>
 #include "../Node/Node.h"
+#include "../Packet/Packet.h"
 #include "../Port/Port.h"
 
 class PC : public Node

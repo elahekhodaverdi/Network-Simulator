@@ -18,3 +18,7 @@ Node::Node(int id, QObject *parent)
 int Node::getId(){
     return m_id;
 }
+IPv4Ptr_t Node::getIP()
+{
+    return m_IP;
+}

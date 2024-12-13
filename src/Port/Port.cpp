@@ -16,10 +16,9 @@ Port::sendPacket(const PacketPtr_t &data, uint8_t port_number)
     ++m_numberOfPacketsSent;
 }
 
-void
-Port::receivePacket(const PacketPtr_t &data)
+void Port::receivePacket(const PacketPtr_t &data, uint8_t port_number)
 {
-    Q_EMIT packetReceived(data, m_number);
+    Q_EMIT packetReceived(data, port_number);
 }
 
 uint8_t Port::getPortNumber()

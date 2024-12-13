@@ -16,6 +16,11 @@ void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs) {
     qDebug() << "sending packet from " << m_id;
 }
 
+void PC::receivePacket(const PacketPtr_t &data, uint8_t port_number)
+{
+    qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
+}
+
 void PC::setIP(IPv4Ptr_t ip)
 {
     m_IP = ip;

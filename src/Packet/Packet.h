@@ -33,7 +33,7 @@ public:
     uint32_t sequenceNumber();
     uint32_t waitingCycles();
     uint32_t totalCycles();
-    QList<QString> path();s
+    QList<QString> path();
 
     ~Packet();
 
