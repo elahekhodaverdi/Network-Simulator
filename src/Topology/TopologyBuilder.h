@@ -16,6 +16,7 @@ public:
 private:
     static int routersNum;
     static void buildMeshTopology(QList<Router*>& routers, PortBindingManager& portBinderManager);
+    static void buildTorusTopology(QList<Router*>& routers, PortBindingManager& portBinderManager);
     static void buildRingStarTopology(QList<Router*>& routers,
                                       PortBindingManager& portBinderManager);
 
