@@ -28,8 +28,8 @@ private:
     void setUserGateaways(QJsonArray gateawayIds);
     void setDHCPServer(int dhcpId);
     void setBrokenRouters(QJsonArray gateawayIds);
-    void setGateaways(QJsonArray gateaways);
-    void connectToAS(QJsonArray ASs);
+    void setGateways(QJsonArray gateways);
+    void setconnectToAS(QJsonArray ASs);
 };
 
 #endif // AUTONOMOUSSYSTEM_H
