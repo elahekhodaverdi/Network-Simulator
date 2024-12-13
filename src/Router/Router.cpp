@@ -7,6 +7,8 @@ Router::Router(int id, MACAddress macAddress, QObject *parent)
         PortPtr_t port = PortPtr_t::create(this);
         port->setPortNumber(i + 1);
         ports.append(port);
+        connect(port.get(), &Port::packetReceived, this, &Router::receivePacket);
+        connect(this, &Router::newPacket, port.get(), &Port::sendPacket);
     }
 }
 

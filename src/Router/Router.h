@@ -20,7 +20,10 @@ public:
     PortPtr_t getAnUnboundPort() const;
     int remainingPorts() const;
 
-    void setIP(IPv4Ptr_t ip);
+    void setIP(IPv4Ptr_t ip) override;
+
+public Q_SLOTS:
+    void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
 
 private:
     struct RoutingTableEntry
@@ -38,6 +41,7 @@ private:
     QList<RoutingTableEntry> routingTable;
 
     const int maxPorts = 5;
+
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;
