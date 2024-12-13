@@ -1,7 +1,7 @@
 #include "PC.h"
 
-PC::PC(int id, MACAddress macAddress, QObject *parent)
-    : Node(id, macAddress, parent)
+PC::PC(int id, MACAddress macAddress, QObject *parent) :
+    Node(id, macAddress, parent), m_gateway(PortPtr_t::create(this))
 {
 }
 
