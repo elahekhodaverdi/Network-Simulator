@@ -33,3 +33,113 @@ void AutonomousSystem::build(QJsonObject config)
     int dhcpId = config["dhcp_server"].toInt();
     setDHCPServer(dhcpId);
 }
+
+
+RouterPtr_t AutonomousSystem::findRouterById(int id)
+{
+    for (auto& router : routers) {
+        if (router->getId() == id) {
+            return router;
+        }
+    }
+    return nullptr;
+}
+
+void AutonomousSystem::setDHCPServer(int dhcpId)
+{
+    RouterPtr_t router = findRouterById(dhcpId);
+    if (router) {
+        dhcpServer = router;
+    } else {
+        qWarning() << "DHCP Server with ID" << dhcpId << "not found in the list of routers.";
+    }
+}
+
+void AutonomousSystem::setASGateaways(QJsonArray ASgatewayIds)
+{
+    asGateways.clear();
+    for (const QJsonValue& value : ASgatewayIds) {
+        int gatewayId = value.toInt();
+        RouterPtr_t router = findRouterById(gatewayId);
+
+        if (router) {
+            asGateways.append(router);
+        } else {
+            qWarning() << "AS Gateway with ID" << gatewayId << "not found in the list of routers.";
+        }
+    }
+}
+
+
+void AutonomousSystem::setUserGateaways(QJsonArray gatewayIds)
+{
+    userGateways.clear();
+
+    for (const QJsonValue& value : gatewayIds) {
+        int gatewayId = value.toInt();
+        RouterPtr_t router = findRouterById(gatewayId);
+
+        if (router) {
+            userGateways.append(router);
+        } else {
+            qWarning() << "User Gateway with ID" << gatewayId << "not found in the list of routers.";
+        }
+    }
+}
+
+
+void AutonomousSystem::setBrokenRouters(QJsonArray brokenRouterIds)
+{
+    brokenRouters.clear();
+
+    for (const QJsonValue& value : brokenRouterIds) {
+        int routerId = value.toInt();
+        RouterPtr_t router = findRouterById(routerId);
+
+        if (router) {
+            brokenRouters.append(router);
+        } else {
+            qWarning() << "Broken Router with ID" << routerId << "not found in the list of routers.";
+        }
+    }
+}
+
+void AutonomousSystem::setGateways(QJsonArray gateways)
+{
+    for (const QJsonValue& value : gateways) {
+        QJsonObject gatewayObject = value.toObject();
+        int gatewayId = gatewayObject["node"].toInt();
+        RouterPtr_t router = findRouterById(gatewayId);
+
+        if (router) {
+            QJsonArray userIds = gatewayObject["users"].toArray();
+            QList<PCPtr_t> pcs;
+            for (const QJsonValue& userValue : userIds) {
+                int userId = userValue.toInt();
+                PCPtr_t pc = QSharedPointer<PC>::create(userId);
+                pcs.append(pc);
+            }
+
+            connections.append(QPair<RouterPtr_t, QList<PCPtr_t>>(router, pcs));
+        } else {
+            qWarning() << "Gateway with ID" << gatewayId << "not found in the list of routers.";
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

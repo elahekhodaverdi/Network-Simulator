@@ -24,12 +24,13 @@ public:
     void build(QJsonObject config);
 
 private:
+    RouterPtr_t findRouterById(int id);
     void setASGateaways(QJsonArray ASgateawayIds);
     void setUserGateaways(QJsonArray gateawayIds);
     void setDHCPServer(int dhcpId);
     void setBrokenRouters(QJsonArray gateawayIds);
     void setGateways(QJsonArray gateways);
-    void setconnectToAS(QJsonArray ASs);
+    void setConnectToAS(QJsonArray ASs);
 };
 
 #endif // AUTONOMOUSSYSTEM_H
