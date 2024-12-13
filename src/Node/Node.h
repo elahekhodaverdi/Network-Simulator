@@ -12,7 +12,9 @@ class Node : public QThread
 
 public:
     explicit Node(int id, MACAddress macAddress, QObject *parent = nullptr);
+    explicit Node(int id, QObject *parent = nullptr);
     void setIPAddress(QString ip);
+    int getId();
 
 protected:
     int m_id;
