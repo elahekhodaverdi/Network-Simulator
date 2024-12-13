@@ -129,6 +129,8 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
                 pc->setIP(ip);
                 pcs.append(pc);
                 Network::PCs.append(pc);
+                PortPtr_t routerPort = router->getAnUnboundPort();
+                PortBindingManager::bind(routerPort, pc->gateway());
             }
 
             connections.append(QPair<RouterPtr_t, QList<PCPtr_t>>(router, pcs));

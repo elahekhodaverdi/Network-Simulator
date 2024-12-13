@@ -19,7 +19,11 @@ void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs) {
 void PC::setIP(IPv4Ptr_t ip)
 {
     m_IP = ip;
-    gateway->setRouterIP(ip->toString());
-    connect(gateway.get(), &Port::packetReceived, this, &PC::receivePacket);
-    connect(this, &PC::newPacket, gateway.get(), &Port::sendPacket);
+    m_gateway->setRouterIP(ip->toString());
+    connect(m_gateway.get(), &Port::packetReceived, this, &PC::receivePacket);
+    connect(this, &PC::newPacket, m_gateway.get(), &Port::sendPacket);
+}
+
+PortPtr_t PC::gateway(){
+    return m_gateway;
 }

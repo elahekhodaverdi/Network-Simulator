@@ -14,13 +14,14 @@ public:
     explicit PC(int id, MACAddress macAddress, QObject *parent = nullptr);
     explicit PC(int id, QObject *parent = nullptr);
     void setIP(IPv4Ptr_t ip) override;
+    PortPtr_t gateway();
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
 
 private:
-    PortPtr_t gateway;
+    PortPtr_t m_gateway;
 };
 
 typedef QSharedPointer<PC> PCPtr_t;
