@@ -22,7 +22,7 @@ class AbstractIP : public QObject
 
 public:
     explicit AbstractIP(QObject *parent = nullptr);
-
+    explicit AbstractIP(const AbstractIP &sIP, QObject *parent = nullptr);
 Q_SIGNALS:
 
 protected:
@@ -49,7 +49,7 @@ public:    // constructors
     explicit IP(QObject *parent = nullptr);
     explicit IP(const QString &ipString, QObject *parent = nullptr);
     explicit IP(uint64_t ipValue, QObject *parent = nullptr);
-    explicit IP(const IP &ipValue);
+    explicit IP(const IP &ipValue, QObject *parent = nullptr);
     ~IP() override;
 public:    // methods
     QString toString() const;
