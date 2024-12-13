@@ -15,6 +15,7 @@ public:
     explicit Node(int id, QObject *parent = nullptr);
     void setIPAddress(QString ip);
     int getId();
+    virtual void setIP(IPv4_t ip) = 0;
 
 protected:
     int m_id;

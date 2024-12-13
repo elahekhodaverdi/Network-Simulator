@@ -24,3 +24,12 @@ QString Port::getRouterIP()
 {
     return m_routerIP;
 }
+
+uint8_t Port::setPortNumber(uint8_t number)
+{
+    m_number = number;
+}
+QString Port::setRouterIP(QString routerIP)
+{
+    m_routerIP = routerIP;
+}

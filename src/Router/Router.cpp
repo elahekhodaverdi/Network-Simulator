@@ -5,6 +5,7 @@ Router::Router(int id, MACAddress macAddress, QObject *parent)
 {
     for (int i = 0; i < maxPorts; ++i) {
         PortPtr_t port = PortPtr_t::create(this);
+        port->setPortNumber(i + 1);
         ports.append(port);
     }
 }
@@ -43,4 +44,12 @@ int Router::remainingPorts() const
         }
     }
     return maxPorts - boundPorts;
+}
+
+void Router::setIP(IPv4_t ip)
+{
+    m_IP = ip;
+    for (const auto &port : ports) {
+        port->setRouterIP(ip.toString());
+    }
 }

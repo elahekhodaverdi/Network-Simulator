@@ -16,6 +16,7 @@ public:
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
+    void setIP(IPv4_t ip);
 
 private:
     PortPtr_t gateaway;

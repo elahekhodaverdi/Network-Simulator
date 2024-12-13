@@ -49,6 +49,7 @@ public:    // constructors
     explicit IP(QObject *parent = nullptr);
     explicit IP(const QString &ipString, QObject *parent = nullptr);
     explicit IP(uint64_t ipValue, QObject *parent = nullptr);
+    explicit IP(const IP &ipValue);
     ~IP() override;
 public:    // methods
     QString toString() const;

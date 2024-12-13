@@ -16,7 +16,7 @@ Node::Node(int id, QObject *parent)
 }
 void Node::setIPAddress(QString ip)
 {
-    m_IP = IP(IP);
+    m_IP = IP<UT::IPVersion::IPv4>::IP(ip);
 }
 
 int Node::getId(){

@@ -20,6 +20,8 @@ public:
     PortPtr_t getAnUnboundPort() const;
     int remainingPorts() const;
 
+    void setIP(IPv4_t ip);
+
 private:
     struct RoutingTableEntry
     {

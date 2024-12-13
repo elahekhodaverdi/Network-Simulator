@@ -76,6 +76,11 @@ void IP<UT::IPVersion::IPv4>::validateIPv4String(const QString &ipString) const
     }
 }
 
+IP<UT::IPVersion::IPv4>::IP(const IP &ipValue)
+{
+    m_ipValue = ipValue.m_ipValue;
+}
+
 /**
  * ===========================================
  * ===========================================

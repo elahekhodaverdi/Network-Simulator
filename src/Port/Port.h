@@ -14,6 +14,8 @@ public:
     ~Port() override;
     uint8_t getPortNumber();
     QString getRouterIP();
+    uint8_t setPortNumber(uint8_t number);
+    QString setRouterIP(QString routerIP);
 Q_SIGNALS:
     void packetSent(const PacketPtr_t &data);
     void packetReceived(const PacketPtr_t &data);
