@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include "../Network/Network.h"
+#include "../PortBindingManager/PortBindingManager.h"
 #include "../Topology/TopologyBuilder.h"
 
 AutonomousSystem::AutonomousSystem() {}
@@ -137,20 +138,36 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
     }
 }
 
+void AutonomousSystem::setConnectToAS(QJsonArray ASs)
+{
+    for (const QJsonValue& value : ASs) {
+        QJsonObject connectionObject = value.toObject();
+        int targetASId = connectionObject["id"].toInt();
 
+        AutonomousSystem* targetAS = Network::findASById(targetASId);
 
+        if (!targetAS) {
+            qWarning() << "Target AS with ID" << targetASId << "not found.";
+            continue;
+        }
 
+        QJsonArray gatewayPairs = connectionObject["gateway_pairs"].toArray();
+        for (const QJsonValue& pairValue : gatewayPairs) {
+            QJsonObject pairObject = pairValue.toObject();
+            int sourceRouterId = pairObject["gateway"].toInt();
+            int targetRouterId = pairObject["connect_to"].toInt();
 
+            RouterPtr_t sourceRouter = findRouterById(sourceRouterId);
+            RouterPtr_t targetRouter = targetAS->findRouterById(targetRouterId);
 
-
-
-
-
-
-
-
-
-
-
-
-
+            if (sourceRouter && targetRouter) {
+                PortPtr_t port1 = sourceRouter->getAnUnboundPort();
+                PortPtr_t port2 = targetRouter->getAnUnboundPort();
+                PortBindingManager::bind(port1, port2);
+            } else {
+                qWarning() << "Source Router with ID:" << sourceRouterId
+                           << " or Target Router with ID:" << targetRouterId << " not found in AS";
+            }
+        }
+    }
+}

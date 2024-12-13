@@ -9,6 +9,9 @@
 class Network
 {
 public:
+    static AutonomousSystem *findASById(int id);
+
+public:
     static QList<PCPtr_t> PCs;
     static SimulationConfig simulationConfig;
     static QList<AutonomousSystem *> autonomousSystems;
