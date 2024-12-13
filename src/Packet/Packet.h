@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "../Headers/DataLinkHeader.h"
 #include "../Headers/TCPHeader.h"
+#include "../Headers/IPHeader.h"
 // #include "IPHeader.h"
 
 class Packet : public QObject
@@ -24,13 +25,14 @@ public:
     void setSequenceNumber(uint32_t sequenceNumber);
     void setWaitingCycles(uint32_t waitingCycles);
     void setTotalCycles(uint32_t totalCycles);
+    //void setIPHeader(IPHeader ipHeader);
 
     UT::PacketType packetType();
     QByteArray payload();
     uint32_t sequenceNumber();
     uint32_t waitingCycles();
     uint32_t totalCycles();
-    QList<QString> path();
+    QList<QString> path();s
 
     ~Packet();
 
@@ -42,7 +44,7 @@ private:
     uint32_t m_totalCycles;
     QList<QString> m_path;
     DataLinkHeader m_dataLinkHeader;
-    // IPHeader m_ipHeader;
+    IPHeader m_ipHeader;
     std::optional<TCPHeader> m_tcpHeader;
 
     std::optional<UT::PacketControlType> m_controlType;

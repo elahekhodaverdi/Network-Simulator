@@ -1,0 +1,54 @@
+#ifndef IPHEADER_H
+#define IPHEADER_H
+
+#include <QObject>
+#include <cstdint>
+#include <QByteArray>
+
+class IPHeader : public QObject
+{
+    Q_OBJECT
+public:
+    explicit IPHeader(QObject *parent = nullptr);
+
+    void setVersionHeaderLength(uint8_t versionHeaderLength);
+    void setTypeOfService(uint8_t typeOfService);
+    void setTotalLength(uint16_t totalLength);
+    void setIdentification(uint16_t identification);
+    void setFlagsFragmentOffset(uint16_t flagsFragmentOffset);
+    void setTTL(uint8_t ttl);
+    void setProtocol(uint8_t protocol);
+    void setHeaderChecksum(uint16_t headerChecksum);
+    void setSourceIp(const QByteArray &sourceIp);
+    void setDestIp(const QByteArray &destIp);
+    void decTTL();
+
+    uint8_t versionHeaderLength() const;
+    uint8_t typeOfService() const;
+    uint16_t totalLength() const;
+    uint16_t identification() const;
+    uint16_t flagsFragmentOffset() const;
+    uint8_t ttl() const;
+    uint8_t protocol() const;
+    uint16_t headerChecksum() const;
+    QByteArray sourceIp() const;
+    QByteArray destIp() const;
+
+    uint16_t calculateHeaderChecksum(const QByteArray &data);
+
+Q_SIGNALS:
+
+private:
+    uint8_t m_versionHeaderLength;
+    uint8_t m_typeOfService;
+    uint16_t m_totalLength;
+    uint16_t m_identification;
+    uint16_t m_flagsFragmentOffset;
+    uint8_t m_ttl;
+    uint8_t m_protocol;
+    uint16_t m_headerChecksum;
+    QByteArray m_sourceIp;
+    QByteArray m_destIp;
+};
+
+#endif    // IPHEADER_H
