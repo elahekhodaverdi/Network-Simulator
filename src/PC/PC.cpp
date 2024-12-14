@@ -6,12 +6,14 @@
 PC::PC(int id, MACAddress macAddress, QObject *parent) :
     Node(id, macAddress, parent), m_gateway(PortPtr_t::create(this))
 {
+    setupGateway();
 }
 
 PC::PC(int id, QObject *parent)
     : Node(id, parent)
     , m_gateway(PortPtr_t::create(this))
 {
+    setupGateway();
 }
 
 PC::~PC()
@@ -70,7 +72,6 @@ PacketPtr_t PC::createNewPacket()
 
     qDebug() << "Packet created from PC" << m_id << "to PC" << destinationPC->getId();
     return packet;
-    return nullptr;
 }
 
 
@@ -91,9 +92,8 @@ PortPtr_t PC::gateway(){
     return m_gateway;
 }
 
-void PC::setGateway(PortPtr_t gateway)
+void PC::setupGateway()
 {
-    m_gateway = gateway;
     connect(m_gateway.get(), &Port::packetReceived, this, &PC::receivePacket);
     connect(this, &PC::newPacket, m_gateway.get(), &Port::sendPacket);
     m_gateway->setRouterIP(m_IP->toString());

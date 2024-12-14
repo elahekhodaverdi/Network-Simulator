@@ -103,9 +103,9 @@ void Router::addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, Port
 void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
 {
 
-    qDebug() << "Sending packet from Router:" << m_id;
     if (buffer.isEmpty())
         return;
+    qDebug() << "Sending packet from Router:" << m_id;
     PacketPtr_t topPacket = buffer.first();
     buffer.pop_front();
     uint8_t sendPortNumber = findSendPort(topPacket->ipHeader()->destIp());

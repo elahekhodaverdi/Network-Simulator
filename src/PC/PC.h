@@ -17,12 +17,12 @@ public:
     ~PC();
     void setIP(IPv4Ptr_t ip) override;
     PortPtr_t gateway();
-    void setGateway(PortPtr_t gateway);
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
 
 private:
+    void setupGateway();
     PortPtr_t m_gateway;
     PacketPtr_t createNewPacket();
     QSharedPointer<PC> chooseRandomPC();

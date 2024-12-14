@@ -1,5 +1,5 @@
 {
-    "simulation_duration": "60s", 
+    "simulation_duration": "1s",
     "cycle_duration": "10ms",
     "TTL": 10,
     "packets_per_simulation": 500,
