@@ -20,7 +20,7 @@ public:
 
     PortPtr_t getAnUnboundPort() const;
     int remainingPorts() const;
-
+    QList<PortPtr_t> getPorts() { return ports; }
     void setIP(IPv4Ptr_t ip) override;
     void printRoutingTable() const;
     bool isDHCPServer() const;
@@ -46,8 +46,7 @@ private:
     QList<RoutingTableEntry> routingTable;
     uint8_t findSendPort(IPv4Ptr_t destIP);
 
-    const int maxPorts = 5;
-
+    const int maxPorts = 7;
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;

@@ -32,6 +32,18 @@ void PortBindingManager::printBindings()
     qDebug() << "======================================================";
 }
 
+void PortBindingManager::printBindingsForaPort(PortPtr_t port)
+{
+    if (!bindings.contains(port))
+        return;
+    QList<PortPtr_t> boundPorts = bindings[port];
+    qDebug() << "Bound to:";
+    for (const PortPtr_t &boundPort : boundPorts) {
+        qDebug() << "  Connected to Router" << boundPort->getRouterIP() << "via Port"
+                 << boundPort->getPortNumber();
+    }
+}
+
 void PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
 {
     if (port1 == port2) {

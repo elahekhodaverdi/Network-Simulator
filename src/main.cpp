@@ -1,70 +1,83 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include "src/MACAddress/MACAddressGenerator.h"
-#include "src/Packet/Packet.h"
-#include "src/PortBindingManager/PortBindingManager.h"
-#include "src/Router/Router.h"
+#include "../PortBindingManager/PortBindingManager.h"
+#include "../Topology/TopologyBuilder.h"
+
+void printBoundedPorts(QList<PortPtr_t> ports)
+{
+    qDebug() << "--------------------------------------";
+
+    for (const auto &port : ports) {
+        if (!PortBindingManager::isBounded(port))
+            break;
+        qDebug() << "Port with ID" << port->getPortNumber();
+        PortBindingManager::printBindingsForaPort(port);
+    }
+    qDebug() << "--------------------------------------\n";
+}
+void testMeshTopology()
+{
+    qDebug() << "Testing Mesh Topology...";
+
+    int numberOfNodes = 9;
+    uint16_t asID = 1;
+
+    QList<RouterPtr_t> routers = TopologyBuilder::buildTopology(numberOfNodes,
+                                                                UT::TopologyType::Mesh,
+                                                                asID);
+
+    for (int i = 0; i < routers.size(); ++i) {
+        RouterPtr_t router = routers.at(i);
+        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
+
+        printBoundedPorts(router->getPorts());
+    }
+    qDebug() << "\nMesh Topology Test Complete!";
+}
+
+void testTorusTopology()
+{
+    qDebug() << "Testing Torus Topology...";
+
+    int numberOfNodes = 9;
+    uint16_t asID = 2;
+
+    auto routers = TopologyBuilder::buildTopology(numberOfNodes, UT::TopologyType::Torus, asID);
+
+    for (int i = 0; i < routers.size(); ++i) {
+        RouterPtr_t router = routers.at(i);
+        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
+
+        printBoundedPorts(router->getPorts());
+    }
+    qDebug() << "\nTorus Topology Test Complete!";
+}
+
+void testRingStarTopology()
+{
+    qDebug() << "Testing Ring-Star Topology...";
+
+    int numberOfNodes = 7;
+    uint16_t asID = 2;
+
+    auto routers = TopologyBuilder::buildTopology(numberOfNodes, UT::TopologyType::RingStar, asID);
+
+    for (int i = 0; i < routers.size(); ++i) {
+        RouterPtr_t router = routers.at(i);
+        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
+
+        printBoundedPorts(router->getPorts());
+    }
+    qDebug() << "\nRing-Star Topology Test Complete!";
+}
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QCoreApplication a(argc, argv);
 
-    qDebug() << "======= Testing Router =======";
-
-    // MAC address for the router
-    MACAddress macAddress = MACAddressGenerator::generateRandomMAC();
-
-    // Initialize Router
-    qDebug() << "Creating Router with ID 1...";
-    Router router(1, macAddress);
-
-    // Check Router properties
-    qDebug() << "Router ID:" << router.getId();
-    qDebug() << "MAC Address:" << macAddress.toString();
-    qDebug() << "Router has" << router.remainingPorts() << "remaining ports.";
-
-    // Set Router as DHCP Server
-    router.setRouterAsDHCPServer();
-    qDebug() << "Is DHCP Server?" << router.isDHCPServer();
-
-    // Break the Router
-    router.setRouterBroken();
-    qDebug() << "Is Router Broken?" << router.routerIsBroken();
-
-    // Bind Ports
-    qDebug() << "Binding Ports...";
-    PortPtr_t port1 = router.getAnUnboundPort();
-    PortPtr_t port2 = PortPtr_t::create();
-    port2->setPortNumber(11);
-
-    if (port1 && port2) {
-        PortBindingManager::bind(port1, port2);
-        qDebug() << "Bound port" << port1->getPortNumber() << "to port" << port2->getPortNumber();
-    } else {
-        qDebug() << "Not enough unbound ports!";
-    }
-
-    // Check remaining unbound ports
-    qDebug() << "Router has" << router.remainingPorts() << "remaining ports.";
-
-    // Set Router IP
-    IPv4Ptr_t routerIP = IPv4Ptr_t::create("192.168.1.1");
-    router.setIP(routerIP);
-    qDebug() << "Router IP set to:" << router.getIP()->toString();
-
-    // Add a packet to the buffer and test packet forwarding
-    qDebug() << "Testing Packet Sending and Receiving...";
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(macAddress, macAddress));
-    packet->setPacketType(UT::PacketType::Data);
-    packet->setPayload("Test Router Recieving Packet");
-
-    port2->sendPacket(packet, 11);
-
-    // Print Routing Table
-    IPv4Ptr_t IP1 = IPv4Ptr_t::create("192.168.1.2");
-    IPv4Ptr_t IP2 = IPv4Ptr_t::create("192.168.1.3");
-    router.addRoutingTableEntry(IP1, IP2, port1);
-    router.printRoutingTable();
-
-    return app.exec();
+    // Test each topology
+    testMeshTopology();
+    testTorusTopology();
+    testRingStarTopology();
+    return a.exec();
 }

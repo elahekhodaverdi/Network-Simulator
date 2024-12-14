@@ -15,6 +15,7 @@ public:
     PortBindingManager(QObject *parent = nullptr);
     ~PortBindingManager() override = default;
     static void printBindings();
+    static void printBindingsForaPort(PortPtr_t port);
     static void bind(const PortPtr_t &port1, const PortPtr_t &port2);
     static bool unbind(const PortPtr_t &port1, const PortPtr_t &port2);
     static bool isBounded(const PortPtr_t &port);

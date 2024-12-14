@@ -1,6 +1,11 @@
 #include "Network.h"
 #include "../Utils/ConfigReader.h"
 
+QList<PCPtr_t> Network::PCs;
+SimulationConfig Network::simulationConfig;
+QList<AutonomousSystem *> Network::autonomousSystems;
+EventsCoordinator *Network::eventsCoordinator = nullptr;
+
 Network::Network()
 {
     eventsCoordinator = EventsCoordinator::instance();
@@ -25,6 +30,7 @@ AutonomousSystem *Network::findASById(int id)
 void Network::run()
 {
     ConfigReader::readNetworkConfig("E:/elahe/git/CN_CHomeworks_3/assets/config.json");
+
     eventsCoordinator->startSimulation(SimulationConfig::cycleDurationMs,
                                        SimulationConfig::simulationDurationMs,
                                        PCs);

@@ -2,20 +2,20 @@
 #include <QDebug>
 #include <QRegularExpression>
 
-SimulationConfig::SimulationConfig()
-    : simulationDurationMs(0)
-    , cycleDurationMs(0)
-    , TTL(0)
-    , packetsPerSimulation(0)
-    , statisticalDistribution("")
-    , routerBufferSize(0)
-    , routerPortCount(0)
-    , routingProtocol("")
-    , routingTableUpdateInterval("")
-    , routingPerPort(false)
-    , routingTableSize(0)
-    , routingPacketsPerPortCycle(0)
-{}
+int SimulationConfig::simulationDurationMs = 0;
+int SimulationConfig::cycleDurationMs = 0;
+int SimulationConfig::TTL = 0;
+int SimulationConfig::packetsPerSimulation = 0;
+QString SimulationConfig::statisticalDistribution = "";
+int SimulationConfig::routerBufferSize = 0;
+int SimulationConfig::routerPortCount = 0;
+QString SimulationConfig::routingProtocol = "";
+QString SimulationConfig::routingTableUpdateInterval = "";
+bool SimulationConfig::routingPerPort = false;
+int SimulationConfig::routingTableSize = 0;
+int SimulationConfig::routingPacketsPerPortCycle = 0;
+
+SimulationConfig::SimulationConfig() {}
 
 SimulationConfig::SimulationConfig(const QString &simDuration,
                                    const QString &cycleDuration,
@@ -55,13 +55,11 @@ int SimulationConfig::convertTimeToMs(const QString &timeString)
 
         if (unit == "s") {
             return value * 1000;
-        } else if (unit == "us") {
-            return value / 1000;
         } else if (unit == "ms" || unit.isEmpty()) {
             return value;
         }
     }
 
     qWarning() << "Invalid time format:" << timeString;
-    return 0; // default to 0 if the format is incorrect
+    return 0;
 }

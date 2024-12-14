@@ -45,7 +45,8 @@ void IPHeader::setHeaderChecksum(uint16_t headerChecksum) {
     m_headerChecksum = headerChecksum;
 }
 
-void IPHeader::setSourceIp(const QByteArray &sourceIp) {
+void IPHeader::setSourceIp(const IPv4Ptr_t &sourceIp)
+{
     m_sourceIp = sourceIp;
 }
 
@@ -53,7 +54,8 @@ void IPHeader::decTTL(){
     m_ttl--;
 }
 
-void IPHeader::setDestIp(const QByteArray &destIp) {
+void IPHeader::setDestIp(const IPv4Ptr_t &destIp)
+{
     m_destIp = destIp;
 }
 

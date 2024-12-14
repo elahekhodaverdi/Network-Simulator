@@ -10,9 +10,7 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyTy
     QList<RouterPtr_t> routers;
     for (int i = 0; i < nodeNumber; i++){
         RouterPtr_t newRouter = RouterPtr_t::create(routersNum, MACAddressGenerator::getRandomMAC());
-        QString ipString = QString("192.168.%100.%2")
-                             .arg(asId)
-                             .arg(routersNum);
+        QString ipString = QString("192.168.%1.%2").arg(asId * 100).arg(routersNum);
         IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
         newRouter->setIP(ip);
         routers.append(newRouter);
@@ -29,6 +27,7 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyTy
         buildRingStarTopology(routers);
         break;
     case UT::TopologyType::Torus:
+        buildTorusTopology(routers);
         break;
     default:
         break;
@@ -110,9 +109,8 @@ void TopologyBuilder::buildRingStarTopology(QList<RouterPtr_t>& routers)
 
     RouterPtr_t centralRouter = routers.last();
 
-    for (int i = 0; i < n; ++i) {
-        int next = (i + 1) % n;
-
+    for (int i = 0; i < routers.size() - 1; ++i) {
+        int next = (i + 1) % (routers.size() - 1);
         if (routers[i]->remainingPorts() > 0 && routers[next]->remainingPorts() > 0) {
             PortPtr_t port1 = routers[i]->getAnUnboundPort();
             PortPtr_t port2 = routers[next]->getAnUnboundPort();
@@ -120,7 +118,7 @@ void TopologyBuilder::buildRingStarTopology(QList<RouterPtr_t>& routers)
         }
     }
 
-    for (int i = 0; i < n; i += 2) {
+    for (int i = 0; i < routers.size() - 1; i += 2) {
         if (routers[i]->remainingPorts() > 0 && centralRouter->remainingPorts() > 0) {
             PortPtr_t port1 = routers[i]->getAnUnboundPort();
             PortPtr_t port2 = centralRouter->getAnUnboundPort();
