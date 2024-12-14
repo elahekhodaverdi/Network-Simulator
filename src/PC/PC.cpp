@@ -10,6 +10,7 @@ PC::PC(int id, MACAddress macAddress, QObject *parent) :
 
 PC::PC(int id, QObject *parent)
     : Node(id, parent)
+    , m_gateway(PortPtr_t::create(this))
 {
 }
 

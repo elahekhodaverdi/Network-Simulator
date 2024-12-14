@@ -14,6 +14,8 @@ class Node : public QThread
 public:
     explicit Node(int id, MACAddress macAddress, QObject *parent = nullptr);
     explicit Node(int id, QObject *parent = nullptr);
+    ~Node();
+
     int getId();
     IPv4Ptr_t getIP();
     MACAddress getMACAddress();

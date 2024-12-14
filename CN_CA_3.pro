@@ -3,7 +3,9 @@ APPNAME = cnca3
 VERSION = 1.0.0
 BUNDLE_VERSION = 6
 
+
 QMAKE_LFLAGS += -fuse-ld=lld
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

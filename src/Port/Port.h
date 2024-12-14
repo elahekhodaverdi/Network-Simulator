@@ -3,15 +3,14 @@
 
 #include "../Packet/Packet.h"
 
+#include <QDebug>
 #include <QObject>
-
 class Port : public QObject
 {
     Q_OBJECT
 
 public:
     explicit Port(QObject *parent = nullptr);
-    ~Port() override;
     uint8_t getPortNumber();
     QString getRouterIP();
     void setPortNumber(uint8_t number);

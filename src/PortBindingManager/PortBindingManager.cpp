@@ -61,6 +61,15 @@ void PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
     connect(port2.get(), &Port::packetSent, port1.get(), &Port::receivePacket);
 }
 
+bool PortBindingManager::unbind(const PortPtr_t &port)
+{
+    if (!bindings.contains(port))
+        return false;
+    for (PortPtr_t bounded : bindings[port])
+        unbind(port, bounded);
+    bindings.remove(port);
+}
+
 bool PortBindingManager::unbind(const PortPtr_t &port1, const PortPtr_t &port2)
 {
     if (!bindings.contains(port1) || !bindings[port1].contains(port2)) {

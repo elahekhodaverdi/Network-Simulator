@@ -16,6 +16,12 @@ Node::Node(int id, QObject *parent)
     m_MACAddress = MACAddressGenerator::getRandomMAC();
 }
 
+Node::~Node()
+{
+    if (!m_IP.isNull())
+        m_IP.clear();
+}
+
 int Node::getId(){
     return m_id;
 }

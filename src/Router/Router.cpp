@@ -1,5 +1,6 @@
 #include "Router.h"
 #include "../PortBindingManager/PortBindingManager.h"
+
 Router::Router(int id, MACAddress macAddress, QObject *parent)
     : Node(id, macAddress, parent)
 {
@@ -9,6 +10,15 @@ Router::Router(int id, MACAddress macAddress, QObject *parent)
         ports.append(port);
         connect(port.get(), &Port::packetReceived, this, &Router::receivePacket);
         connect(this, &Router::newPacket, port.get(), &Port::sendPacket);
+    }
+}
+
+Router::~Router()
+{
+    for (int i = 0; i < ports.size(); ++i) {
+        PortBindingManager::unbind(ports[i]);
+        disconnect(ports[i].get(), &Port::packetReceived, this, &Router::receivePacket);
+        disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
     }
 }
 

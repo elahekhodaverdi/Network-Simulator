@@ -13,7 +13,7 @@ class Router : public Node
 
 public:
     explicit Router(int id, MACAddress macAddress, QObject *parent = nullptr);
-
+    ~Router();
     void setRouterAsDHCPServer();
     void setRouterBroken();
     bool routerIsBroken() const;

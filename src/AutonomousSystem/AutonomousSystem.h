@@ -10,6 +10,12 @@
 class AutonomousSystem
 {
 public:
+    // ~AutonomousSystem();
+    AutonomousSystem();
+    AutonomousSystem(int asId, UT::TopologyType type);
+    void build(QJsonObject config);
+
+public:
     int id;
     UT::TopologyType topologyType;
     int nodeCount;
@@ -19,9 +25,6 @@ public:
     QList<RouterPtr_t> brokenRouters;
     QList<QPair<RouterPtr_t, QList<PCPtr_t>>> connections;
     QList<RouterPtr_t> routers;
-    AutonomousSystem();
-    AutonomousSystem(int asId, UT::TopologyType type);
-    void build(QJsonObject config);
 
 private:
     RouterPtr_t findRouterById(int id);
