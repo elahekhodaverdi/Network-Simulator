@@ -102,7 +102,14 @@ void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
     Q_EMIT newPacket(topPacket, sendPortNumber);
 }
 
-uint8_t Router::findSendPort(IPv4Ptr_t destIP){
+uint8_t Router::findSendPort(IPv4Ptr_t destIP) {
+    for (const RoutingTableEntry &entry : routingTable) {
+        if (*entry.destination == *destIP) {
+            return entry.outPort->getPortNumber();
+        }
+    }
+
+    qDebug() << "No route found for destination IP: " << destIP->toString();
     return 0;
-    //TODO
 }
+
