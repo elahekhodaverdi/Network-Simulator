@@ -1,4 +1,5 @@
 #include "IPHeader.h"
+#include "../Network/SimulationConfig.h"
 
 IPHeader::IPHeader(QObject *parent)
     : QObject(parent),
@@ -7,7 +8,7 @@ IPHeader::IPHeader(QObject *parent)
     m_totalLength(0),
     m_identification(0),
     m_flagsFragmentOffset(0),
-    m_ttl(0),
+    m_ttl(SimulationConfig::TTL),
     m_protocol(0),
     m_headerChecksum(0)
 {

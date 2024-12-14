@@ -10,7 +10,6 @@
 #include "../Headers/TCPHeader.h"
 #include "../Headers/IPHeader.h"
 #include "globals.h"
-// #include "IPHeader.h"
 
 class Packet : public QObject
 {

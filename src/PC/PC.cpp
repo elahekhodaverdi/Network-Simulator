@@ -36,28 +36,30 @@ PCPtr_t PC::chooseRandomPC()
 
 PacketPtr_t PC::createNewPacket()
 {
-    // PCPtr_t destinationPC = chooseRandomPC();
+    PCPtr_t destinationPC = chooseRandomPC();
 
-    // PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(m_macAddress, destinationPC->m_macAddress), this);
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(this->getMACAddress(), destinationPC->getMACAddress()), this);
 
-    // if (m_IP && destinationPC->m_IP) {
-    //     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
-    //     ipHeader->setSourceIp(m_IP);
-    //     ipHeader->setDestIp(destinationPC->getIP());
-    //     packet->setIPHeader(ipHeader);
-    // } else {
-    //     qDebug() << "Source or destination IP not set.";
-    //     return nullptr;
-    // }
+    if (m_IP && destinationPC->m_IP) {
+        QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+        ipHeader->setSourceIp(m_IP);
+        ipHeader->setDestIp(destinationPC->getIP());
+        packet->setIPHeader(ipHeader);
+    } else {
+        qDebug() << "Source or destination IP not set.";
+        return nullptr;
+    }
 
-    // QByteArray payload = QByteArray("Hello from PC ") + QByteArray::number(m_id);
-    // packet->setPayload(payload);
+    QByteArray payload = QByteArray("Hello from PC ") + QByteArray::number(m_id);
+    packet->setPayload(payload);
+    uint16_t checksum = packet->ipHeader()->calculateHeaderChecksum(payload);
+    packet->ipHeader()->setHeaderChecksum(checksum);
 
-    // packet->setSequenceNumber(QRandomGenerator::global()->generate());
-    // packet->setPacketType(UT::PacketType::Data);
+    packet->setSequenceNumber(QRandomGenerator::global()->generate());
+    packet->setPacketType(UT::PacketType::Data);
 
-    // qDebug() << "Packet created from PC" << m_id << "to PC" << destinationPC->getId();
-    // return packet;
+    qDebug() << "Packet created from PC" << m_id << "to PC" << destinationPC->getId();
+    return packet;
     return nullptr;
 }
 

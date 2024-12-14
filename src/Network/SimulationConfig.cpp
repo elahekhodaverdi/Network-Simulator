@@ -4,7 +4,7 @@
 
 int SimulationConfig::simulationDurationMs = 0;
 int SimulationConfig::cycleDurationMs = 0;
-int SimulationConfig::TTL = 0;
+int SimulationConfig::TTL = 64;
 int SimulationConfig::packetsPerSimulation = 0;
 QString SimulationConfig::statisticalDistribution = "";
 int SimulationConfig::routerBufferSize = 0;

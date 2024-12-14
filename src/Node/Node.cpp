@@ -23,3 +23,7 @@ IPv4Ptr_t Node::getIP()
 {
     return m_IP;
 }
+
+MACAddress Node::getMACAddress(){
+    return m_MACAddress;
+}

@@ -7,6 +7,7 @@ Packet::Packet(DataLinkHeader dataLinkHeader, QObject *parent)
     , m_waitingCycles(0)
     , m_totalCycles(0)
     , m_dataLinkHeader(dataLinkHeader)
+    , m_ipHeader(QSharedPointer<IPHeader>::create(this))
 {}
 
 Packet::~Packet()
