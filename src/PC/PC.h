@@ -23,6 +23,7 @@ public Q_SLOTS:
 
 private:
     PortPtr_t m_gateway;
+    PacketPtr_t createNewPacket();
 };
 
 typedef QSharedPointer<PC> PCPtr_t;

@@ -15,6 +15,13 @@ void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
     if (!selectedPCs.contains(this))
         return;
     qDebug() << "Sending packet from PC:" << m_id;
+    PacketPtr_t packet = createNewPacket();
+    Q_EMIT newPacket(packet, m_gateway->getPortNumber());
+}
+
+PacketPtr_t PC::createNewPacket(){
+    //TODO
+    return nullptr;
 }
 
 void PC::receivePacket(const PacketPtr_t &data, uint8_t port_number)
