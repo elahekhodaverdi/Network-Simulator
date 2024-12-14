@@ -122,9 +122,7 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
                 int userId = userValue.toInt();
                 PCPtr_t pc = QSharedPointer<PC>::create(userId);
 
-                QString ipString = QString("192.168.%100.%2")
-                                     .arg(id)
-                                     .arg(userId);
+                QString ipString = QString("192.168.%1.%2").arg(id * 100).arg(userId);
 
                 IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
 

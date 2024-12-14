@@ -5,6 +5,8 @@ BUNDLE_VERSION = 6
 
 
 QMAKE_LFLAGS += -fuse-ld=lld
+DEFINES += PROJECT_DIR_PATH=\\\"$$PWD\\\"
+
 
 
 # Default rules for deployment.

@@ -46,7 +46,7 @@ private:
     QList<RoutingTableEntry> routingTable;
     uint8_t findSendPort(IPv4Ptr_t destIP);
 
-    const int maxPorts = 7;
+    const int maxPorts = 5;
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;

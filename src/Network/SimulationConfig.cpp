@@ -10,7 +10,7 @@ QString SimulationConfig::statisticalDistribution = "";
 int SimulationConfig::routerBufferSize = 0;
 int SimulationConfig::routerPortCount = 0;
 QString SimulationConfig::routingProtocol = "";
-QString SimulationConfig::routingTableUpdateInterval = "";
+int SimulationConfig::routingTableUpdateInterval = 0;
 bool SimulationConfig::routingPerPort = false;
 int SimulationConfig::routingTableSize = 0;
 int SimulationConfig::routingPacketsPerPortCycle = 0;
@@ -25,7 +25,7 @@ SimulationConfig::SimulationConfig(const QString &simDuration,
                                    int bufferSize,
                                    int portCount,
                                    const QString &routeProtocol,
-                                   const QString &routeUpdateInterval,
+                                   int routeUpdateInterval,
                                    bool routePerPort,
                                    int routeTableSize,
                                    int packetsPerCycle)

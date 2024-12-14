@@ -1,6 +1,6 @@
 #include "Network.h"
+#include <QDir>
 #include "../Utils/ConfigReader.h"
-
 QList<PCPtr_t> Network::PCs;
 SimulationConfig Network::simulationConfig;
 QList<AutonomousSystem *> Network::autonomousSystems;
@@ -29,7 +29,9 @@ AutonomousSystem *Network::findASById(int id)
 
 void Network::run()
 {
-    ConfigReader::readNetworkConfig("E:/elahe/git/CN_CHomeworks_3/assets/config.json");
+    QString projectDir = QString(PROJECT_DIR_PATH);
+    QString configFilePath = QDir(projectDir).filePath("assets/config.json");
+    ConfigReader::readNetworkConfig(configFilePath);
 
     eventsCoordinator->startSimulation(SimulationConfig::cycleDurationMs,
                                        SimulationConfig::simulationDurationMs,

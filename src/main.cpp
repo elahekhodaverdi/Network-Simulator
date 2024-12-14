@@ -1,83 +1,61 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include "../PortBindingManager/PortBindingManager.h"
-#include "../Topology/TopologyBuilder.h"
-
-void printBoundedPorts(QList<PortPtr_t> ports)
-{
-    qDebug() << "--------------------------------------";
-
-    for (const auto &port : ports) {
-        if (!PortBindingManager::isBounded(port))
-            break;
-        qDebug() << "Port with ID" << port->getPortNumber();
-        PortBindingManager::printBindingsForaPort(port);
-    }
-    qDebug() << "--------------------------------------\n";
-}
-void testMeshTopology()
-{
-    qDebug() << "Testing Mesh Topology...";
-
-    int numberOfNodes = 9;
-    uint16_t asID = 1;
-
-    QList<RouterPtr_t> routers = TopologyBuilder::buildTopology(numberOfNodes,
-                                                                UT::TopologyType::Mesh,
-                                                                asID);
-
-    for (int i = 0; i < routers.size(); ++i) {
-        RouterPtr_t router = routers.at(i);
-        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
-
-        printBoundedPorts(router->getPorts());
-    }
-    qDebug() << "\nMesh Topology Test Complete!";
-}
-
-void testTorusTopology()
-{
-    qDebug() << "Testing Torus Topology...";
-
-    int numberOfNodes = 9;
-    uint16_t asID = 2;
-
-    auto routers = TopologyBuilder::buildTopology(numberOfNodes, UT::TopologyType::Torus, asID);
-
-    for (int i = 0; i < routers.size(); ++i) {
-        RouterPtr_t router = routers.at(i);
-        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
-
-        printBoundedPorts(router->getPorts());
-    }
-    qDebug() << "\nTorus Topology Test Complete!";
-}
-
-void testRingStarTopology()
-{
-    qDebug() << "Testing Ring-Star Topology...";
-
-    int numberOfNodes = 7;
-    uint16_t asID = 2;
-
-    auto routers = TopologyBuilder::buildTopology(numberOfNodes, UT::TopologyType::RingStar, asID);
-
-    for (int i = 0; i < routers.size(); ++i) {
-        RouterPtr_t router = routers.at(i);
-        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
-
-        printBoundedPorts(router->getPorts());
-    }
-    qDebug() << "\nRing-Star Topology Test Complete!";
-}
+#include <QDir>
+#include <QString>
+#include "Network/Network.h"
+#include "Utils/ConfigReader.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    // Test each topology
-    testMeshTopology();
-    testTorusTopology();
-    testRingStarTopology();
-    return a.exec();
+    QString projectDir = QString(PROJECT_DIR_PATH);
+    QString configFilePath = QDir(projectDir).filePath("assets/config.json");
+
+    ConfigReader::readNetworkConfig(configFilePath);
+
+    // SimulationConfig
+    qDebug() << "SimulationConfig:";
+    qDebug() << "Duration (ms):" << Network::simulationConfig.simulationDurationMs;
+    qDebug() << "Cycle Duration (ms):" << Network::simulationConfig.cycleDurationMs;
+    qDebug() << "TTL:" << Network::simulationConfig.TTL;
+    qDebug() << "Packets per Simulation:" << Network::simulationConfig.packetsPerSimulation;
+    qDebug() << "Statistical Distribution:" << Network::simulationConfig.statisticalDistribution;
+    qDebug() << "Router Buffer Size:" << Network::simulationConfig.routerBufferSize;
+    qDebug() << "Router Port Count:" << Network::simulationConfig.routerPortCount;
+    qDebug() << "Routing Protocol:" << Network::simulationConfig.routingProtocol;
+    qDebug() << "Routing Table Update Interval:"
+             << Network::simulationConfig.routingTableUpdateInterval;
+    qDebug() << "Routing Per Port:" << Network::simulationConfig.routingPerPort;
+    qDebug() << "Routing Table Size:" << Network::simulationConfig.routingTableSize;
+    qDebug() << "Routing Packets per Port Cycle:"
+             << Network::simulationConfig.routingPacketsPerPortCycle;
+
+    // Autonomous Systems
+    qDebug() << "\nAutonomous Systems:";
+    for (const auto *asSystem : Network::autonomousSystems) {
+        qDebug() << "AS ID:" << asSystem->id;
+        QString topologyTypeStr;
+        switch (asSystem->topologyType) {
+        case UT::TopologyType::Mesh:
+            topologyTypeStr = "Mesh";
+            break;
+        case UT::TopologyType::RingStar:
+            topologyTypeStr = "RingStar";
+            break;
+        case UT::TopologyType::Torus:
+            topologyTypeStr = "Torus";
+            break;
+        }
+
+        qDebug() << "Topology Type:" << topologyTypeStr;
+        qDebug() << "Node Count:" << asSystem->nodeCount;
+        qDebug() << "AS Gateways Count:" << asSystem->asGateways.size();
+        qDebug() << "User Gateways Count:" << asSystem->userGateways.size();
+        qDebug() << "DHCP Server Set:" << (asSystem->dhcpServer ? "Yes" : "No");
+        qDebug() << "Broken Routers Count:" << asSystem->brokenRouters.size();
+        qDebug() << "Connections Count:" << asSystem->connections.size();
+    }
+
+    return 0;
 }

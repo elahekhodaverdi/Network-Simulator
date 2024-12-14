@@ -10,7 +10,7 @@
 class ConfigReader
 {
 public:
-    static Network readNetworkConfig(const QString &pathToConfFile);
+    static void readNetworkConfig(const QString &pathToConfFile);
 
 private:
     static QJsonObject readJson(const QString &filePath);

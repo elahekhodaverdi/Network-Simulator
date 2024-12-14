@@ -27,23 +27,28 @@ QJsonObject ConfigReader::readJson(const QString &filePath)
     return doc.object();
 }
 
-Network ConfigReader::readNetworkConfig(const QString &pathToConfFile)
+void ConfigReader::readNetworkConfig(const QString &pathToConfFile)
 {
     QJsonObject actualObj = readJson(pathToConfFile);
 
     QJsonObject generalSettings = actualObj;
     generalSettings.remove("Autonomous_systems");
     QJsonArray autonomousSystems = actualObj.value("Autonomous_systems").toArray();
-
-    Network network;
-    network.simulationConfig = parseSimulationConfig(generalSettings);
+    Network::simulationConfig = parseSimulationConfig(generalSettings);
     parseAutonomousSystems(autonomousSystems);
-
-    return network;
 }
 
 SimulationConfig ConfigReader::parseSimulationConfig(const QJsonObject &config)
 {
+    QString intervalStr = config["routing_table_update_interval"].toString();
+    int routingTableUpdateInterval;
+
+    if (intervalStr == "Infinity") {
+        routingTableUpdateInterval = -1;
+    } else {
+        routingTableUpdateInterval = intervalStr.toInt();
+    }
+
     return SimulationConfig(config["simulation_duration"].toString(),
                             config["cycle_duration"].toString(),
                             config["TTL"].toInt(),
@@ -52,7 +57,7 @@ SimulationConfig ConfigReader::parseSimulationConfig(const QJsonObject &config)
                             config["router_buffer_size"].toInt(),
                             config["router_port_count"].toInt(),
                             config["routing_protocol"].toString(),
-                            config["routing_table_update_interval"].toString(),
+                            routingTableUpdateInterval,
                             config["routing_per_port"].toBool(),
                             config["routing_table_size"].toInt(),
                             config["routing_packets_per_port_cycle"].toInt());

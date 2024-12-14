@@ -14,7 +14,7 @@ public:
     static int routerBufferSize;
     static int routerPortCount;
     static QString routingProtocol;
-    static QString routingTableUpdateInterval;
+    static int routingTableUpdateInterval;
     static bool routingPerPort;
     static int routingTableSize;
     static int routingPacketsPerPortCycle;
@@ -29,7 +29,7 @@ public:
                      int bufferSize,
                      int portCount,
                      const QString &routeProtocol,
-                     const QString &routeUpdateInterval,
+                     int routeUpdateInterval,
                      bool routePerPort,
                      int routeTableSize,
                      int packetsPerCycle);
