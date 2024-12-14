@@ -5,6 +5,7 @@
 #include "../Node/Node.h"
 #include "../Packet/Packet.h"
 #include "../Port/Port.h"
+#include "../PC/PC.h"
 
 class Router : public Node
 {
@@ -26,6 +27,7 @@ public:
     void addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, PortPtr_t outPort);
 
 public Q_SLOTS:
+    void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
 
 private:

@@ -130,6 +130,7 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
 
                 pc->setIP(ip);
                 pcs.append(pc);
+                QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, pc.get(), &PC::sendPacket);
                 Network::PCs.append(pc);
                 PortPtr_t routerPort = router->getAnUnboundPort();
                 PortBindingManager::bind(routerPort, pc->gateway());

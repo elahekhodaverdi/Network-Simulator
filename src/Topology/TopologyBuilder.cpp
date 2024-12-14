@@ -1,6 +1,7 @@
 #include "TopologyBuilder.h"
 #include "../MACAddress/MACAddressGenerator.h"
 #include "../PortBindingManager/PortBindingManager.h"
+#include "../EventsCoordinator/EventsCoordinator.h"
 
 int TopologyBuilder::routersNum = 1;
 
@@ -15,6 +16,7 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyTy
         IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
         newRouter->setIP(ip);
         routers.append(newRouter);
+        QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, newRouter.get(), &Router::sendPacket);
 
         routersNum++;
     }
