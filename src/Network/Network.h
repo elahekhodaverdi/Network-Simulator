@@ -11,13 +11,13 @@ class Network
 public:
     Network();
     ~Network();
-    static AutonomousSystem *findASById(int id);
+    static AutonomousSystemPtr_t findASById(int id);
     static void run();
 
 public:
     static QList<PCPtr_t> PCs;
     static SimulationConfig simulationConfig;
-    static QList<AutonomousSystem *> autonomousSystems;
+    static QList<AutonomousSystemPtr_t> autonomousSystems;
     static EventsCoordinator *eventsCoordinator;
 };
 

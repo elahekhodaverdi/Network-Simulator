@@ -3,7 +3,7 @@
 #include "../Utils/ConfigReader.h"
 QList<PCPtr_t> Network::PCs;
 SimulationConfig Network::simulationConfig;
-QList<AutonomousSystem *> Network::autonomousSystems;
+QList<AutonomousSystemPtr_t> Network::autonomousSystems;
 EventsCoordinator *Network::eventsCoordinator = nullptr;
 
 Network::Network()
@@ -15,10 +15,10 @@ Network::~Network()
 {
     eventsCoordinator->release();
 }
-AutonomousSystem *Network::findASById(int id)
+AutonomousSystemPtr_t Network::findASById(int id)
 {
-    AutonomousSystem *target = nullptr;
-    for (AutonomousSystem *as : autonomousSystems) {
+    AutonomousSystemPtr_t target = nullptr;
+    for (AutonomousSystemPtr_t as : autonomousSystems) {
         if (as->id == id) {
             target = as;
             break;

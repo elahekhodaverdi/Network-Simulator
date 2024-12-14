@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     // Autonomous Systems
     qDebug() << "\nAutonomous Systems:";
-    for (const auto *asSystem : Network::autonomousSystems) {
+    for (const AutonomousSystemPtr_t asSystem : Network::autonomousSystems) {
         qDebug() << "AS ID:" << asSystem->id;
         QString topologyTypeStr;
         switch (asSystem->topologyType) {
@@ -57,5 +57,5 @@ int main(int argc, char *argv[])
         qDebug() << "Connections Count:" << asSystem->connections.size();
     }
 
-    return 0;
+    return app.exec();
 }

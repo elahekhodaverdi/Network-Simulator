@@ -1,7 +1,7 @@
 #include "PC.h"
-#include "../Network/Network.h"
 #include <QRandomGenerator>
-
+#include "../Network/Network.h"
+#include "../PortBindingManager/PortBindingManager.h"
 
 PC::PC(int id, MACAddress macAddress, QObject *parent) :
     Node(id, macAddress, parent), m_gateway(PortPtr_t::create(this))
@@ -12,6 +12,15 @@ PC::PC(int id, QObject *parent)
     : Node(id, parent)
     , m_gateway(PortPtr_t::create(this))
 {
+}
+
+PC::~PC()
+{
+    PortBindingManager::unbind(m_gateway);
+    if (m_gateway) {
+        disconnect(m_gateway.get(), &Port::packetReceived, this, &PC::receivePacket);
+        disconnect(this, &PC::newPacket, m_gateway.get(), &Port::sendPacket);
+    }
 }
 
 void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)

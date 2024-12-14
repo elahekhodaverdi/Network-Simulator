@@ -76,8 +76,8 @@ void ConfigReader::parseAutonomousSystems(const QJsonArray &systemsArray)
                                                        ? topologyTypes.first()
                                                        : UT::TopologyType::Mesh;
 
-            AutonomousSystem *system = new AutonomousSystem(ASsystem["id"].toInt(),
-                                                            primaryTopologyType);
+            AutonomousSystemPtr_t system = AutonomousSystemPtr_t::create(ASsystem["id"].toInt(),
+                                                                         primaryTopologyType);
             system->build(ASsystem);
             Network::autonomousSystems.append(system);
         }

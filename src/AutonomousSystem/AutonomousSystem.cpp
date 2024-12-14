@@ -147,7 +147,7 @@ void AutonomousSystem::setConnectToAS(QJsonArray ASs)
         QJsonObject connectionObject = value.toObject();
         int targetASId = connectionObject["id"].toInt();
 
-        AutonomousSystem* targetAS = Network::findASById(targetASId);
+        AutonomousSystemPtr_t targetAS = Network::findASById(targetASId);
 
         if (!targetAS) {
             qWarning() << "Target AS with ID" << targetASId << "not found.";

@@ -2,8 +2,8 @@
 #define AUTONOMOUSSYSTEM_H
 #include <QJsonObject>
 #include <QList>
+#include <QSharedPointer>
 #include <QString>
-
 #include "../Globals/Globals.h"
 #include "../PC/PC.h"
 #include "../Router/Router.h"
@@ -36,4 +36,5 @@ private:
     void setConnectToAS(QJsonArray ASs);
 };
 
+typedef QSharedPointer<AutonomousSystem> AutonomousSystemPtr_t;
 #endif // AUTONOMOUSSYSTEM_H

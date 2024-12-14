@@ -14,6 +14,7 @@ class PC : public Node
 public:
     explicit PC(int id, MACAddress macAddress, QObject *parent = nullptr);
     explicit PC(int id, QObject *parent = nullptr);
+    ~PC();
     void setIP(IPv4Ptr_t ip) override;
     PortPtr_t gateway();
     void setGateway(PortPtr_t gateway);
