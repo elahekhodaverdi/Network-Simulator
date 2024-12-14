@@ -4,6 +4,7 @@
 #include <QObject>
 #include <cstdint>
 #include <QByteArray>
+#include "../IP/IP.h"
 
 class IPHeader : public QObject
 {
@@ -31,8 +32,8 @@ public:
     uint8_t ttl() const;
     uint8_t protocol() const;
     uint16_t headerChecksum() const;
-    QByteArray sourceIp() const;
-    QByteArray destIp() const;
+    IPv4Ptr_t sourceIp() const;
+    IPv4Ptr_t destIp() const;
 
     uint16_t calculateHeaderChecksum(const QByteArray &data);
 
@@ -47,8 +48,8 @@ private:
     uint8_t m_ttl;
     uint8_t m_protocol;
     uint16_t m_headerChecksum;
-    QByteArray m_sourceIp;
-    QByteArray m_destIp;
+    IPv4Ptr_t m_sourceIp;
+    IPv4Ptr_t m_destIp;
 };
 
 #endif    // IPHEADER_H

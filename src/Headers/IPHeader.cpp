@@ -89,11 +89,11 @@ uint16_t IPHeader::headerChecksum() const {
     return m_headerChecksum;
 }
 
-QByteArray IPHeader::sourceIp() const {
+IPv4Ptr_t IPHeader::sourceIp() const {
     return m_sourceIp;
 }
 
-QByteArray IPHeader::destIp() const {
+IPv4Ptr_t IPHeader::destIp() const {
     return m_destIp;
 }
 

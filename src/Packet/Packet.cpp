@@ -70,3 +70,7 @@ uint32_t Packet::totalCycles(){
 QList<QString> Packet::path(){
     return m_path;
 }
+
+QSharedPointer<IPHeader> Packet::ipHeader(){
+    return m_ipHeader;
+}

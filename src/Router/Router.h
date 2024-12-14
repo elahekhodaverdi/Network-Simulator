@@ -44,6 +44,7 @@ private:
     bool DHCPServer = false;
     bool broken = false;
     QList<RoutingTableEntry> routingTable;
+    uint8_t findSendPort(IPv4Ptr_t destIP);
 
     const int maxPorts = 5;
 

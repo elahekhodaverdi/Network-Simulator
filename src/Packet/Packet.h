@@ -34,6 +34,7 @@ public:
     uint32_t waitingCycles();
     uint32_t totalCycles();
     QList<QString> path();
+    QsharedPointer<IPHeader> ipHeader();
 
     ~Packet();
 
@@ -45,7 +46,8 @@ private:
     uint32_t m_totalCycles;
     QList<QString> m_path;
     DataLinkHeader m_dataLinkHeader;
-    IPHeader m_ipHeader;
+
+    QSharedPointer<IPHeader> m_ipHeader;
     std::optional<TCPHeader> m_tcpHeader;
 
     std::optional<UT::PacketControlType> m_controlType;
