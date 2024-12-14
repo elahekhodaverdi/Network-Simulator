@@ -26,7 +26,7 @@ public:
     void setSequenceNumber(uint32_t sequenceNumber);
     void setWaitingCycles(uint32_t waitingCycles);
     void setTotalCycles(uint32_t totalCycles);
-    //void setIPHeader(IPHeader ipHeader);
+    void setIPHeader(QSharedPointer<IPHeader> ipHeader);
 
     UT::PacketType packetType();
     QByteArray payload();
@@ -34,7 +34,7 @@ public:
     uint32_t waitingCycles();
     uint32_t totalCycles();
     QList<QString> path();
-    QsharedPointer<IPHeader> ipHeader();
+    QSharedPointer<IPHeader> ipHeader();
 
     ~Packet();
 
@@ -51,9 +51,6 @@ private:
     std::optional<TCPHeader> m_tcpHeader;
 
     std::optional<UT::PacketControlType> m_controlType;
-
-
-
 
 
 };

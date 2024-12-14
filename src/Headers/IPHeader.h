@@ -20,8 +20,8 @@ public:
     void setTTL(uint8_t ttl);
     void setProtocol(uint8_t protocol);
     void setHeaderChecksum(uint16_t headerChecksum);
-    void setSourceIp(const QByteArray &sourceIp);
-    void setDestIp(const QByteArray &destIp);
+    void setSourceIp(const IPv4Ptr_t &sourceIp);
+    void setDestIp(const IPv4Ptr_t &destIp);
     void decTTL();
 
     uint8_t versionHeaderLength() const;

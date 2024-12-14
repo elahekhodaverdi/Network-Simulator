@@ -1,4 +1,7 @@
 #include "PC.h"
+#include "../Network/Network.h"
+#include <QRandomGenerator>
+
 
 PC::PC(int id, MACAddress macAddress, QObject *parent) :
     Node(id, macAddress, parent), m_gateway(PortPtr_t::create(this))
@@ -19,10 +22,45 @@ void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
     Q_EMIT newPacket(packet, m_gateway->getPortNumber());
 }
 
-PacketPtr_t PC::createNewPacket(){
-    //TODO
+
+PCPtr_t PC::chooseRandomPC()
+{
+    PCPtr_t randomPC;
+    do {
+        int randomIndex = QRandomGenerator::global()->bounded(Network::PCs.size());
+        randomPC = Network::PCs.at(randomIndex);
+    } while (randomPC.data() == this);
+
+    return randomPC;
+}
+
+PacketPtr_t PC::createNewPacket()
+{
+    // PCPtr_t destinationPC = chooseRandomPC();
+
+    // PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(m_macAddress, destinationPC->m_macAddress), this);
+
+    // if (m_IP && destinationPC->m_IP) {
+    //     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    //     ipHeader->setSourceIp(m_IP);
+    //     ipHeader->setDestIp(destinationPC->getIP());
+    //     packet->setIPHeader(ipHeader);
+    // } else {
+    //     qDebug() << "Source or destination IP not set.";
+    //     return nullptr;
+    // }
+
+    // QByteArray payload = QByteArray("Hello from PC ") + QByteArray::number(m_id);
+    // packet->setPayload(payload);
+
+    // packet->setSequenceNumber(QRandomGenerator::global()->generate());
+    // packet->setPacketType(UT::PacketType::Data);
+
+    // qDebug() << "Packet created from PC" << m_id << "to PC" << destinationPC->getId();
+    // return packet;
     return nullptr;
 }
+
 
 void PC::receivePacket(const PacketPtr_t &data, uint8_t port_number)
 {

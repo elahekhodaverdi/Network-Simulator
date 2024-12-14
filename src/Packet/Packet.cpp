@@ -49,6 +49,10 @@ void Packet::setTotalCycles(uint32_t totalCycles){
     m_totalCycles = totalCycles;
 }
 
+void Packet::setIPHeader(QSharedPointer<IPHeader> ipHeader){
+    m_ipHeader = ipHeader;
+}
+
 UT::PacketType Packet::packetType(){
     return m_packetType;
 }

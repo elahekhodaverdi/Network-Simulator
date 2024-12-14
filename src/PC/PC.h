@@ -24,6 +24,7 @@ public Q_SLOTS:
 private:
     PortPtr_t m_gateway;
     PacketPtr_t createNewPacket();
+    QSharedPointer<PC> chooseRandomPC();
 };
 
 typedef QSharedPointer<PC> PCPtr_t;
