@@ -24,7 +24,12 @@ public:
     void setIP(IPv4Ptr_t ip) override;
     void printRoutingTable() const;
     bool isDHCPServer() const;
-    void addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, PortPtr_t outPort);
+    void addRoutingTableEntry(IPv4Ptr_t destination,
+                              int subnetMask,
+                              IPv4Ptr_t nextHop,
+                              PortPtr_t outPort,
+                              int metric,
+                              UT::RoutingProtocol protocol);
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
@@ -34,8 +39,11 @@ private:
     struct RoutingTableEntry
     {
         IPv4Ptr_t destination;
+        int subnetMask;
         IPv4Ptr_t nextHop;
         PortPtr_t outPort;
+        int metric;
+        UT::RoutingProtocol protocol;
     };
 
     QList<PortPtr_t> ports;
