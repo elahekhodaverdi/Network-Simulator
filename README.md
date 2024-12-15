@@ -1,675 +1,681 @@
 # CN_CA3
 
-## DataGenerator Class
 
-The `DataGenerator` class is responsible for generating data values based on the Pareto distribution. The class is designed to provide flexibility in initialization and data generation parameters.
+## **IP Class**
+
+The **IP** class template provides a structured representation of IPv4 and IPv6 addresses, along with utility methods for manipulation and validation. It inherits from the `AbstractIP` base class.
+
+### **AbstractIP Base Class**
+
+**Fields**
+
+- **m_ipValue**: A `uint64_t` value representing the raw IP address.
+
+**Constructor**
+
+- Default: Initializes `m_ipValue` to `0`.
+- Copy Constructor.
+
+
+
+### **IP (Specialization for IPv4)**
+
+ **Fields**
+- Inherits `m_ipValue` from `AbstractIP`.
+
+ **Constructors**
+- **Default**: Sets the IP to the maximum `uint64_t` value.
+- **From String**: Accepts an IPv4 string and parses it into `m_ipValue`.
+- **From Integer**: Accepts a `uint64_t` value directly.
+- **Copy Constructor**: Creates a copy of an existing IPv4 instance.
+
+ **Methods**
+1. **toString**:
+   - Converts `m_ipValue` into  `"X.X.X.X"` format.
+   - Uses bitwise shifts and masks to extract octets.
+2. **toValue**:
+   - Returns the `uint64_t` representation of the IP.
+3. **fromString**:
+   - Parses an IPv4 string and updates `m_ipValue`.
+   - Validates the format using `validateIPv4String`.
+4. **validateIPv4String**:
+   - Checks if the input string conforms to the IPv4 standard.
+   - Ensures there are four octets, each between `0` and `255`.
+
+5. **Operators**
+    - **Equality Operator**: Compares the `m_ipValue` of two IPv4 addresses.
+
+
+## IPHeader Class
+
+The `IPHeader` class represents the structure and functionality of an IPv4 header, as defined in the Internet Protocol (IP). It provides methods to manage and manipulate various header fields, including version, length, type of service, and other relevant parameters. It also includes functions for setting and retrieving these fields, as well as calculating the header checksum.
 
 ### Fields
 
-- **`m_minValue`**: A private member variable of type `int` that specifies the minimum value for the Pareto distribution. Defaults to `1`.
-
-### Method Explanations
-
-1. **Constructor**
-    - **Default**: Initializes the `DataGenerator` object with default values (`m_minValue` = 1).
-
-    - **Parameterized**: Initializes the `DataGenerator` with a user-defined minimum value for the Pareto distribution.
-
-2. **`generateParetoPacketCounts`**  
-   - **Purpose**: Generates packet counts following the Pareto distribution using the formula:  
-     $$
-     X = \frac{\text{minValue}}  {(1 - U)^{\frac{1}{\alpha}}}
-     $$  
-     where $U$ is a uniformly distributed random value between 0 and 1, and $\alpha$ is the Pareto shape parameter.  
-   - **Details**:  
-   We'll discuss a step-by-step explanation of the formula used in `generateParetoPacketCounts` and how it was derived just below.
-
-
-### Understanding the Pareto Distribution Formula
-
-The probability density function (PDF) is given by:
-
-$$
-f(x) = \alpha \frac{{x_m^\alpha}}{{x^{\alpha + 1}}}, \quad x \geq x_m, \, \alpha > 0
-$$
-
-Here:
-- $x$: The variable of interest.
-- $x_m$: The minimum value of $x$ (also called the scale parameter).
-- $\alpha$: The shape parameter, controlling the "heaviness" of the distribution tail.
-
-From the PDF, we derive the cumulative distribution function (CDF), which gives the probability that a random variable $X$ is less than or equal to some value $x$:
-
-$$
-F(x) = 1 - \left(\frac{x_m}{x}\right)^\alpha, \quad x \geq x_m
-$$
-
-To generate a random number following this distribution, we use the inverse transform sampling method.
-
-### Inverse Transform Sampling
-
-The key idea of inverse transform sampling is:
-1. Start with a random number $U$ uniformly distributed in \([0, 1]\).
-2. Transform $U$ using the inverse of the CDF $F(x)$ to produce a random value $X$ following the desired distribution.
-
-For the Pareto distribution, the CDF is:
-
-$$
-F(x) = 1 - \left(\frac{x_m}{x}\right)^\alpha
-$$
-
-Setting $F(x) = U$, we get:
-
-$$
-U = 1 - \left(\frac{x_m}{x}\right)^\alpha
-$$
-
-Rearranging for $x$:
-$$
-x = x_m \cdot (1 - U)^{-1/\alpha}
-$$
-
-This formula allows us to generate a random value $x$ following the Pareto distribution given:
-
-- $U$: A uniformly distributed random value.
-- $x_m$: The minimum value (scale parameter).
-- $\alpha$: The shape parameter.
-
-
-## Event Coordinator System  
-
-The **`EventsCoordinator`** class is the backbone of this project, managing the simulation of events and distributing data across PCs at defined intervals.  
-
-### **Header File Explanation**  
-
-The header file defines the structure of the `EventsCoordinator` class:  
-
-- **Key Variables**:  
-  - `m_self`: A static instance pointer to ensure this class follows the **Singleton Pattern**, allowing only one instance of the class.  
-  - `m_running`: A `bool` to track whether the simulation is active.  
-  - `m_intervalMs`: The time (in milliseconds) between events.  
-  - `m_durationMs`: The total duration (in milliseconds) for which the simulation will run.  
-  - `m_dataArray`: A vector storing the number of data packets to send during each interval.  
-  - `m_pcs`: A vector of `PC` objects that receive data.  
-  - `m_dataGenerator`: An instance of the `DataGenerator` class, used to generate packet counts.  
-
-- **Key Functions**:  
-  - `startSimulation`: Prepares and begins the simulation.  
-  - `stopSimulation`: Stops the simulation gracefully.  
-  - `run`: The main function executed by the thread to manage events.  
-  - `instance` and `release`: Manage the lifecycle of the singleton instance.  
-
-
-### **Source File Explanation**  
-
-#### **Constructor (`EventsCoordinator`)**  
-
-```cpp
-EventsCoordinator::EventsCoordinator(QThread *parent)
-    : QThread(parent), m_dataGenerator(new DataGenerator())
-{
-    std::fill(m_dataArray.begin(), m_dataArray.end(), 0);
-}
-```
-
-- Initializes the `EventsCoordinator` object.  
-- Allocates memory for `m_dataGenerator`.  
-- Fills `m_dataArray` with zeros initially.  
-
-#### **Destructor**  
-
-```cpp
-EventsCoordinator::~EventsCoordinator()
-{
-    delete m_dataGenerator;
-}
-```
-
-- Ensures proper cleanup by deleting the `DataGenerator` instance.  
-
-#### **Singleton Management**  
-
-- **`instance` Function**:  
-  ```cpp
-  EventsCoordinator *EventsCoordinator::instance(QThread *parent)
-  {
-      if (!m_self) {
-          m_self = new EventsCoordinator(parent);
-      }
-      return m_self;
-  }
-  ```
-  - Creates or retrieves the single instance of the class.  
-
-- **`release` Function**:  
-  ```cpp
-  void EventsCoordinator::release()
-  {
-      delete m_self;
-      m_self = nullptr;
-      qDebug() << "done";
-  }
-  ```
-  - Deletes the singleton instance and sets the pointer to `nullptr`.  
-
-
-#### **`startSimulation` Function**  
-
-This is where the simulation setup happens:  
-
-```cpp
-void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QVector<QSharedPointer<PC>> &pcs)
-{
-    m_intervalMs = intervalMs;
-    m_durationMs = durationMs;
-    m_pcs = pcs;
-    m_dataArray.assign(durationMs / intervalMs, 0);
-}
-```
-
-1. **Initialize Parameters**:  
-   - `m_intervalMs` and `m_durationMs` store the timing configurations.  
-   - `m_pcs` is a list of PCs that will receive data.  
-   - `m_dataArray` is resized to hold the number of intervals and initialized to zero.  
-
-2. **Data Distribution Logic**:  
-   ```cpp
-   size_t TOTAL_PACKETS = m_dataArray.size();
-   for (size_t i = 0; i < TOTAL_PACKETS; ++i) {
-       while (true) {
-           size_t generatedData = m_dataGenerator->generateParetoPacketCounts(1) - 1;
-           if (generatedData >= m_dataArray.size() || m_dataArray[generatedData] >= m_pcs.size()) {
-               continue;
-           }
-           m_dataArray[generatedData] += 1;
-           break;
-       }
-   }
-   ```
-   - `TOTAL_PACKETS` determines the total number of time intervals.  
-   - For each interval, it generates a random data packet count using Pareto distribution.  
-   - **Conditions**:  
-     - `generatedData >= m_dataArray.size()`: Ensures the index is within bounds.  
-     - `m_dataArray[generatedData] >= m_pcs.size()`: Ensures no single PC is overloaded.  
-
-3. **Debugging Output(For Testing)**:  
-   ```cpp
-   QString res = "";
-   for (size_t i = 0; i < m_dataArray.size(); ++i) {
-       res += ":" + QString::number(m_dataArray[i]);
-   }
-   qDebug() << "Number of Packets in each Cycle:" <<  res;
-   ```
-   - Displays the data distribution for test and debugging.  
-
-4. Starts the thread by setting `m_running` to `true` and calling `start()`.  
-
-
-#### **`stopSimulation` Function**  
-
-```cpp
-void EventsCoordinator::stopSimulation()
-{
-    m_running = false;
-    wait();
-}
-```
-
-- Stops the simulation and ensures the thread completes its work before exiting.  
-
-
-#### **`run` Function**  
-
-The `run` function is the heart of the simulation:  
-
-```cpp
-void EventsCoordinator::run()
-{
-    int cycleCount = m_durationMs / m_intervalMs;
-    for (int i = 0; i < cycleCount && m_running; ++i) {
-        QVector<QSharedPointer<PC>> selectedPCs;
-        if (m_dataArray[i] > 0) {
-            std::vector<int> indices(m_pcs.size());
-            std::iota(indices.begin(), indices.end(), 0);
-            std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
-            for (int j = 0; j < m_dataArray[i]; ++j) {
-                selectedPCs.push_back(m_pcs[indices[j]]);
-            }
-        }
-        Q_EMIT nextTick(selectedPCs);
-        QThread::msleep(m_intervalMs);
-    }
-}
-```
-
-1. **Calculate Cycles**:  
-   - `cycleCount` determines how many intervals will run during the simulation.  
-
-2. **Select PCs**:  
-   - If `m_dataArray[i] > 0`, it means there is data to distribute in this interval.  
-   - Shuffles the indices of PCs to randomize selection.  
-   - Picks PCs based on the data count for that interval.  
-
-3. **Emit Signal**:  
-   - Emits the `nextTick` signal with the selected PCs for that interval.  
-
-4. **Delay**:  
-   - Waits for `m_intervalMs` milliseconds before moving to the next interval.  
-
-
-### **Code Flow Summary**  
-
-1. The `startSimulation` function prepares the simulation by initializing variables and distributing data.  
-2. The thread begins running the `run` function.  
-3. At each interval, it selects PCs and sends data to them using signals.  
-4. The simulation continues until the total duration is completed or `stopSimulation` is called.  
-
-
-
-## MACAddress Class
-
-The `MACAddress` class represents and validates MAC addresses, providing functionality to store, convert, and validate MAC addresses. It supports initialization from both a string and a byte array.
-
-### Fields
-
-- **`m_address`**: stores the six bytes of the MAC address.
+- **`m_versionHeaderLength`**: Stores the version and header length, combined in one byte.
+- **`m_typeOfService`**: Stores the type of service field, typically used for routing priority and delay.
+- **`m_totalLength`**: Stores the total length of the IP packet, including both header and data.
+- **`m_identification`**: Stores the identification field for uniquely identifying fragmented packets.
+- **`m_flagsFragmentOffset`**: Stores flags and fragment offset used for packet fragmentation.
+- **`m_ttl`**: Stores the time-to-live value, used to limit the lifetime of a packet.
+- **`m_protocol`**: Stores the protocol field, identifying the protocol used in the data portion of the IP packet.
+- **`m_headerChecksum`**: Stores the checksum of the header for error-checking.
+- **`m_sourceIp`**: Stores the source IP address.
+- **`m_destIp`**: Stores the destination IP address.
 
 ### Method Explanations
 
 1. **Constructors**
-    - **with array**:
-        - This constructor directly initializes the `m_address` field using a 6-byte array.
-    - **with QString**
-        - Parses the input string if it follows the format `XX:XX:XX:XX:XX:XX` using the `isValid()` method.
-        - If valid, it converts the string to its 6-byte representation. Invalid inputs result in a warning, and the address is set to all zeros.
-
-3. **`toString()`**
-   - Generates a colon-separated hexadecimal string representation of the MAC address.
-
-4. **`isValid()`**
-   - Uses a regular expression to validate the format of a MAC address string.
-
-5. **Equality Operator (`==`)**
-   - Compares each byte of the `m_address` field between two `MACAddress` objects.
-
-
-
-## MACAddressGenerator Class
-
-The `MACAddressGenerator` class provides functionality to generate and manage random MAC addresses. It ensures uniqueness by keeping track of previously assigned addresses and generates new ones based on a predefined Organizationally Unique Identifier (OUI).
-
-### Fields
-
-- **`m_assignedMACs`**: A static `QList<MACAddress>` that stores previously assigned MAC addresses to avoid duplication.
-- **`m_OUIBytes`**: A static `std::array<uint8_t, 3>` representing the Organizationally Unique Identifier (OUI) portion of a MAC address. This is randomly initialized at runtime.
-
-### Method Explanations
-
-1. **Deleted Constructor**
-   - The class is designed as a utility class with only static members and methods. The constructor is explicitly deleted to prevent instantiation.
-
-2. **`generateRandomMAC()`**
-   - Generates a MAC address by combining:
-     - The predefined OUI bytes stored in `m_OUIBytes`.
-     - Three randomly generated NIC-specific bytes.
-   - Combines these bytes into a full 6-byte array and returns it as a `MACAddress`.
-
-3. **`isMACAssigned()`**
-   - Checks if the given MAC address exists in the `m_assignedMACs` list.
-   - Returns `true` if the MAC address has been assigned, `false` otherwise.
-
-4. **`getRandomMAC()`**
-   - Calls `generateRandomMAC()` to create a new MAC address.
-   - Ensures uniqueness by checking against `m_assignedMACs` using `isMACAssigned()`.
-   - If the generated MAC address is already assigned, the method retries until a unique address is generated.
-   - The unique address is added to `m_assignedMACs` and returned.
-
-
-## DataLinkHeader Class
-
-The `DataLinkHeader` class represents the data link layer header used in network communication.
-
-### **Fields**
-
-- **`m_sourceMACAddress`**: Represents the source MAC address of the frame (`MACAddress`).
-
-- **`m_destinationMACAddress`**: Represents the destination MAC address of the frame (`MACAddress`).
-
-### **Methods**
-
-1. **Constructors**
-
-    - Initializes a new `DataLinkHeader` instance with the specified source and destination MAC addresses.
-    - A copy constructor that creates a new `DataLinkHeader` by copying the source and destination MAC addresses from another instance.
+    - **`IPHeader(QObject *parent)`**:
+        - Initializes the fields to default values. The `ttl` field is set using a value from the `SimulationConfig::TTL`.
 
 2. **Setters**
-
     - Each of the fields has a corresponding setter method.
 
 3. **Getters**
     - Each of the fields has a corresponding getter method.
 
+4. **`calculateHeaderChecksum(const QByteArray &data)`**
+    - Calculates the header checksum using a method based on the data size and values. It processes the data in 16-bit chunks, adds them together, and performs a final sum adjustment to generate the checksum.
 
-## TCPHeader Class
 
-The `TCPHeader` class represents the header of a TCP packet.
+## Node Class
+
+The `Node` class represents a network node within a simulated network environment. This class is designed as an abstract base class for Router and PC. Additionally, it incorporates threading capabilities by inheriting from `QThread`, enabling asynchronous operations.
 
 ### Fields
 
-- **`m_sourcePort`**: Stores the source port number (16 bits).
-- **`m_destPort`**: Stores the destination port number (16 bits).
-- **`m_sequenceNumber`**: Stores the sequence number of the packet (32 bits).
-- **`m_acknowledgementNumber`**: Stores the acknowledgment number (32 bits).
-- **`m_flags`**: Represents the control flags (8 bits).
-- **`m_dataOffset`**: Indicates the size of the TCP header in 32-bit words (8 bits).
-- **`m_checksum`**: Stores the checksum for error-checking purposes (16 bits).
-- **`m_windowSize`**: Represents the size of the receive window (16 bits).
-- **`m_urgentPointer`**: Points to the location of urgent data within the packet (16 bits).
+1. **`m_id`**:  
+   - Stores the unique identifier of the node.  
+   - This ID helps in distinguishing nodes within the network.
+
+2. **`m_MACAddress`**:  
+   - Holds the MAC address of the node, uniquely identifying it at the data-link layer.  
+   - It is generated using `MACAddressGenerator` if not explicitly provided during construction.
+
+3. **`m_IP`**:  
+   - Stores the IP address of the node.  
+   - The address is dynamically allocated during object creation using the `IPv4Ptr_t::create()` method.
+
+### Methods Explanation
+
+1. **Constructors**:  
+   The `Node` class provides two constructors to handle node initialization:
+   - **`Node(int id, MACAddress macAddress, QObject *parent = nullptr)`**:  
+     Initializes the node with a specified ID and MAC address.
+   - **`Node(int id, QObject *parent = nullptr)`**:  
+     Automatically generates a random MAC address for the node using `MACAddressGenerator::getRandomMAC()`.
+
+2. **`~Node()`**:  
+   - Destructor for the `Node` class.  
+   - Ensures the proper cleanup of the dynamically allocated IP address by clearing the `m_IP` pointer if it is not null.
+
+3. **`int getId()`**:  
+   - Returns the unique identifier of the node.  
+
+4. **`IPv4Ptr_t getIP()`**:  
+   - Provides access to the node's IP address.
+
+5. **`MACAddress getMACAddress()`**:  
+   - Returns the MAC address of the node.
+
+6. **`virtual void setIP(IPv4Ptr_t ip) = 0`**:  
+   - A pure virtual function that must be implemented by derived classes.  
+   - Defines how a node's IP address is set.
+
+7. **`virtual void receivePacket(const PacketPtr_t &data, uint8_t port_number) = 0`**:  
+   - A pure virtual slot to handle incoming packets.  
+   - Must be implemented by derived classes to define the behavior upon receiving packets.
+
+8. **`void checkCurrentThread()`**:  
+   - Verifies if the current thread is the same as the thread of the object.  
+   - Outputs debug information about the current thread and the object's thread.  
+   - Useful for ensuring thread safety during multi-threaded operations.
+
+### Signals
+
+1. **`void newPacket(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - A Qt signal emitted when a new packet is created and ready to send. 
+
+
+## PC Class
+
+The `PC` class models a personal computer within a simulated network environment. It extends the `Node` class, inheriting its core functionalities while implementing additional features for sending and receiving packets. The class utilizes Qt's threading and signal-slot mechanisms for asynchronous operations and efficient network simulation.
+
+### Fields
+
+1. **`m_gateway`**:  
+   - Represents the gateway port through which the PC communicates with the network.  
+   - This is a dynamically allocated `PortPtr_t` object initialized during the construction of the `PC`.
+
+### Methods Explanation
+
+1. **Constructors**:  
+   The `PC` class provides two constructors for initialization:  
+   - **`PC(int id, MACAddress macAddress, QObject *parent = nullptr)`**:  
+     Initializes the PC with a specific MAC address and ID, creating a gateway for network communication.  
+     Starts the thread for the object and sets up the gateway.  
+   - **`PC(int id, QObject *parent = nullptr)`**:  
+     Initializes the PC with a randomly generated MAC address, ID, and gateway.  
+     Also starts the thread and sets up the gateway.
+
+2. **`~PC()`**:  
+   - Destructor for the `PC` class.  
+   - Ensures proper cleanup by unbinding the gateway port from the `PortBindingManager`.  
+   - Disconnects any signal-slot connections related to the gateway and packet communication.
+
+3. **`void sendPacket(QVector<QSharedPointer<PC>> selectedPCs)`**:  
+   - Sends a packet to one of the selected PCs if the current PC is part of the selection.  
+   - Generates a new packet using `createNewPacket()` and emits the `newPacket` signal to initiate transmission.
+
+4. **`PCPtr_t chooseRandomPC()`**:  
+   - Randomly selects a PC from the network that is different from the current PC.  
+   - Utilizes `QRandomGenerator` to ensure a fair selection.
+
+5. **`PacketPtr_t createNewPacket()`**:  
+   - Creates a new data packet destined for a randomly selected PC.  
+   - Sets the source and destination MAC and IP addresses within the packet's headers.  
+   - Populates the payload with a message and calculates the IP header checksum.  
+   - Returns the constructed packet.  
+
+6. **`void receivePacket(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - Handles incoming packets through the gateway.  
+   - Logs the packet's content and identifies the receiving PC for debugging purposes.
+
+7. **`void setIP(IPv4Ptr_t ip)`**:  
+   - Overrides the `Node` class's pure virtual method to set the IP address of the PC.  
+   - Updates the router IP address associated with the gateway.
+
+8. **`PortPtr_t gateway()`**:  
+   - Returns the gateway port associated with the PC.  
+   - Provides access to the port for further configurations or queries.
+
+9. **`void setupGateway()`**:  
+   - Configures the gateway by connecting the `packetReceived` signal of the gateway port to the `receivePacket` slot of the PC.  
+   - Connects the `newPacket` signal of the PC to the `sendPacket` slot of the gateway port.  
+   - Ensures the router IP of the gateway is updated.
+
+### Signals
+
+1. **`void newPacket(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - Emitted when a new packet is ready to be sent.  
+   - Enables seamless communication with the gateway.  
+
+
+## Router Class
+
+The `Router` class models a network router in a simulated network environment. As a derived class of `Node`, it incorporates routing-specific functionality and is equipped to handle dynamic networking scenarios. It also utilizes threading capabilities through `QThread` for concurrent operations.
+
+### Fields
+
+1. **`ports`**:  
+   - Stores a list of pointers to the router's ports.  
+   - Initialized during object creation, with each port dynamically allocated and assigned a unique port number.
+
+2. **`ipVersion`**:  
+   - Specifies the IP version used by the router.  
+   - Default value is `UT::IPVersion::IPv4`.
+
+3. **`buffer`**:  
+   - A queue of packets pending to be processed or forwarded by the router.
+
+4. **`DHCPServer`**:  
+   - A boolean indicating whether the router is configured as a DHCP server.
+
+5. **`broken`**:  
+   - A boolean indicating whether the router is inoperable.  
+   - When true, the router halts packet processing.
+
+6. **`routingTable`**:  
+   - A list of routing table entries, each containing destination, subnet mask, next hop, output port, metric, and routing protocol.
+
+7. **`maxPorts`**:  
+   - The maximum number of ports available on the router.  
+   - Default value is 5.
+
+### Methods Explanation
+
+1. **Constructor**:  
+   - Initializes the router with a specified ID and MAC address.  
+   - Dynamically allocates ports, assigns port numbers, and sets up signal-slot connections for packet handling.  
+   - Moves the router object to its thread for asynchronous operations.  
+
+2. **Destructor**:  
+   - Ensures proper cleanup of ports by unbinding them from the `PortBindingManager` and disconnecting signals.  
+   - Stops the thread before destruction.
+
+3. **`void setRouterAsDHCPServer()`**:  
+   - Configures the router as a DHCP server by setting the `DHCPServer` flag to true.
+
+4. **`void setRouterBroken()`**:  
+   - Marks the router as inoperable by setting the `broken` flag to true.
+
+5. **`bool routerIsBroken() const`**:  
+   - Returns the status of the `broken` flag, indicating whether the router is operable.
+
+6. **`PortPtr_t getAnUnboundPort() const`**:  
+   - Retrieves the first unbound port from the router's list of ports.  
+   - Returns `nullptr` if all ports are bound.
+
+7. **`int remainingPorts() const`**:  
+   - Returns the number of unbound ports available for use.
+
+8. **`void setIP(IPv4Ptr_t ip)`**:  
+   - Assigns the specified IP address to the router and updates all ports with the router's IP.
+
+9. **`void printRoutingTable() const`**:  
+   - Outputs the router's routing table, displaying entries such as destination, next hop, output port, and metric.
+
+10. **`bool isDHCPServer() const`**:  
+    - Returns the status of the `DHCPServer` flag.
+
+11. **`void addRoutingTableEntry(...)`**:  
+    - Adds an entry to the routing table with the specified destination, subnet mask, next hop, output port, metric, and routing protocol.
+
+12. **`void sendPacket(QVector<QSharedPointer<PC>> selectedPCs)`**:  
+    - Processes the first packet in the buffer and attempts to forward it through the appropriate port based on the routing table.  
+    - Increments the waiting cycles for remaining packets in the buffer.  
+    - Emits a `newPacket` signal to send the packet.
+
+13. **`void receivePacket(const PacketPtr_t &data, uint8_t port_number)`**:  
+    - Handles incoming packets received on a specific port.  
+    - Adds the packet to the buffer if the router is operational.
+
+14. **`uint8_t findSendPort(IPv4Ptr_t destIP)`**:  
+    - Determines the output port number for a given destination IP using the routing table.  
+    - Returns 0 if no route is found.
+
+### Signals
+
+1. **`void newPacket(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - Emitted when a packet is ready to be sent through a specific port.
+
+
+## Port Class
+
+The `Port` class represents a network port within a router, managing the sending and receiving of packets. It is designed to be part of a simulated network environment where communication occurs between different nodes and routers. The class provides both public methods and signals/slots, using Qt's `QObject` for event-driven programming.
+
+### Fields
+
+1. **`m_number`**:  
+   - Stores the port number of the port.  
+   - This number uniquely identifies the port in the router.
+
+2. **`m_numberOfPacketsSent`**:  
+   - Keeps track of the number of packets sent by the port.  
+   - This is incremented each time a packet is sent through this port.
+
+3. **`m_routerIP`**:  
+   - Holds the IP address of the router or the pc that the port belongs to.  
+   - Used for identifying which router the port is part of.
+
+### Methods Explanation
+
+1. **Constructor**:  
+   The `Port` class provides a constructor to initialize a new port:
+   - **`Port(QObject *parent = nullptr)`**:  
+     Initializes the port with default values and optionally sets the parent object in a Qt-based application.
+
+2. **`sendPacket(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - This method sends a packet through the port if the provided `port_number` matches the port's number.  
+   - It emits the `packetSent` signal when a packet is sent and increments the `m_numberOfPacketsSent` counter.
+
+3. **`receivePacket(const PacketPtr_t &data)`**:  
+   - This method handles the reception of a packet and emits the `packetReceived` signal.  
+   - It logs the reception of the packet, indicating the port number and router IP.
+
+4. **`getPortNumber()`**:  
+   - Returns the port number of the port.
+
+5. **`getRouterIP()`**:  
+   - Returns the IP address of the router associated with the port.
+
+6. **`setPortNumber(uint8_t number)`**:  
+   - Sets the port number of the port.
+
+7. **`setRouterIP(QString routerIP)`**:  
+   - Sets the IP address of the router associated with the port.
+
+### Signals
+
+1. **`void packetSent(const PacketPtr_t &data)`**:  
+   - A Qt signal emitted when a packet is successfully sent from the port.
+
+2. **`void packetReceived(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - A Qt signal emitted when a packet is received at the port, carrying the packet data and port number.
+
+
+## PortBindingManager Class
+
+The `PortBindingManager` class is responsible for managing the bindings between network ports. A binding refers to the connection between two ports, enabling communication between them. This class provides functionality to bind, unbind, and check the status of port connections, supporting the simulation of a network environment where ports can exchange data.
+
+### Fields
+
+1. **`bindings`**:  
+   - A static `QMap` that stores the relationships between ports.  
+   - The keys are `PortPtr_t` objects representing the ports, and the values are `QList<PortPtr_t>` objects that contain the list of ports that are bound to the key port.
+
+### Methods Explanation
+
+1. **Constructor**:  
+   - **`PortBindingManager(QObject *parent = nullptr)`**:  
+     Initializes the `PortBindingManager` object. The constructor does not take any specific initialization beyond the `QObject` parent.
+
+2. **`printBindings()`**:  
+   - This method prints the current bindings of all ports in the system.  
+   - It iterates over the `bindings` map and outputs the port numbers of the bound ports to the console, showing which ports are connected.
+
+3. **`printBindingsForaPort(PortPtr_t port)`**:  
+   - This method prints the bindings associated with a specific port.  
+   - It checks whether the port exists in the `bindings` map and then outputs the connected ports and their router IPs.
+
+4. **`bind(const PortPtr_t &port1, const PortPtr_t &port2)`**:  
+   - This method binds two ports together, enabling them to communicate with each other.  
+   - It ensures that a port cannot be bound to itself and that the ports are not already bound.  
+   - Once the binding is established, the method connects the `packetSent` signal of both ports to the `receivePacket` slot of the other port, allowing for packet transmission between them.
+
+5. **`unbind(const PortPtr_t &port)`**:  
+   - This method unbinds all ports that are bound to a given port.  
+   - It removes the port from the `bindings` map and disconnects any established connections between the given port and its bound ports.
+
+6. **`unbind(const PortPtr_t &port1, const PortPtr_t &port2)`**:  
+   - This method unbinds two specific ports that are connected.  
+   - It removes the connection from the `bindings` map and disconnects the signals and slots that were established for packet transmission between the ports.
+
+7. **`isBounded(const PortPtr_t &port)`**:  
+   - This method checks if a specific port has any active bindings.  
+   - It returns `true` if the port is bound to any other ports, and `false` otherwise.
+
+### Signals
+
+- **`void bindingChanged(const QString &router1, uint8_t port1, const QString &router2, uint8_t port2, bool bind)`**:  
+   - This signal (currently commented out) would be emitted whenever the binding status between two ports changes. It could be used for debugging or logging purposes.
+
+
+
+
+## TopologyBuilder Class
+
+The `TopologyBuilder` class is responsible for constructing various network topologies of routers, such as **Mesh**, **Ring-Star**, and **Torus**. It generates routers with unique MAC and IP addresses, and establishes connections (ports) between them based on the selected topology type. The class automates the process of building a network topology by organizing routers, binding ports, and ensuring the correct network layout.
+
+### Fields
+
+- **`routersNum`**: A static variable to keep track of the number of routers created. It is incremented with each new router instance to ensure unique router IDs.
+
+### Methods Explanation
+
+1. **`buildTopology()`**
+   - This method is the main entry point for building a topology. It accepts the number of nodes, topology type, and an AS ID to generate routers. It creates each router with a unique MAC address using `MACAddressGenerator` and assigns an IP address based on the AS ID. The routers are then added to a list and connected to the `EventsCoordinator`.
+   - After creating the routers, it switches to the specified topology type (`Mesh`, `Ring-Star`, or `Torus`) and builds the network layout by invoking the appropriate internal methods.
+   - The method returns a list of constructed routers (`QList<RouterPtr_t>`).
+
+2. **`buildMeshTopology()`**
+   - This method arranges the routers in a **Mesh topology**. It organizes the routers into a square grid (n x n) and binds ports between adjacent routers (right-left, up-down).
+   - If the number of routers does not form a perfect square, it logs a warning.
+
+3. **`buildRingStarTopology()`**
+   - This method arranges the routers into a **Ring-Star topology**. The routers are arranged in a ring with a central router. Each router in the ring is connected to its next neighbor, and additionally, every alternate router is connected to the central router (acting as the star).
+   - It checks that the number of routers is valid for a Ring-Star topology (2n + 1 routers) and logs a warning if the condition is not met.
+
+4. **`buildTorusTopology()`**
+   - This method arranges the routers in a **Torus topology**, which is an extension of the Mesh topology. It connects the routers as in a Mesh, but also connects the first and last routers in both rows and columns, creating a "wrap-around" effect.
+
+5. **`getRouterIndexAtMesh()`**
+   - This utility method calculates the index of a router in a mesh grid based on its row and column position. This is used for establishing connections between adjacent routers in the mesh.
+
+### Key Functionalities:
+
+- **Router Creation**: Each router is instantiated with a unique MAC address (generated using `MACAddressGenerator`) and an IP address (derived from the AS ID and router number).
+- **Port Binding**: Routers are connected through ports. The `PortBindingManager` is responsible for binding ports between routers.
+- **Topology Building**: The class can build multiple types of topologies:
+   - **Mesh**: A square grid of routers.
+   - **Ring-Star**: A ring of routers with a central router acting as a star.
+   - **Torus**: A mesh with wrap-around connections in both rows and columns.
+
+
+
+
+## **AutonomousSystem Class**
+
+The `AutonomousSystem` class models a networked autonomous system, encapsulating its structure, configuration, and interactions with other systems.
+
+
+### **Fields**
+
+- **`id`**: Represents the unique identifier of the autonomous system (AS).
+
+- **`topologyType`**: Specifies the topology type of the AS, such as mesh, torus, ring-star.
+
+- **`nodeCount`**: Indicates the number of nodes (routers) in the AS.
+
+- **`asGateways`**: Holds the list of routers that act as AS Gateways, enabling interconnection between different autonomous systems.
+
+- **`userGateways`**: Stores the routers that act as User Gateways, providing entry points for user devices into the network.
+
+- **`dhcpServer`**: Represents the router designated as the DHCP server for dynamically assigning IP addresses to devices.
+
+- **`brokenRouters`**: Tracks routers marked as broken or non-functional.
+
+- **`connections`**: Stores the associations between routers and connected user devices (PCs).
+
+- **`routers`**: Contains all routers within the autonomous system.
+
 
 ### Methods Explanations
 
-1. **Constructor:**
-   - `TCPHeader(QObject *parent = nullptr)`: Initializes the class and sets the default checksum to `0`.
+1. **Constructors**
 
-2. **Setters:**
-   - Each of the fields has a corresponding setter method, such as `setSourcePort()`, `setDestPort()`, `setSequenceNumber()`, and so on.
+    - **Default Constructor:**
 
-3. **Getters:**
-   - Each of the fields has a corresponding getter method, such as `sourcePort()`, `destPort()`, `sequenceNumber()`, and so on, to retrieve the value of the field.
+    ```cpp
+    AutonomousSystem();
+    ```
 
-4. **`calculateChecksum` Method:**
+    Initializes an empty autonomous system.
 
-    - Calculates the checksum for the TCP header using the pseudo-header (source and destination IPs) and the actual header data.
-    - Uses a helper function, onesComplementSum, to compute the one's complement sum of the data.
+    - **Parameterized Constructor:**
 
-5. **`onesComplementSum` Helper Function:**
-    - Computes the one's complement sum for a given byte array.
+    ```cpp
+    AutonomousSystem(int asId, UT::TopologyType type);
+    ```
+
+    Initializes the autonomous system with a unique ID (`asId`) and a specified topology type (`type`).
 
 
-## Packet Class
+2. **`build(QJsonObject config)`**
+    - Builds the topology and configures the autonomous system using a JSON object. It performs the following steps:
+        1. Sets the number of nodes (`nodeCount`) and builds the router topology using `TopologyBuilder::buildTopology`.
+        2. Configures AS Gateways (`setASGateaways`), User Gateways (`setUserGateaways`), and the DHCP server (`setDHCPServer`).
+        3. Marks specified routers as broken (`setBrokenRouters`).
+        4. Associates user devices (PCs) with routers using `setGateways`.
+        5. Establishes inter-AS connections with other autonomous systems via `setConnectToAS`.
 
-The `Packet` class represents a network packet and provides methods to manipulate its properties. It encapsulates various attributes such as packet type, payload, sequence number, waiting and total cycles, and the path it traverses. The class also integrates headers such as `DataLinkHeader` and optionally supports `TCPHeader`.
+3. **`findRouterById(int id)`**
+
+    - Searches for and returns a router by its ID within the autonomous system. Returns `nullptr` if the router is not found.
+
+4. **`setASGateaways(QJsonArray ASgatewayIds)`**
+
+     - Configures the AS Gateways by assigning the routers identified in the JSON array. Gateways enable communication between different autonomous systems.
+
+5. **`setUserGateaways(QJsonArray gatewayIds)`**
+
+    - Configures the User Gateways by assigning the routers identified in the JSON array. These gateways act as entry points for user devices into the network.
+
+6. **`setDHCPServer(int dhcpId)`**
+
+    - Sets a specific router as the DHCP server, allowing it to dynamically assign IP addresses.
+
+7. **`setBrokenRouters(QJsonArray brokenRouterIds)`**
+
+    - Marks specific routers as broken, based on the IDs provided in the JSON array. This is used for simulating network failures.
+
+8. **`setGateways(QJsonArray gateways)`**
+
+     - Associates user devices (PCs) with routers, creating connections between them. For each user device:
+        1. A new `PC` object is created with a unique IP address.
+        2. The device is connected to a router via an unbound port.
+
+
+9. **`setConnectToAS(QJsonArray ASs)`**
+
+    - Establishes connections between this AS and other autonomous systems. For each connection:
+        1. The source and target routers are identified by their IDs.
+        2. Ports on these routers are bound together using the `PortBindingManager`.
+
+
+
+
+
+## **ConfigReader Class**
+
+The **ConfigReader** class is a utility designed to read and parse configuration files, specifically for setting up network simulations. It processes JSON-formatted files to extract simulation settings and build autonomous systems.
 
 ### Fields
-
-- **`m_packetType`**: An instance of `UT::PacketType` that specifies the type of the packet.
-- **`m_payload`**: A `QByteArray` storing the packet's data payload.
-- **`m_sequenceNumber`**: A 32-bit unsigned integer representing the packet's sequence number.
-- **`m_waitingCycles`**: A 32-bit unsigned integer indicating how many cycles the packet has been waiting.
-- **`m_totalCycles`**: A 32-bit unsigned integer tracking the total number of cycles the packet has been in the system.
-- **`m_path`**: A `QList<QString>` representing the IP path the packet has traversed.
-- **`m_dataLinkHeader`**: An instance of `DataLinkHeader` representing the data link layer header associated with the packet.
-- **`m_tcpHeader`**: An optional `TCPHeader` instance providing support for TCP-related information, if applicable.
-- **`m_controlType`**: An optional `UT::PacketControlType` for specifying control-related metadata for the packet.
-
-### Constructor
-
-1. **`Packet(DataLinkHeader dataLinkHeader, QObject* parent = nullptr)`**
-   - Initializes a `Packet` object with a given `DataLinkHeader`.
-   - Sets `m_totalCycles` and `m_waitingCycles` to zero.
+All methods in this class are static, ensuring they are accessible without instantiating the class.
 
 ### Method Explanations
 
-1. **`addToPath(QString ip)`**
-   - Adds an IP address to the packet's path.
-   - Appends the provided IP string to `m_path`.
+1. **`readJson`**
+    - Reads a JSON file and validates its format.
 
-2. **`incWaitingCycles()`**
-   - Increments the `m_waitingCycles` field by one.
 
-3. **`incTotalCycles()`**
-   - Increments the `m_totalCycles` field by one.
+2. **`readNetworkConfig`**
+    - Main entry point for reading and processing the network configuration.
+    - **Process**:
+      - Reads the JSON object using `readJson`.
+      - Splits general settings and autonomous system definitions.
+      - Extracts simulation settings via `parseSimulationConfig`.
+      - Processes the autonomous systems using `parseAutonomousSystems`.
 
-4. **Setters**
-    - Each of the fields has a corresponding setter method.
+3. **`parseSimulationConfig`**
+    - Parses general simulation settings.
+    - **Key Parameters**:
+      - **Simulation Duration**: Overall runtime for the simulation.
+      - **Cycle Duration**: Interval for each simulation cycle.
+      - **TTL (Time-To-Live)**: Duration for packets.
+      - **Packets Per Simulation**: Maximum number of packets.
+      - **Statistical Distribution**: The distribution model for simulation.
+      - **Router Buffer Size**: Buffer capacity of routers.
+      - **Router Port Count**: Number of ports per router.
+      - **Routing Protocol**: The protocol used for routing.
+      - **Routing Table Size**: Maximum size of routing tables.
+      - **Routing Packets Per Port Cycle**: Number of packets routed per cycle.
+      - **Routing Per Port**: Boolean to enable/disable routing on a per-port basis.
+      - **Routing Table Update Interval**: Updates in seconds (or infinite).
 
-5. **Getters**
-    - Each of the fields has a corresponding getter method.
+4. **`parseAutonomousSystems`**
+    - Constructs `AutonomousSystem` instances based on the configuration.
+    - **Steps**:
+      - Iterates over an array of system definitions.
+      - Extracts topology type using `stringToTopologyType`.
+      - Builds and appends the system to the `Network::autonomousSystems` list.
 
-### Destructor
+5. **Utility Functions**
+    - **stringToTopologyType**:
+      - Converts string representations (`"Mesh"`, `"RingStar"`, `"Torus"`) into enumeration values.
+    - **parseTopologyTypes**:
+      - Splits compound topology type strings into a list of enumerated types.
 
-- **`~Packet()`**
-   - Ensures proper cleanup of the `Packet` instance when it goes out of scope.
-  
-### Future Expansion
-  - IPHeader integration for network layer information.
-  
-  
-## Phase 1 Tests
 
-### **Testing the EventCoordinator System**
 
-To validate the functionality of the `EventCoordinator` system, we implemented `Node` and `PC` classes. These were used to simulate PCs that receive data packets at regular intervals, as coordinated by the EventCoordinator.
+## **SimulationConfig Class**
 
-#### **Node and PC Implementation**
+The `SimulationConfig` class serves as a centralized configuration system for simulation parameters. It defines static variables that represent key settings required to manage simulation behavior.
 
-The `Node` class serves as a base class for the `PC`, representing individual PCs in the system. Each PC can send data packets when connected to the EventCoordinator and received a signal to do so.
+### **Fields**
 
-**Node Header File:**
-```cpp
-#ifndef NODE_H
-#define NODE_H
+1. **Static Fields:**
+   - `simulationDurationMs`: The total duration of the simulation in milliseconds.
+   - `cycleDurationMs`: Duration of a single simulation cycle in milliseconds.
+   - `TTL`: Default time-to-live value for packets.
+   - `packetsPerSimulation`: Number of packets processed during the simulation.
+   - `statisticalDistribution`: Distribution type for simulation.
+   - `routerBufferSize`: Buffer size of routers.
+   - `routerPortCount`: Number of ports in each router.
+   - `routingProtocol`: Protocol used for routing.
+   - `routingTableUpdateInterval`: Interval for routing table updates in milliseconds.
+   - `routingPerPort`: Whether routing is performed per port.
+   - `routingTableSize`: Maximum size of routing tables.
+   - `routingPacketsPerPortCycle`: Packets processed per port per cycle.
 
-#include <QThread>
-#include <QDebug>
+2. **Private Methods:**
+   - `convertTimeToMs(const QString &timeString)`: Converts a time string to milliseconds.
 
-class Node : public QThread
-{
-    Q_OBJECT
+### **Methods Explanation**
 
-public:
-    explicit Node(QObject *parent = nullptr);
-};
+1. **Constructors**
+    - **Default Constructor:**
 
-#endif    // NODE_H
-```
+        Initializes an empty configuration with default values.
 
-**PC Header File:**
-```cpp
-#ifndef PC_H
-#define PC_H
+        ```cpp
+        SimulationConfig::SimulationConfig() {}
+        ```
 
-#include "../Node/Node.h"
-#include <QVector>
-#include <QSharedPointer>
+    - **Parameterized Constructor:**
 
-class PC : public Node
-{
-    Q_OBJECT
+        Populates simulation settings using provided arguments, converting time values from string to milliseconds.
 
-public:
-    explicit PC(int id, QObject *parent = nullptr);
+        ```cpp
+        SimulationConfig(const QString &simDuration, const QString &cycleDuration, ...);
+        ```
 
-public Q_SLOTS:
-    void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
+2. **`convertTimeToMs`**
 
-protected:
-    int m_id;
-};
+    - Converts a time string into milliseconds using regex matching.
+        - Supports formats like `"10s"` or `"500ms"`.
+        - Returns `0` for invalid formats.
 
-#endif    // PC_H
-```
 
-**PC Source File:**
-```cpp
-#include "PC.h"
 
-PC::PC(int id, QObject *parent) :
-    Node(parent)
-{
-    m_id = id;
-}
 
-void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs) {
-    if (!selectedPCs.contains(this))
-        return;
-    qDebug() << "sending packet from " << m_id;
-}
-```
+## **Network Class**
 
-#### **Testing with Main Function**
+The `Network` class models the overall simulation network, managing autonomous systems (AS), events coordination, and other components.
 
-The `main` function demonstrates the simulation of the system by:
+### **Fields**
+1. **Static Fields:**
+   - `PCs`: List of all PCs in the network.
+   - `simulationConfig`: The simulation configuration object.
+   - `autonomousSystems`: List of autonomous systems in the network.
+   - `eventsCoordinator`: Pointer to the events coordinator.
 
-1. Creating an instance of `EventCoordinator` using its singleton pattern.
-2. Initializing 10 PCs.
-3. Connecting the EventCoordinator's `nextTick` signal to each PC's `sendPacket` slot.
-4. Starting the simulation with an interval of 200 milliseconds and a total duration of 10,000 milliseconds.
+### **Methods Explanation**
 
-**Main Function:**
-```cpp
-#include "../EventsCoordinator/EventsCoordinator.h"
-#include <QCoreApplication>
-#include <QObject>
+1. **Constructors**
+    - **Default Constructor:**
+        - Initializes the `eventsCoordinator` singleton.
 
-int main(int argc, char *argv[])
-{
-    QCoreApplication app(argc, argv);
-
-    EventsCoordinator *eventCoordinator = EventsCoordinator::instance();
-
-    QVector<QSharedPointer<PC>> pcs;
-    for (int i = 0; i < 10; i++) {
-        QSharedPointer<PC> pc = QSharedPointer<PC>::create(i);
-        pcs.append(pc);
-
-        QObject::connect(eventCoordinator, &EventsCoordinator::nextTick, pc.get(), &PC::sendPacket);
-    }
-
-    eventCoordinator->startSimulation(200, 10000, pcs);
-    int result = app.exec();
-
-    EventsCoordinator::release();
-
-    return result;
-}
-```
-
----
-
-#### **Output**
-
-The system's test outputs include:
-1. A debug log showing the number of data packets distributed in each cycle.
-2. Logs for PCs receiving packets, indicating the PC ID.
-
-**Output:**
-![EventCoordinator Test Phase 1](./imgs/EventCoordinatorTest_P1.png)
-
-This output validates that:
-- Data distribution among cycles matches the configuration.
-- Each PC correctly receives packets when selected.
-
-### **Testing the MAC Address**
-
-```cpp
-#include <QCoreApplication>
-#include <QDebug>
-#include "MACAddress/MACAddress.h"
-
-int main(int argc, char *argv[])
-{
-    QCoreApplication a(argc, argv);
-
-    std::array<uint8_t, 6> addressArray = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC};
-    MACAddress mac1(addressArray);
-    qDebug() << "MACAddress from array:" << mac1.toString(); //12:34:56:78:9A:BC
-
-    MACAddress mac2("AB:CD:EF:12:34:56");
-    qDebug() << "MACAddress from valid string:" << mac2.toString(); //AB:CD:EF:12:34:56
-
-    MACAddress mac3("INVALID:ADDRESS");
-    qDebug() << "MACAddress from invalid string:" << mac3.toString(); //00:00:00:00:00:00
-
-    qDebug() << "Is '12:34:56:78:9A:BC' valid?" << mac2.isValid("12:34:56:78:9A:BC"); // true
-    qDebug() << "Is 'INVALID' valid?" << mac2.isValid("INVALID"); //false
-
-    MACAddress mac4("12:34:56:78:9A:BC");
-    qDebug() << "Are mac1 and mac4 equal?" << (mac1 == mac4); // true
-    qDebug() << "Are mac2 and mac4 equal?" << (mac2 == mac4); // false
-
-    return 0;
-}
-```
-
-**What is being tested**:
-1. **MAC Address Initialization**: We test if the `MACAddress` class can correctly handle MAC address initialization from both a byte array and a valid string. Additionally, we check how the class handles an invalid string (expecting it to default to `00:00:00:00:00:00`).
-   
-2. **MAC Address Validation**: The `isValid()` method is tested to ensure it accurately identifies valid MAC addresses (e.g., `12:34:56:78:9A:BC`) and rejects invalid strings (e.g., `INVALID`).
-   
-3. **Equality Check**: The `==` operator is tested for comparing two `MACAddress` objects, verifying that the operator correctly identifies equality when two addresses are the same and inequality when they differ.
-
-**Desired Output**:
-1. **MACAddress from array**: The output should display `12:34:56:78:9A:BC`, confirming that the class can properly initialize a MAC address from a byte array.
-   
-2. **MACAddress from valid string**: The output for this MAC address should be `AB:CD:EF:12:34:56`, showing that the class correctly parses a valid MAC address string.
-
-3. **MACAddress from invalid string**: The output should be `00:00:00:00:00:00`, indicating that the class defaults to the "zero" address when provided with an invalid string like `INVALID:ADDRESS`.
-
-4. **MAC Address validation**:
-   - It should print `true` for the valid MAC address `12:34:56:78:9A:BC`.
-   - It should print `false` for the invalid string `INVALID`.
-
-5. **Equality Check**:
-   - It should print `true` when comparing `mac1` and `mac4` because they are the same.
-   - It should print `false` when comparing `mac2` and `mac4`, as they are different addresses.
-
-#### **Output**
-![MAC Address Test](./imgs/MacAddressTest_P1.png)
-
-### Testing the MAC Address Generator
-
-```cpp
-#include <QDebug>
-#include "MACAddress/MACAddress.h"
-#include "MACAddress/MACAddressGenerator.h"
-
-int main()
-{
-    QList<MACAddress> generatedMACs;
-
-    for (int i = 0; i < 5; ++i) {
-        MACAddress randomMAC = MACAddressGenerator::getRandomMAC();
-        qDebug() << "Generated MAC Address #" << (i + 1) << ":" << randomMAC.toString();
-
-        bool isUnique = true;
-        for (const auto& mac : generatedMACs) {
-            if (mac == randomMAC) {
-                isUnique = false;
-                break;
-            }
+        ```cpp
+        Network::Network()
+        {
+            eventsCoordinator = EventsCoordinator::instance();
         }
+        ```
 
-        if (isUnique) {
-            qDebug() << "The MAC address is unique.";
-        } else {
-            qDebug() << "The MAC address is not unique.";
+    - **Destructor:**
+        - Releases the events coordinator.
+
+        ```cpp
+        Network::~Network()
+        {
+            eventsCoordinator->release();
         }
+        ```
 
-        generatedMACs.append(randomMAC);
-    }
-    MACAddress tempMac(generatedMACs.first().toString());
-    qDebug() << "is mac assigned?: " << MACAddressGenerator::isMACAssigned(tempMac);
-    return 0;
-}
-```
+2. **`findASById`**
 
-**What is being tested**:
-1. **Random MAC Address Generation**: The `MACAddressGenerator` class is tested to ensure it generates random and valid MAC addresses. We expect the generated addresses to follow the correct format (six groups of two hexadecimal characters separated by colons).
+    - Searches for and retrieves an autonomous system by its ID.
+    - Returns `nullptr` if the AS is not found.
 
-2. **Uniqueness of Generated MAC Addresses**: Each generated MAC address is checked for uniqueness within the current run. We test if the generator produces duplicates by comparing each newly generated address to the previously generated ones.
+    ```cpp
+    AutonomousSystemPtr_t Network::findASById(int id);
+    ```
 
-3. **MAC Address Assignment**: After generating five MAC addresses, we test whether the first MAC address in the list has already been assigned using `isMACAssigned()`. This verifies that the generator is keeping track of generated addresses.
+3. **`run`**
 
-**Desired Output**:
-1. **Generated MAC Addresses**: Each of the five generated MAC addresses should be printed in valid MAC address format (e.g., `Generated MAC Address #1: XX:XX:XX:XX:XX:XX`), with each address being different.
+    - Initializes and runs the network simulation:
+        - Reads the configuration from a JSON file.
+        - Starts the simulation with parameters from `SimulationConfig`.
 
-2. **Uniqueness Check**: After generating each address, the system should output whether the generated MAC address is unique:
-   - "The MAC address is unique." if the address has not been seen before in the current run.
-   - "The MAC address is not unique." if the address is a duplicate.
-
-3. **Assigned MAC Check**: After generating the five addresses, the program checks if the first address is assigned by calling `isMACAssigned()`. It will print either `true` or `false`, depending on whether the address has been previously assigned.
-
-#### **Output**
-
-![MAC Address Generator Test](./imgs/MacAddressGeneratorTest_P1.png)
