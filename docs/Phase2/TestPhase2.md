@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 4. **Invalid IP**: An exception is caught, and the message for invalid IP is printed.
 
 #### **Output**
-![IP Test Phase 2](../imgs/IPTest_P2.png)
+![IP Test Phase 2](../../imgs/IPTest_P2.png)
 
 ### **Testing the Port**
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 3. **Packet Sending and Receiving**: Debug logs will show the packet's payload when it is sent and received, ensuring the correct functionality of packet communication.
 
 #### **Output**
-![Port Test Phase 2](../imgs/PortTest_P2.png)
+![Port Test Phase 2](../../imgs/PortTest_P2.png)
 
 ### **Testing the Router**
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 5. **Packet Forwarding**: A packet should be sent from one port and received by another, confirming that packet forwarding works correctly.
 
 #### **Output**
-![Router Test Phase 2](../imgs/RouterTest_P2.png)
+![Router Test Phase 2](../../imgs/RouterTest_P2.png)
 
 
 ### **Testing the Topology Builder**
@@ -254,7 +254,7 @@ int main(int argc, char* argv[])
 1. **Topology Test**: Displays router details including router ID, IP address, and bounded ports for each topology.
    
 #### **Output**
-![Topology Test](../imgs/TopologyTest_P2.png)
+![Topology Test](../../imgs/TopologyTest_P2.png)
 
 ---
 
@@ -336,5 +336,54 @@ PortCount;
 2. **Autonomous Systems**: Displays details of the autonomous systems as configured in the `config.json`.
 
 #### **Output**
-![Config Test](../imgs/ConfigTest_P2.png)
+![Config Test](../../imgs/ConfigReaderTest_P2.png)
+
+
+
+### **Network Integration Test**
+
+```cpp
+#include <QCoreApplication>
+#include "Network/Network.h"
+
+int main(int argc, char* argv[])
+{
+    QCoreApplication a(argc, argv);
+
+    Network network;
+    network.run();
+
+    return a.exec();
+}
+```
+
+**What is being tested**:
+1. **System Integration**: This test ensures that the combination of all the network-related classes (routers, PCs, event coordinators, etc.) can function together correctly within the simulation. It verifies that these components interact properly, with routers and PCs able to send and receive packets through the network.
+  
+2. **Multi-threading**: The test also validates that the system properly handles different components (such as routers and PCs) running in different threads. This is crucial for simulating a real network environment, where various devices must operate concurrently.
+
+3. **Event Coordination**: It checks whether the `EventCoordinator` class is effectively managing events in the simulation. This includes ensuring that the simulation steps are properly synchronized and handled in different threads, ensuring smooth operation.
+
+4. **Packet Transmission**: The test verifies that packets can be sent and received between routers and PCs. The flow of data is checked to confirm that communication between network devices occurs as expected within the simulation.
+
+5. **Logging and Monitoring**: Logs are enabled to track the activity of routers and PCs, specifically checking that:
+   - Routers and PCs are executing in separate threads.
+   - Packet transmissions occur as expected without blocking or delays.
+   - Events such as packet sends and receives are properly logged, allowing for real-time monitoring of the simulation.
+
+**Desired Output**:
+1. **Log Messages**: The logs should show that routers and PCs are running in separate threads, with thread identifiers displayed alongside the log messages.
+  
+2. **Packet Transmission**: The logs should also confirm that packets are being successfully transmitted between the devices. This will be evident from messages indicating packet sending and receiving events.
+
+3. **Event Coordination**: The output should show synchronized event handling, with events being executed in the correct order according to the simulation's timeline.
+
+4. **Error Handling**: In case of any issues, the logs should help identify misconfigurations, such as incorrect event timings, thread synchronization issues, or failed packet transmissions.
+
+#### **Output**
+![Network Test](../../imgs/NetworkTest_P2.png)
+
+We also used QT creator's debugging tools to check if the threads are running correctly. The following screenshot show the threads running in the Network Integration Test:
+
+![Thread Test](../../imgs/ThreadTest_P2.png)
 
