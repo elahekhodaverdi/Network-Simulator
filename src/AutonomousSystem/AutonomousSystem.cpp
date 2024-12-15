@@ -13,9 +13,49 @@ AutonomousSystem::AutonomousSystem(int asId, UT::TopologyType type)
     , topologyType(type)
 {}
 
-int AutonomousSystem::getID()
+int AutonomousSystem::getID() const
 {
     return id;
+}
+
+UT::TopologyType AutonomousSystem::getTopologyType() const
+{
+    return topologyType;
+}
+
+int AutonomousSystem::getNodeCount() const
+{
+    return nodeCount;
+}
+
+const QList<RouterPtr_t>& AutonomousSystem::getASGateways() const
+{
+    return asGateways;
+}
+
+const QList<RouterPtr_t>& AutonomousSystem::getUserGateways() const
+{
+    return userGateways;
+}
+
+RouterPtr_t AutonomousSystem::getDHCPServer() const
+{
+    return dhcpServer;
+}
+
+const QList<RouterPtr_t>& AutonomousSystem::getBrokenRouters() const
+{
+    return brokenRouters;
+}
+
+const QList<QPair<RouterPtr_t, QList<PCPtr_t>>>& AutonomousSystem::getConnections() const
+{
+    return connections;
+}
+
+const QList<RouterPtr_t>& AutonomousSystem::getRouters() const
+{
+    return routers;
 }
 void AutonomousSystem::build(QJsonObject config)
 {
