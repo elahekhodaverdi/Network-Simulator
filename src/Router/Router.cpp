@@ -94,6 +94,8 @@ bool Router::isDHCPServer() const
 
 void Router::receivePacket(const PacketPtr_t &data, uint8_t port_number)
 {
+    if (broken)
+        return;
     buffer.append(data);
     qDebug() << "Packet Received from: " << port_number << " Content:" << data->payload();
 }
@@ -108,10 +110,16 @@ void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
 {
     if (buffer.isEmpty())
         return;
+    if (broken)
+        return;
     qDebug() << "Sending packet from Router:" << m_id;
     checkCurrentThread();
+    for (auto packet : buffer)
+        packet->incTotalCycles();
     PacketPtr_t topPacket = buffer.first();
     buffer.pop_front();
+    for (auto packet : buffer)
+        packet->incWaitingCycles();
     uint8_t sendPortNumber = findSendPort(topPacket->ipHeader()->destIp());
     Q_EMIT newPacket(topPacket, sendPortNumber);
 }
