@@ -134,7 +134,7 @@ QMap<PortPtr_t, PacketPtr_t> Router::findPacketsToSend(){
     while (numPacketsToSend != numBoundPorts && bufferIndex < buffer.size()){
         auto currentPacket = buffer[bufferIndex];
         auto sendPort = findSendPort(currentPacket->ipHeader()->destIp());
-        if (portPacketsMap.contains(sendPort)){
+        if (sendPort == nullptr || portPacketsMap.contains(sendPort)){
             bufferIndex++;
             continue;
         }
@@ -157,6 +157,7 @@ void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
     for (auto packet : buffer)
         packet->incTotalCycles();
     auto portPacketsMap = findPacketsToSend();
+    qDebug() << "map size" << portPacketsMap.size();
     for (auto i = portPacketsMap.cbegin(); i != portPacketsMap.cend(); ++i){
         PacketPtr_t packet = i.value();
         PortPtr_t port = i.key();
@@ -173,7 +174,7 @@ PortPtr_t Router::findSendPort(IPv4Ptr_t destIP) {
         }
     }
 
-    qDebug() << "No route found for destination IP: " << destIP->toString();
-    return 0;
+    //qDebug() << "No route found for destination IP: " << destIP->toString();
+    return nullptr;
 }
 
