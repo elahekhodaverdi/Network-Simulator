@@ -31,6 +31,7 @@ protected:
     int m_id;
     MACAddress m_MACAddress;
     IPv4Ptr_t m_IP;
+    void checkCurrentThread();
 };
 
 #endif    // NODE_H

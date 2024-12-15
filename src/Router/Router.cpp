@@ -11,6 +11,8 @@ Router::Router(int id, MACAddress macAddress, QObject *parent)
         connect(port.get(), &Port::packetReceived, this, &Router::receivePacket);
         connect(this, &Router::newPacket, port.get(), &Port::sendPacket);
     }
+    moveToThread(this);
+    this->start();
 }
 
 Router::~Router()
@@ -20,6 +22,8 @@ Router::~Router()
         disconnect(ports[i].get(), &Port::packetReceived, this, &Router::receivePacket);
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
     }
+    moveToThread(this);
+    this->start();
 }
 
 void Router::setRouterAsDHCPServer()
@@ -102,10 +106,10 @@ void Router::addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, Port
 
 void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
 {
-
     if (buffer.isEmpty())
         return;
     qDebug() << "Sending packet from Router:" << m_id;
+    checkCurrentThread();
     PacketPtr_t topPacket = buffer.first();
     buffer.pop_front();
     uint8_t sendPortNumber = findSendPort(topPacket->ipHeader()->destIp());
