@@ -19,7 +19,7 @@ AutonomousSystemPtr_t Network::findASById(int id)
 {
     AutonomousSystemPtr_t target = nullptr;
     for (AutonomousSystemPtr_t as : autonomousSystems) {
-        if (as->id == id) {
+        if (as->getID() == id) {
             target = as;
             break;
         }

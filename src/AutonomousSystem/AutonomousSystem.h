@@ -10,12 +10,12 @@
 class AutonomousSystem
 {
 public:
-    // ~AutonomousSystem();
     AutonomousSystem();
     AutonomousSystem(int asId, UT::TopologyType type);
     void build(QJsonObject config);
+    int getID();
 
-public:
+private:
     int id;
     UT::TopologyType topologyType;
     int nodeCount;

@@ -6,13 +6,17 @@
 #include "../Network/Network.h"
 #include "../PortBindingManager/PortBindingManager.h"
 #include "../Topology/TopologyBuilder.h"
-
 AutonomousSystem::AutonomousSystem() {}
 
 AutonomousSystem::AutonomousSystem(int asId, UT::TopologyType type)
     : id(asId)
     , topologyType(type)
 {}
+
+int AutonomousSystem::getID()
+{
+    return id;
+}
 void AutonomousSystem::build(QJsonObject config)
 {
     nodeCount = config["node_count"].toInt();
