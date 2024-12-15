@@ -13,15 +13,7 @@ public:
     AutonomousSystem();
     AutonomousSystem(int asId, UT::TopologyType type);
     void build(QJsonObject config);
-    int getID() const;
-    UT::TopologyType getTopologyType() const;
-    int getNodeCount() const;
-    const QList<RouterPtr_t>& getASGateways() const;
-    const QList<RouterPtr_t>& getUserGateways() const;
-    RouterPtr_t getDHCPServer() const;
-    const QList<RouterPtr_t>& getBrokenRouters() const;
-    const QList<QPair<RouterPtr_t, QList<PCPtr_t>>>& getConnections() const;
-    const QList<RouterPtr_t>& getRouters() const;
+    int getID();
 
 private:
     int id;
