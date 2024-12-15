@@ -74,6 +74,7 @@ PacketPtr_t PC::createNewPacket()
 
     packet->setSequenceNumber(QRandomGenerator::global()->generate());
     packet->setPacketType(UT::PacketType::Data);
+    packet->incTotalCycles();
 
     qDebug() << "Packet created from PC" << m_id << "to PC" << destinationPC->getId();
     return packet;
