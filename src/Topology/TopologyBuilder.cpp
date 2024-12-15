@@ -1,7 +1,8 @@
 #include "TopologyBuilder.h"
-#include "../MACAddress/MACAddressGenerator.h"
-#include "../PortBindingManager/PortBindingManager.h"
 #include "../EventsCoordinator/EventsCoordinator.h"
+#include "../MACAddress/MACAddressGenerator.h"
+#include "../Network/SimulationConfig.h"
+#include "../PortBindingManager/PortBindingManager.h"
 
 int TopologyBuilder::routersNum = 1;
 
@@ -9,7 +10,10 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyTy
 {
     QList<RouterPtr_t> routers;
     for (int i = 0; i < nodeNumber; i++){
-        RouterPtr_t newRouter = RouterPtr_t::create(routersNum, MACAddressGenerator::getRandomMAC());
+        RouterPtr_t newRouter = RouterPtr_t::create(routersNum,
+                                                    MACAddressGenerator::getRandomMAC(),
+                                                    SimulationConfig::routerPortCount,
+                                                    SimulationConfig::routerBufferSize);
         QString ipString = QString("192.168.%1.%2").arg(asId * 100).arg(routersNum);
         IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
         newRouter->setIP(ip);

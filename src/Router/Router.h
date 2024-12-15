@@ -12,7 +12,11 @@ class Router : public Node
     Q_OBJECT
 
 public:
-    explicit Router(int id, MACAddress macAddress, QObject *parent = nullptr);
+    explicit Router(int id,
+                    MACAddress macAddress,
+                    int portCount = 6,
+                    int bufferSize = 6,
+                    QObject *parent = nullptr);
     ~Router();
     void setRouterAsDHCPServer();
     void setRouterBroken();
@@ -55,7 +59,8 @@ private:
     PortPtr_t findSendPort(IPv4Ptr_t destIP);
     QMap<PortPtr_t, PacketPtr_t> findPacketsToSend();
 
-    const int maxPorts = 5;
+    int maxPorts;
+    int maxBufferSize;
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;

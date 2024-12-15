@@ -1,8 +1,10 @@
 #include "Router.h"
 #include "../PortBindingManager/PortBindingManager.h"
 
-Router::Router(int id, MACAddress macAddress, QObject *parent)
+Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QObject *parent)
     : Node(id, macAddress, parent)
+    , maxPorts(portCount)
+    , maxBufferSize(bufferSize)
 {
     for (int i = 0; i < maxPorts; ++i) {
         PortPtr_t port = PortPtr_t::create(this);
