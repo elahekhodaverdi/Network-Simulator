@@ -122,28 +122,54 @@ void Router::addRoutingTableEntry(IPv4Ptr_t destination,
     routingTable.append(entry);
 }
 
+QMap<PortPtr_t, PacketPtr_t> Router::findPacketsToSend(){
+    uint8_t numBoundPorts = 0;
+    for (auto& port : ports){
+        if (PortBindingManager::isBounded(port))
+            numBoundPorts++;
+    }
+    uint8_t numPacketsToSend = 0;
+    int bufferIndex = 0;
+    QMap<PortPtr_t, PacketPtr_t> portPacketsMap;
+    while (numPacketsToSend != numBoundPorts && bufferIndex < buffer.size()){
+        auto currentPacket = buffer[bufferIndex];
+        auto sendPort = findSendPort(currentPacket->ipHeader()->destIp());
+        if (portPacketsMap.contains(sendPort)){
+            bufferIndex++;
+            continue;
+        }
+        portPacketsMap.insert(sendPort, currentPacket);
+        buffer.removeAt(bufferIndex);
+        numPacketsToSend++;
+    }
+    return portPacketsMap;
+
+}
+
 void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
 {
     if (buffer.isEmpty())
         return;
     if (broken)
         return;
-    qDebug() << "Sending packet from Router:" << m_id;
+    qDebug() << "Sending packets from Router:" << m_id;
     checkCurrentThread();
     for (auto packet : buffer)
         packet->incTotalCycles();
-    PacketPtr_t topPacket = buffer.first();
-    buffer.pop_front();
+    auto portPacketsMap = findPacketsToSend();
+    for (auto i = portPacketsMap.cbegin(); i != portPacketsMap.cend(); ++i){
+        PacketPtr_t packet = i.value();
+        PortPtr_t port = i.key();
+        Q_EMIT newPacket(packet, port->getPortNumber());
+    }
     for (auto packet : buffer)
         packet->incWaitingCycles();
-    uint8_t sendPortNumber = findSendPort(topPacket->ipHeader()->destIp());
-    Q_EMIT newPacket(topPacket, sendPortNumber);
 }
 
-uint8_t Router::findSendPort(IPv4Ptr_t destIP) {
+PortPtr_t Router::findSendPort(IPv4Ptr_t destIP) {
     for (const RoutingTableEntry &entry : routingTable) {
         if (*entry.destination == *destIP) {
-            return entry.outPort->getPortNumber();
+            return entry.outPort;
         }
     }
 
