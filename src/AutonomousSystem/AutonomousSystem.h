@@ -13,7 +13,7 @@ public:
     AutonomousSystem();
     AutonomousSystem(int asId, UT::TopologyType type);
     void build(QJsonObject config);
-    int getID();
+    int getID() const;
 
 private:
     int id;

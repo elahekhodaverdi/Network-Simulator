@@ -13,7 +13,7 @@ AutonomousSystem::AutonomousSystem(int asId, UT::TopologyType type)
     , topologyType(type)
 {}
 
-int AutonomousSystem::getID()
+int AutonomousSystem::getID() const
 {
     return id;
 }
