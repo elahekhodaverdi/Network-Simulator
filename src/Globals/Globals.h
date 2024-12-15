@@ -4,6 +4,8 @@
 namespace UT
 {
 
+enum class RoutingProtocol { OSPF, RIP };
+
 enum class IPVersion { IPv4, IPv6 };
 
 enum class PacketType

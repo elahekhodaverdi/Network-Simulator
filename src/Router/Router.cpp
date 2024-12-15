@@ -75,16 +75,27 @@ void Router::printRoutingTable() const
     QTextStream out(stdout);
 
     out << "Routing Table for Router ID: " << m_id << "\n";
-    out << "-------------------------------------------\n";
-    out << "Destination IP\tNext Hop IP\tOutgoing Port\n";
-    out << "-------------------------------------------\n";
+    out << "---------------------------------------------------------------\n";
+    out << QString("%1\t%2\t%3\t%4\t%5\n")
+               .arg("Prtcol", -6)
+               .arg("Destination IP", -20)
+               .arg("Next Hop IP", -20)
+               .arg("Out Port", -10)
+               .arg("Metric", -6);
+    out << "---------------------------------------------------------------\n";
 
     for (const RoutingTableEntry &entry : routingTable) {
-        out << entry.destination->toString() << "\t" << entry.nextHop->toString() << "\t"
-            << (entry.outPort ? QString::number(entry.outPort->getPortNumber()) : "N/A") << "\n";
+        out << QString("%1\t%2\t%3\t%4\t%5\n")
+                   .arg((entry.protocol == UT::RoutingProtocol::OSPF ? "O" : "R"), -6)
+                   .arg(entry.destination->toString() + "\\" + QString::number(entry.subnetMask),
+                        -20)
+                   .arg(entry.nextHop->toString(), -20)
+                   .arg((entry.outPort ? QString::number(entry.outPort->getPortNumber()) : "N/A"),
+                        -10)
+                   .arg(entry.metric, -6);
     }
 
-    out << "-------------------------------------------\n";
+    out << "---------------------------------------------------------------\n";
 }
 
 bool Router::isDHCPServer() const
@@ -100,9 +111,14 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t port_number)
     qDebug() << "Packet Received from: " << port_number << " Content:" << data->payload();
 }
 
-void Router::addRoutingTableEntry(IPv4Ptr_t destination, IPv4Ptr_t nextHop, PortPtr_t outPort)
+void Router::addRoutingTableEntry(IPv4Ptr_t destination,
+                                  int subnetMask,
+                                  IPv4Ptr_t nextHop,
+                                  PortPtr_t outPort,
+                                  int metric,
+                                  UT::RoutingProtocol protocol)
 {
-    RoutingTableEntry entry{destination, nextHop, outPort};
+    RoutingTableEntry entry{destination, subnetMask, nextHop, outPort, metric, protocol};
     routingTable.append(entry);
 }
 
