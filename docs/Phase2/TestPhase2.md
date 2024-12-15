@@ -1,6 +1,6 @@
 ## Phase 2 Tests
 
-### Testing the IP
+### **Testing the IP**
 
 ```cpp
 #include <QCoreApplication>
@@ -34,7 +34,22 @@ int main(int argc, char *argv[])
 }
 ```
 
-### Testing the Port
+**What is being tested**:
+1. **IP Initialization**: We test the `IPv4_t` class for its ability to initialize an IP address from both a string representation and a numeric value.
+2. **IP Comparison**: We check if the `==` operator works correctly when comparing two IP addresses, ensuring that it identifies equal and unequal addresses.
+3. **IP to Numeric Conversion**: We verify that the `toValue()` method can convert an IP address into its equivalent numeric form.
+4. **Invalid IP Address**: We test the handling of an invalid IP address and ensure that the program throws an exception for values like `300.300.300.300`.
+
+**Desired Output**:
+1. **IP1 and IP2**: Both should display as `192.168.1.1`, demonstrating that initialization from numeric value and string works correctly.
+2. **IP Comparison**: The comparison should output `true` since both `ip1` and `ip2` represent the same address.
+3. **IP to Value**: The numeric value of `192.168.1.1` (3232235777) should be printed.
+4. **Invalid IP**: An exception is caught, and the message for invalid IP is printed.
+
+#### **Output**
+![IP Test Phase 2](../imgs/IPTest_P2.png)
+
+### **Testing the Port**
 
 ```cpp
 #include <QCoreApplication>
@@ -74,10 +89,22 @@ int main(int argc, char *argv[])
 }
 ```
 
-### Testing the Router
+**What is being tested**:
+1. **Port Initialization**: The `Port` class is tested for its ability to set and get the port number and router IP.
+2. **Packet Sending and Receiving**: We test the `sendPacket()` and `receivePacket()` methods by creating a packet and verifying that it is sent and received correctly.
+3. **Signal-Slot Mechanism**: The test ensures that signals like `packetSent` and `packetReceived` are emitted and that connected slots handle the events properly.
+
+**Desired Output**:
+1. **Port Number**: The port number `1` should be printed, confirming that the `setPortNumber` and `getPortNumber` methods work.
+2. **Router IP**: The router IP `192.168.1.1` should be displayed, confirming that the IP setter and getter work.
+3. **Packet Sending and Receiving**: Debug logs will show the packet's payload when it is sent and received, ensuring the correct functionality of packet communication.
+
+#### **Output**
+![Port Test Phase 2](../imgs/PortTest_P2.png)
+
+### **Testing the Router**
 
 ```cpp
-
 #include <QCoreApplication>
 #include <QDebug>
 #include "src/MACAddress/MACAddressGenerator.h"
@@ -146,11 +173,27 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-
 ```
 
+**What is being tested**:
+1. **Router Initialization**: We test the creation of a router and check its properties such as ID, MAC address, and remaining ports.
+2. **DHCP Server Status**: We verify if the router can be set as a DHCP server and check its status.
+3. **Router Failure**: We simulate the router's failure by calling the `setRouterBroken()` method and verify its status.
+4. **Port Binding**: We test binding ports using the `PortBindingManager` and check if the correct ports are bound together.
+5. **Packet Forwarding**: The router is tested for forwarding packets from one port to another.
 
-### Testing the Topoloy Builder
+**Desired Output**:
+1. **Router Properties**: The router's ID, MAC address, and remaining ports should be printed correctly.
+2. **DHCP Server Status**: The output should confirm whether the router is acting as a DHCP server.
+3. **Router Failure**: The router's failure status should be checked and displayed as `true` or `false`.
+4. **Port Binding**: The output should confirm successful binding of ports and show the remaining unbound ports.
+5. **Packet Forwarding**: A packet should be sent from one port and received by another, confirming that packet forwarding works correctly.
+
+#### **Output**
+![Router Test Phase 2](../imgs/RouterTest_P2.png)
+
+
+### **Testing the Topology Builder**
 
 ```cpp
 #include <QCoreApplication>
@@ -203,7 +246,19 @@ int main(int argc, char* argv[])
 }
 ```
 
-### Testing Config Reader
+**What is being tested**:
+1. **Topology Generation**: We test the creation of topologies (`Mesh`, `Torus`, `Ring-Star`) using `TopologyBuilder`.
+2. **Port Binding**: We ensure that ports in each topology are properly bound and display their information.
+
+**Desired Output**:
+1. **Topology Test**: Displays router details including router ID, IP address, and bounded ports for each topology.
+   
+#### **Output**
+![Topology Test](../imgs/TopologyTest_P2.png)
+
+---
+
+### **Testing Config Reader**
 
 ```cpp
 #include <QCoreApplication>
@@ -230,7 +285,9 @@ int main(int argc, char *argv[])
     qDebug() << "Packets per Simulation:" << Network::simulationConfig.packetsPerSimulation;
     qDebug() << "Statistical Distribution:" << Network::simulationConfig.statisticalDistribution;
     qDebug() << "Router Buffer Size:" << Network::simulationConfig.routerBufferSize;
-    qDebug() << "Router Port Count:" << Network::simulationConfig.routerPortCount;
+    qDebug() << "Router Port Count:" << Network::simulationConfig.router
+
+PortCount;
     qDebug() << "Routing Protocol:" << Network::simulationConfig.routingProtocol;
     qDebug() << "Routing Table Update Interval:"
              << Network::simulationConfig.routingTableUpdateInterval;
@@ -268,3 +325,16 @@ int main(int argc, char *argv[])
     return 0;
 }
 ```
+
+**What is being tested**:
+1. **Configuration Reading**: We test the `ConfigReader` class to ensure it can read configuration values from a JSON file.
+2. **Simulation Config**: We display simulation parameters like duration, cycle time, TTL, etc.
+3. **Autonomous System Details**: The autonomous system data (topology, gateway count, router info) is displayed.
+
+**Desired Output**:
+1. **SimulationConfig**: Displays configuration parameters.
+2. **Autonomous Systems**: Displays details of the autonomous systems as configured in the `config.json`.
+
+#### **Output**
+![Config Test](../imgs/ConfigTest_P2.png)
+
