@@ -22,8 +22,8 @@ Router::~Router()
         disconnect(ports[i].get(), &Port::packetReceived, this, &Router::receivePacket);
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
     }
-    moveToThread(this);
-    this->start();
+    this->quit();
+    this->wait();
 }
 
 void Router::setRouterAsDHCPServer()

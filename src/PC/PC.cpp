@@ -27,6 +27,8 @@ PC::~PC()
         disconnect(m_gateway.get(), &Port::packetReceived, this, &PC::receivePacket);
         disconnect(this, &PC::newPacket, m_gateway.get(), &Port::sendPacket);
     }
+    this->quit();
+    this->wait();
 }
 
 void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
