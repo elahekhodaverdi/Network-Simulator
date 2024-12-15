@@ -1,4 +1,6 @@
-## IP Class
+## Phase 2 Tests
+
+### Testing the IP
 
 ```cpp
 #include <QCoreApplication>
@@ -32,6 +34,7 @@ int main(int argc, char *argv[])
 }
 ```
 
+### Testing the Port
 
 ```cpp
 #include <QCoreApplication>
@@ -71,6 +74,7 @@ int main(int argc, char *argv[])
 }
 ```
 
+### Testing the Router
 
 ```cpp
 
@@ -84,8 +88,6 @@ int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-
-    qDebug() << "======= Testing Router =======";
 
     // MAC address for the router
     MACAddress macAddress = MACAddressGenerator::generateRandomMAC();
@@ -148,93 +150,60 @@ int main(int argc, char *argv[])
 ```
 
 
+### Testing the Topoloy Builder
+
 ```cpp
 #include <QCoreApplication>
 #include <QDebug>
 #include "../PortBindingManager/PortBindingManager.h"
 #include "../Topology/TopologyBuilder.h"
 
-void printBoundedPorts(QList<PortPtr_t> ports)
+void printBoundedPorts(const QList<PortPtr_t>& ports)
 {
     qDebug() << "--------------------------------------";
 
-    for (const auto &port : ports) {
+    for (const auto& port : ports) {
         if (!PortBindingManager::isBounded(port))
-            break;
+            continue;
+
         qDebug() << "Port with ID" << port->getPortNumber();
         PortBindingManager::printBindingsForaPort(port);
     }
+
     qDebug() << "--------------------------------------\n";
 }
-void testMeshTopology()
+
+void testTopology(const QString& topologyName,
+                  UT::TopologyType topologyType,
+                  int numberOfNodes,
+                  uint16_t asID)
 {
-    qDebug() << "Testing Mesh Topology...";
+    qDebug() << "Testing" << topologyName << "Topology...";
 
-    int numberOfNodes = 9;
-    uint16_t asID = 1;
+    auto routers = TopologyBuilder::buildTopology(numberOfNodes, topologyType, asID);
 
-    QList<RouterPtr_t> routers = TopologyBuilder::buildTopology(numberOfNodes,
-                                                                UT::TopologyType::Mesh,
-                                                                asID);
-
-    for (int i = 0; i < routers.size(); ++i) {
-        RouterPtr_t router = routers.at(i);
+    for (const auto& router : routers) {
         qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
-
         printBoundedPorts(router->getPorts());
     }
-    qDebug() << "\nMesh Topology Test Complete!";
+
+    qDebug() << "\n" << topologyName << "Topology Test Complete!";
 }
 
-void testTorusTopology()
-{
-    qDebug() << "Testing Torus Topology...";
-
-    int numberOfNodes = 9;
-    uint16_t asID = 2;
-
-    auto routers = TopologyBuilder::buildTopology(numberOfNodes, UT::TopologyType::Torus, asID);
-
-    for (int i = 0; i < routers.size(); ++i) {
-        RouterPtr_t router = routers.at(i);
-        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
-
-        printBoundedPorts(router->getPorts());
-    }
-    qDebug() << "\nTorus Topology Test Complete!";
-}
-
-void testRingStarTopology()
-{
-    qDebug() << "Testing Ring-Star Topology...";
-
-    int numberOfNodes = 7;
-    uint16_t asID = 2;
-
-    auto routers = TopologyBuilder::buildTopology(numberOfNodes, UT::TopologyType::RingStar, asID);
-
-    for (int i = 0; i < routers.size(); ++i) {
-        RouterPtr_t router = routers.at(i);
-        qDebug() << "\nRouter" << router->getId() << "with IP" << router->getIP()->toString();
-
-        printBoundedPorts(router->getPorts());
-    }
-    qDebug() << "\nRing-Star Topology Test Complete!";
-}
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QCoreApplication a(argc, argv);
 
-    // Test each topology
-    testMeshTopology();
-    testTorusTopology();
-    testRingStarTopology();
+    // Test different topologies
+    testTopology("Mesh", UT::TopologyType::Mesh, 9, 1);
+    testTopology("Torus", UT::TopologyType::Torus, 9, 2);
+    testTopology("Ring-Star", UT::TopologyType::RingStar, 7, 2);
+
     return a.exec();
 }
-
 ```
 
+### Testing Config Reader
 
 ```cpp
 #include <QCoreApplication>
