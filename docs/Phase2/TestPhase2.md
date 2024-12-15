@@ -253,10 +253,6 @@ int main(int argc, char* argv[])
 **Desired Output**:
 1. **Topology Test**: Displays router details including router ID, IP address, and bounded ports for each topology.
    
-#### **Output**
-![Topology Test](../../imgs/TopologyTest_P2.png)
-
----
 
 ### **Testing Config Reader**
 
