@@ -1,5 +1,9 @@
 #include "DataLinkHeader.h"
 
+DataLinkHeader::DataLinkHeader(QObject *parent)
+    :QObject{parent}
+{}
+
 DataLinkHeader::DataLinkHeader(MACAddress sourceMACAddress, MACAddress destMACAddress, QObject *parent)
     : QObject{parent}, m_sourceMACAddress(sourceMACAddress), m_destinationMACAddress(destMACAddress)
 {}

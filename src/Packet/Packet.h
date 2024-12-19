@@ -9,7 +9,7 @@
 #include "../Headers/DataLinkHeader.h"
 #include "../Headers/TCPHeader.h"
 #include "../Headers/IPHeader.h"
-#include "globals.h"
+#include "../Globals/Globals.h"
 
 class Packet : public QObject
 {
@@ -26,6 +26,7 @@ public:
     void setWaitingCycles(uint32_t waitingCycles);
     void setTotalCycles(uint32_t totalCycles);
     void setIPHeader(QSharedPointer<IPHeader> ipHeader);
+    void setControlType(UT::PacketControlType controlType);
 
     UT::PacketType packetType();
     QByteArray payload();
@@ -34,6 +35,7 @@ public:
     uint32_t totalCycles();
     QList<QString> path();
     QSharedPointer<IPHeader> ipHeader();
+    UT::PacketControlType controlType();
 
     ~Packet();
 

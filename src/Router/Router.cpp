@@ -1,5 +1,6 @@
 #include "Router.h"
 #include "../PortBindingManager/PortBindingManager.h"
+#include "../Network/SimulationConfig.h"
 
 #define INF std::numeric_limits<double>::infinity()
 
@@ -91,7 +92,7 @@ void Router::printRoutingTable() const
     for (const RoutingTableEntry &entry : routingTable) {
         out << QString("%1\t%2\t%3\t%4\t%5\n")
                    .arg((entry.protocol == UT::RoutingProtocol::OSPF ? "O" : "R"), -6)
-                   .arg(entry.destination->toString() + "\\" + QString::number(entry.subnetMask),
+                   .arg(entry.destination->toString() + "\\" + entry.subnetMask->toString(),
                         -20)
                    .arg(entry.nextHop->toString(), -20)
                    .arg((entry.outPort ? QString::number(entry.outPort->getPortNumber()) : "N/A"),
@@ -107,24 +108,51 @@ bool Router::isDHCPServer() const
     return DHCPServer;
 }
 
-void Router::receivePacket(const PacketPtr_t &data, uint8_t port_number)
+void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
     if (broken)
         return;
+    if (data->packetType() == UT::PacketType::Control){
+        handleControlPacket(data, portNumber);
+        return;
+    }
     buffer.append(data);
-    qDebug() << "Packet Received from: " << port_number << " Content:" << data->payload();
+    qDebug() << "Packet Received from: " << portNumber << " Content:" << data->payload();
 }
 
-void Router::addRoutingTableEntry(IPv4Ptr_t destination,
-                                  int subnetMask,
-                                  IPv4Ptr_t nextHop,
-                                  PortPtr_t outPort,
-                                  int metric,
-                                  UT::RoutingProtocol protocol)
-{
-    RoutingTableEntry entry{destination, subnetMask, nextHop, outPort, metric, protocol};
-    routingTable.append(entry);
+void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
+    if (data->controlType() == UT::PacketControlType::Response){
+        addNewNeighbor(data->ipHeader()->sourceIp(), portNumber);
+        return;
+    }
+    if (data->controlType() == UT::PacketControlType::Request){
+        sendResponsePacket(data, portNumber);
+        return;
+    }
 }
+
+void Router::addNewNeighbor(const IPv4Ptr_t& neighborIP, uint8_t portNumber){
+    if (SimulationConfig::routingProtocol == "RIP"){
+        updateDistanceVector(neighborIP, 1, neighborIP, portNumber);
+        return;
+    }
+    if (SimulationConfig::routingProtocol == "OSPF"){
+        // TODO
+        return;
+    }
+}
+
+void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber){
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setSourceIp(m_IP);
+    ipHeader->setDestIp(requestPacket->ipHeader()->sourceIp());
+    packet->setIPHeader(ipHeader);
+    packet->setPacketType(UT::PacketType::Control);
+    packet->setControlType(UT::PacketControlType::Response);
+    Q_EMIT newPacket(packet, portNumber);
+}
+
 
 QMap<PortPtr_t, PacketPtr_t> Router::findPacketsToSend(){
     uint8_t numBoundPorts = 0;
@@ -183,24 +211,20 @@ PortPtr_t Router::findSendPort(IPv4Ptr_t destIP) {
 }
 
 
-void Router::updateDistanceVector(QMap<IPv4Ptr_t, int> neighborVector, IPv4Ptr_t neighborIP, PortPtr_t fromPort){
-    for (auto i = neighborVector.cbegin(); i != neighborVector.cend(); ++i){
-        IPv4Ptr_t ip = i.key();
-        int neighborCost = i.value();
-        int currentCost = distanceVector.value(ip, INF);
-        if (currentCost <= neighborCost + 1)
-            continue;
-        distanceVector[ip] = neighborCost + 1;
-        RoutingTableEntry newEntry{
-            ip,
-            IPv4Ptr_t::create("255.255.255.0"),
-            neighborIP,
-            fromPort,
-            neighborCost + 1,
-            UT::RoutingProtocol::OSPF
-        };
-        updateRoutingTable(newEntry);
-    }
+void Router::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, uint8_t portNumber){
+    int currentMetric = distanceVector.value(destIP, INF);
+    if (currentMetric <= metric + 1)
+        return;
+    distanceVector[destIP] = metric + 1;
+    RoutingTableEntry newEntry{
+        destIP,
+        IPv4Ptr_t::create("255.255.255.0"),
+        neighborIP,
+        ports[portNumber - 1],
+        metric + 1,
+        UT::RoutingProtocol::OSPF
+    };
+    updateRoutingTable(newEntry);
 }
 
 void Router::updateRoutingTable(RoutingTableEntry newEntry){
@@ -210,5 +234,4 @@ void Router::updateRoutingTable(RoutingTableEntry newEntry){
         }
     }
     routingTable.append(newEntry);
-
 }

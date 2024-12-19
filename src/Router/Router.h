@@ -29,22 +29,17 @@ public:
     void setIP(IPv4Ptr_t ip) override;
     void printRoutingTable() const;
     bool isDHCPServer() const;
-    void addRoutingTableEntry(IPv4Ptr_t destination,
-                              int subnetMask,
-                              IPv4Ptr_t nextHop,
-                              PortPtr_t outPort,
-                              int metric,
-                              UT::RoutingProtocol protocol);
+
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
-    void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
+    void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
 
 private:
     struct RoutingTableEntry
     {
         IPv4Ptr_t destination;
-        int subnetMask;
+        IPv4Ptr_t subnetMask;
         IPv4Ptr_t nextHop;
         PortPtr_t outPort;
         int metric;
@@ -60,8 +55,11 @@ private:
     QList<RoutingTableEntry> routingTable;
     PortPtr_t findSendPort(IPv4Ptr_t destIP);
     QMap<PortPtr_t, PacketPtr_t> findPacketsToSend();
-    void updateDistanceVector(QMap<IPv4Ptr_t, int> neighborVector, IPv4Ptr_t neighborIP, PortPtr_t fromPort);
+    void updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, uint8_t portNumber);
     void updateRoutingTable(RoutingTableEntry newEntry);
+    void handleControlPacket(const PacketPtr_t &data, uint8_t portNumber);
+    void addNewNeighbor(const IPv4Ptr_t &neighborIP, uint8_t portNumber);
+    void sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber);
 
 
     int maxPorts;

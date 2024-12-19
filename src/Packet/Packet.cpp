@@ -54,6 +54,10 @@ void Packet::setIPHeader(QSharedPointer<IPHeader> ipHeader){
     m_ipHeader = ipHeader;
 }
 
+void Packet::setControlType(UT::PacketControlType controlType){
+    m_controlType = controlType;
+}
+
 UT::PacketType Packet::packetType(){
     return m_packetType;
 }
@@ -78,4 +82,9 @@ QList<QString> Packet::path(){
 
 QSharedPointer<IPHeader> Packet::ipHeader(){
     return m_ipHeader;
+}
+
+
+UT::PacketControlType Packet::controlType(){
+    return m_controlType.value();
 }
