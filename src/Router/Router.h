@@ -6,6 +6,7 @@
 #include "../Packet/Packet.h"
 #include "../Port/Port.h"
 #include "../PC/PC.h"
+#include "../IP/IP.h"
 
 class Router : public Node
 {
@@ -53,11 +54,15 @@ private:
     QList<PortPtr_t> ports;
     UT::IPVersion ipVersion = UT::IPVersion::IPv4;
     QList<PacketPtr_t> buffer;
+    QMap<IPv4Ptr_t, int> distanceVector;
     bool DHCPServer = false;
     bool broken = false;
     QList<RoutingTableEntry> routingTable;
     PortPtr_t findSendPort(IPv4Ptr_t destIP);
     QMap<PortPtr_t, PacketPtr_t> findPacketsToSend();
+    void updateDistanceVector(QMap<IPv4Ptr_t, int> neighborVector, IPv4Ptr_t neighborIP, PortPtr_t fromPort);
+    void updateRoutingTable(RoutingTableEntry newEntry);
+
 
     int maxPorts;
     int maxBufferSize;

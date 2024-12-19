@@ -1,6 +1,8 @@
 #include "Router.h"
 #include "../PortBindingManager/PortBindingManager.h"
 
+#define INF std::numeric_limits<double>::infinity()
+
 Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QObject *parent)
     : Node(id, macAddress, parent)
     , maxPorts(portCount)
@@ -180,3 +182,33 @@ PortPtr_t Router::findSendPort(IPv4Ptr_t destIP) {
     return nullptr;
 }
 
+
+void Router::updateDistanceVector(QMap<IPv4Ptr_t, int> neighborVector, IPv4Ptr_t neighborIP, PortPtr_t fromPort){
+    for (auto i = neighborVector.cbegin(); i != neighborVector.cend(); ++i){
+        IPv4Ptr_t ip = i.key();
+        int neighborCost = i.value();
+        int currentCost = distanceVector.value(ip, INF);
+        if (currentCost <= neighborCost + 1)
+            continue;
+        distanceVector[ip] = neighborCost + 1;
+        RoutingTableEntry newEntry{
+            ip,
+            IPv4Ptr_t::create("255.255.255.0"),
+            neighborIP,
+            fromPort,
+            neighborCost + 1,
+            UT::RoutingProtocol::OSPF
+        };
+        updateRoutingTable(newEntry);
+    }
+}
+
+void Router::updateRoutingTable(RoutingTableEntry newEntry){
+    for (auto &entry : routingTable){
+        if (*entry.destination == *newEntry.destination){
+            entry = newEntry;
+        }
+    }
+    routingTable.append(newEntry);
+
+}
