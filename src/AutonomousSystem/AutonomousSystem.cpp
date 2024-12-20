@@ -179,3 +179,12 @@ void AutonomousSystem::setConnectToAS(QJsonArray ASs)
         }
     }
 }
+
+QList<IPv4Ptr_t> AutonomousSystem::getAllRoutersIPs()
+{
+    QList<IPv4Ptr_t> allRoutersIPs;
+    for (RouterPtr_t router : routers) {
+        allRoutersIPs.append(router->getIP());
+    }
+    return allRoutersIPs;
+}

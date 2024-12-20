@@ -37,3 +37,12 @@ void Network::run()
                                        SimulationConfig::simulationDurationMs,
                                        PCs);
 }
+
+QList<IPv4Ptr_t> Network::getAllRoutersIPs()
+{
+    QList<IPv4Ptr_t> allRoutersIPs;
+    for (AutonomousSystemPtr_t AS : autonomousSystems) {
+        allRoutersIPs.append(AS->getAllRoutersIPs());
+    }
+    return allRoutersIPs;
+}
