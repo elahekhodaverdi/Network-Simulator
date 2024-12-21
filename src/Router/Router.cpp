@@ -1,8 +1,9 @@
 #include "Router.h"
 #include "../PortBindingManager/PortBindingManager.h"
 #include "../Network/SimulationConfig.h"
+#include "../RoutingProtocol/rip.h"
+//#include "../RoutingProtocol/OSPF.h"
 
-#define INF std::numeric_limits<double>::infinity()
 
 Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QObject *parent)
     : Node(id, macAddress, parent)
@@ -22,16 +23,6 @@ Router::~Router()
         disconnect(ports[i].get(), &Port::packetReceived, this, &Router::receivePacket);
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
     }
-    if (routingProtocol) {
-        disconnect(routingProtocol,
-                   &RoutingProtocol::sendPacketToNeighbors,
-                   this,
-                   &Router::sendRoutingPacket);
-        disconnect(routingProtocol,
-                   &RoutingProtocol::updateRoutingTable,
-                   this,
-                   &Router::updateRoutingTableFromProtocol);
-    }
     this->quit();
     this->wait();
 }
@@ -49,24 +40,17 @@ void Router::connectPortsToSignals()
 
 void Router::initializeRoutingProtocol()
 {
-    if (SimulationConfig::routingProtocol == "OSPF")
-        routingProtocol = new OSPF();
+    if (SimulationConfig::routingProtocol == "OSPF"){}
+        //routingProtocol = new OSPF();
     else if (SimulationConfig::routingProtocol == "RIP")
-        routingProtocol = nullptr;
+        routingProtocol = new RIP();
     else
         routingProtocol = nullptr;
 
-    if (routingProtocol) {
-        routingProtocol->initialize();
-        connect(routingProtocol,
-                &RoutingProtocol::sendPacketToNeighbors,
-                this,
-                &Router::sendRoutingPacket);
-        connect(routingProtocol,
-                &RoutingProtocol::updateRoutingTable,
-                this,
-                &Router::updateRoutingTableFromProtocol);
-    }
+    connect(routingProtocol,
+            &RoutingProtocol::NewOutgoingRoutingPacket,
+            this,
+            &Router::sendRoutingPacket);
 }
 
 void Router::setRouterAsDHCPServer()
@@ -123,27 +107,7 @@ void Router::printRoutingTable() const
     QTextStream out(stdout);
 
     out << "Routing Table for Router ID: " << m_id << "\n";
-    out << "---------------------------------------------------------------\n";
-    out << QString("%1\t%2\t%3\t%4\t%5\n")
-               .arg("Prtcol", -6)
-               .arg("Destination IP", -20)
-               .arg("Next Hop IP", -20)
-               .arg("Out Port", -10)
-               .arg("Metric", -6);
-    out << "---------------------------------------------------------------\n";
-
-    for (const RoutingTableEntry &entry : routingTable) {
-        out << QString("%1\t%2\t%3\t%4\t%5\n")
-                   .arg((entry.protocol == UT::RoutingProtocol::OSPF ? "O" : "R"), -6)
-                   .arg(entry.destination->toString() + "\\" + entry.subnetMask->toString(),
-                        -20)
-                   .arg(entry.nextHop->toString(), -20)
-                   .arg((entry.outPort ? QString::number(entry.outPort->getPortNumber()) : "N/A"),
-                        -10)
-                   .arg(entry.metric, -6);
-    }
-
-    out << "---------------------------------------------------------------\n";
+    routingProtocol->printRoutingTable();
 }
 
 bool Router::isDHCPServer() const
@@ -165,22 +129,15 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 
 void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
     if (data->controlType() == UT::PacketControlType::Response){
-        addNewNeighbor(data->ipHeader()->sourceIp(), portNumber);
+        routingProtocol->addNewNeighbor(data->ipHeader()->sourceIp(), ports[portNumber - 1]);
         return;
     }
     if (data->controlType() == UT::PacketControlType::Request){
         sendResponsePacket(data, portNumber);
         return;
     }
-}
-
-void Router::addNewNeighbor(const IPv4Ptr_t& neighborIP, uint8_t portNumber){
-    if (SimulationConfig::routingProtocol == "RIP"){
-        updateDistanceVector(neighborIP, 1, neighborIP, portNumber);
-        return;
-    }
-    if (SimulationConfig::routingProtocol == "OSPF"){
-        // TODO
+    if(data->controlType() == UT::PacketControlType::RIP || data->controlType() == UT::PacketControlType::OSPF){
+        routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
         return;
     }
 }
@@ -208,7 +165,7 @@ QMap<PortPtr_t, PacketPtr_t> Router::findPacketsToSend(){
     QMap<PortPtr_t, PacketPtr_t> portPacketsMap;
     while (numPacketsToSend != numBoundPorts && bufferIndex < buffer.size()){
         auto currentPacket = buffer[bufferIndex];
-        auto sendPort = findSendPort(currentPacket->ipHeader()->destIp());
+        auto sendPort = routingProtocol->findOutPort(currentPacket->ipHeader()->destIp());
         if (sendPort == nullptr || portPacketsMap.contains(sendPort)){
             bufferIndex++;
             continue;
@@ -242,70 +199,11 @@ void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
         packet->incWaitingCycles();
 }
 
-PortPtr_t Router::findSendPort(IPv4Ptr_t destIP) {
-    for (const RoutingTableEntry &entry : routingTable) {
-        if (*entry.destination == *destIP) {
-            return entry.outPort;
-        }
-    }
-
-    //qDebug() << "No route found for destination IP: " << destIP->toString();
-    return nullptr;
-}
-
-
-void Router::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, uint8_t portNumber){
-    int currentMetric = distanceVector.value(destIP, INF);
-    if (currentMetric <= metric + 1)
-        return;
-    distanceVector[destIP] = metric + 1;
-    RoutingTableEntry newEntry{
-        destIP,
-        IPv4Ptr_t::create("255.255.255.0"),
-        neighborIP,
-        ports[portNumber - 1],
-        metric + 1,
-        UT::RoutingProtocol::OSPF
-    };
-    updateRoutingTable(newEntry);
-}
-
-void Router::updateRoutingTableFromProtocol(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
-                                            UT::RoutingProtocol protocol)
-{
-    for (auto it = routingTable.begin(); it != routingTable.end(); ++it) {
-        RoutingTableEntry entry;
-        entry.destination = it.key();
-        entry.metric = it.value().first;
-        entry.nextHop = it.value().second;
-        entry.protocol = protocol;
-        entry.outPort = findSendPort(entry.nextHop);
-        updateRoutingTable(entry);
+void Router::sendRoutingPacket(PacketPtr_t &packet){
+    for (const auto& port : ports){
+        if (PortBindingManager::isBounded(port))
+            Q_EMIT newPacket(packet, port->getPortNumber());
     }
 }
 
-void Router::updateRoutingTable(RoutingTableEntry newEntry)
-{
-    auto it = std::find_if(routingTable.begin(),
-                           routingTable.end(),
-                           [&newEntry](const RoutingTableEntry &entry) {
-                               return entry.destination == newEntry.destination;
-                           });
 
-    if (it == routingTable.end()) {
-        routingTable.append(newEntry);
-    } else if (it->metric > newEntry.metric) {
-        *it = newEntry;
-    }
-}
-
-void Router::sendRoutingPacket(const QByteArray &data)
-{
-    for (const auto &port : ports) {
-        if (PortBindingManager::isBounded(port)) {
-            PacketPtr_t packet = PacketPtr_t::create(data);
-            // TODO: I didn't know what is port number in this situation
-            // port->sendPacket(packet);
-        }
-    }
-}

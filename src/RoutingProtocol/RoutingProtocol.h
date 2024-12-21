@@ -4,24 +4,38 @@
 #include <QObject>
 #include "../Globals/Globals.h"
 #include "../IP/IP.h"
+#include "../Port/Port.h"
+#include "../Packet/Packet.h"
+
 class RoutingProtocol : public QObject
 {
     Q_OBJECT
 public:
     explicit RoutingProtocol(QObject *parent = nullptr);
     explicit RoutingProtocol(QString routerIP, QObject *parent = nullptr);
-    virtual ~RoutingProtocol() = default;
+    void printRoutingTable() const;
+    PortPtr_t findOutPort(IPv4Ptr_t destIP);
+    //virtual ~RoutingProtocol() = default;
     virtual void initialize() = 0;
-    virtual void processReceivedRoutingInformation(const QByteArray &lsaData) = 0;
+    virtual void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) = 0;
+    virtual void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) = 0;
 
-    virtual void addNeighbor(IPv4Ptr_t neighborIP);
 Q_SIGNALS:
-    void updateRoutingTable(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
-                            UT::RoutingProtocol protocol);
-    void sendPacketToNeighbors(const QByteArray &data);
+    void NewOutgoingRoutingPacket(PacketPtr_t &packet);
 
 protected:
-    virtual void sendRoutingInformation(const QByteArray &data) = 0;
+    struct RoutingTableEntry
+    {
+        IPv4Ptr_t destination;
+        IPv4Ptr_t subnetMask;
+        IPv4Ptr_t nextHop;
+        PortPtr_t outPort;
+        int metric;
+        UT::RoutingProtocol protocol;
+    };
+
+    void updateRoutingTable(RoutingTableEntry newEntry);
+    QList<RoutingTableEntry> routingTable;
     IPv4Ptr_t m_routerIP;
     QList<IPv4Ptr_t> neighbors;
 };

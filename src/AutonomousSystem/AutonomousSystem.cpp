@@ -106,7 +106,7 @@ void AutonomousSystem::setBrokenRouters(QJsonArray brokenRouterIds)
 
         if (router) {
             brokenRouters.append(router);
-            router->setRouterBroken();
+            router->markAsBroken();
         } else {
             qWarning() << "Broken Router with ID" << routerId << "not found in the list of routers.";
         }
