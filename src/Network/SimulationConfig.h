@@ -6,18 +6,18 @@
 class SimulationConfig
 {
 public:
-    static int simulationDurationMs;
-    static int cycleDurationMs;
-    static int TTL;
-    static int packetsPerSimulation;
-    static QString statisticalDistribution;
-    static int routerBufferSize;
-    static int routerPortCount;
-    static QString routingProtocol;
-    static int routingTableUpdateInterval;
-    static bool routingPerPort;
-    static int routingTableSize;
-    static int routingPacketsPerPortCycle;
+    int simulationDurationMs;
+    int cycleDurationMs;
+    int TTL;
+    int packetsPerSimulation;
+    QString statisticalDistribution;
+    int routerBufferSize;
+    int routerPortCount;
+    QString routingProtocol;
+    int routingTableUpdateInterval;
+    bool routingPerPort;
+    int routingTableSize;
+    int routingPacketsPerPortCycle;
 
     SimulationConfig();
 

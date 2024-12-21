@@ -1,16 +1,16 @@
 #include "IPHeader.h"
-#include "../Network/SimulationConfig.h"
+#include "../Simulator/Simulator.h"
 
 IPHeader::IPHeader(QObject *parent)
-    : QObject(parent),
-    m_versionHeaderLength(0),
-    m_typeOfService(0),
-    m_totalLength(0),
-    m_identification(0),
-    m_flagsFragmentOffset(0),
-    m_ttl(SimulationConfig::TTL),
-    m_protocol(0),
-    m_headerChecksum(0)
+    : QObject(parent)
+    , m_versionHeaderLength(0)
+    , m_typeOfService(0)
+    , m_totalLength(0)
+    , m_identification(0)
+    , m_flagsFragmentOffset(0)
+    , m_ttl(Simulator::simulationConfig.TTL)
+    , m_protocol(0)
+    , m_headerChecksum(0)
 {
 }
 

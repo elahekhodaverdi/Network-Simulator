@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "../Network/Network.h"
+#include "../Simulator/Simulator.h"
 
 class ConfigReader
 {

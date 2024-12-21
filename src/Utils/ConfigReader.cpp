@@ -34,7 +34,7 @@ void ConfigReader::readNetworkConfig(const QString &pathToConfFile)
     QJsonObject generalSettings = actualObj;
     generalSettings.remove("Autonomous_systems");
     QJsonArray autonomousSystems = actualObj.value("Autonomous_systems").toArray();
-    Network::simulationConfig = parseSimulationConfig(generalSettings);
+    Simulator::simulationConfig = parseSimulationConfig(generalSettings);
     parseAutonomousSystems(autonomousSystems);
 }
 
