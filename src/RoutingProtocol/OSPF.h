@@ -14,7 +14,7 @@ class OSPF : public RoutingProtocol
 public:
     explicit OSPF(QObject *parent = nullptr);
     explicit OSPF(QString routerIP, QObject *parent = nullptr);
-    virtual ~OSPF() = default;
+    //virtual ~OSPF() = default;
 
     void initialize() override;
     void processReceivedRoutingInformation(const QByteArray &lsaData) override;

@@ -199,10 +199,13 @@ void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
         packet->incWaitingCycles();
 }
 
-void Router::sendRoutingPacket(PacketPtr_t &packet){
+void Router::sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort){
     for (const auto& port : ports){
         if (PortBindingManager::isBounded(port))
-            Q_EMIT newPacket(packet, port->getPortNumber());
+            continue;
+        if (port->getPortNumber() == triggeringPort->getPortNumber())
+            continue;
+        Q_EMIT newPacket(packet, port->getPortNumber());
     }
 }
 

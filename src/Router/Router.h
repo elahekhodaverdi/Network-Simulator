@@ -34,7 +34,7 @@ public:
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
-    void sendRoutingPacket(PacketPtr_t &packet);
+    void sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
 
 private:
     int maxPorts;

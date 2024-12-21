@@ -16,7 +16,7 @@ private:
     QMap<IPv4Ptr_t, int> distanceVector;
 
     void updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, PortPtr_t outPort);
-    void sendRIPPacket();
+    void sendRIPPacket(PortPtr_t triggeringPort);
     QByteArray convertDistanceVectorToJson();
     QMap<IPv4Ptr_t, int> convertToDistanceVector(const QByteArray &jsonData);
 };

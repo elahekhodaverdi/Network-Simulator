@@ -30,7 +30,7 @@ void RIP::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborI
         UT::RoutingProtocol::RIP
     };
     updateRoutingTable(newEntry);
-    sendRIPPacket();
+    sendRIPPacket(outPort);
 }
 
 void RIP::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort){
@@ -40,7 +40,7 @@ void RIP::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort){
         updateDistanceVector(it.key(), it.value(), neighborIP, outPort);
 }
 
-void RIP::sendRIPPacket(){
+void RIP::sendRIPPacket(PortPtr_t triggeringPort){
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     ipHeader->setTTL(1);
@@ -48,7 +48,7 @@ void RIP::sendRIPPacket(){
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::RIP);
     packet->setPayload(convertDistanceVectorToJson());
-    Q_EMIT NewOutgoingRoutingPacket(packet);
+    Q_EMIT NewOutgoingRoutingPacket(packet, triggeringPort);
 }
 
 QByteArray RIP::convertDistanceVectorToJson()

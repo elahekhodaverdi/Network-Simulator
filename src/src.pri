@@ -25,7 +25,7 @@ SOURCES += \
     $$PWD/Node/Node.cpp \
     $$PWD/PC/PC.cpp \
     $$PWD/Router/Router.cpp \
-    #$$PWD/RoutingProtocol/OSPF.cpp \
+    $$PWD/RoutingProtocol/OSPF.cpp \
     $$PWD/RoutingProtocol/RoutingProtocol.cpp \
     $$PWD/RoutingProtocol/rip.cpp \
     $$PWD/Topology/TopologyBuilder.cpp \
@@ -53,7 +53,7 @@ HEADERS += \
     $$PWD/Node/Node.h \
     $$PWD/PC/PC.h \
     $$PWD/Router/Router.h \
-    #$$PWD/RoutingProtocol/OSPF.h \
+    $$PWD/RoutingProtocol/OSPF.h \
     $$PWD/RoutingProtocol/RoutingProtocol.h \
     $$PWD/RoutingProtocol/rip.h \
     $$PWD/Topology/TopologyBuilder.h \

@@ -21,7 +21,7 @@ public:
     virtual void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) = 0;
 
 Q_SIGNALS:
-    void NewOutgoingRoutingPacket(PacketPtr_t &packet);
+    void NewOutgoingRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
 
 protected:
     struct RoutingTableEntry
