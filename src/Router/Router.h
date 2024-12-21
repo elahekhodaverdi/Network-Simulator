@@ -20,23 +20,21 @@ public:
                     int bufferSize = 6,
                     QObject *parent = nullptr);
     ~Router();
-    void setRouterAsDHCPServer();
+
     void markAsBroken();
     bool isBroken() const;
-
-    PortPtr_t getAnUnboundPort() const;
-    int remainingPorts() const;
-    QList<PortPtr_t> getPorts() { return ports; }
-    void setIP(IPv4Ptr_t ip) override;
-    void printRoutingTable() const;
     bool isDHCPServer() const;
-
+    int remainingPorts() const;
+    void printRoutingTable() const;
+    PortPtr_t getAnUnboundPort() const;
+    QList<PortPtr_t> getPorts() const;
+    void setIP(IPv4Ptr_t ip) override;
+    void setRouterAsDHCPServer();
 
 public Q_SLOTS:
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void sendRoutingPacket(const QByteArray &data);
-    // TODO: rename this
     void updateRoutingTableFromProtocol(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
                                         UT::RoutingProtocol protocol);
 

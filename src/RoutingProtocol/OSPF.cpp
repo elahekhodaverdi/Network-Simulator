@@ -3,6 +3,9 @@
 #include <limits>
 #include <queue>
 #include <tuple>
+
+#define INF std::numeric_limits<int>::max()
+
 OSPF::OSPF(QObject *parent)
     : RoutingProtocol{parent}
 {}
@@ -14,11 +17,7 @@ OSPF::OSPF(QString routerIP, QObject *parent)
 void OSPF::initialize()
 {
     for (IPv4Ptr_t routerIP : Network::getAllRoutersIPs()) {
-        if (routerIP == m_routerIP)
-            shortestPathTree[routerIP] = 0;
-
-        else
-            shortestPathTree[routerIP] = std::numeric_limits<int>::max();
+        shortestPathTree[routerIP] = (routerIP == m_routerIP) ? 0 : INF;
     }
 }
 
@@ -33,23 +32,26 @@ void OSPF::addNeighbor(IPv4Ptr_t neighborIP)
 void OSPF::advertiseLinkState()
 {
     LSA lsa;
-    lsa.neighborIPs = neighbors;
     lsa.routerIP = m_routerIP;
+    lsa.neighborIPs = neighbors;
     sendRoutingInformation(lsa.toByteArray());
 }
 
-void OSPF::sendRoutingInformation(const QByteArray &lsa)
+void OSPF::sendRoutingInformation(const QByteArray &lsaData)
 {
-    Q_EMIT sendPacketToNeighbors(lsa);
+    Q_EMIT sendPacketToNeighbors(lsaData);
 }
 
 void OSPF::processReceivedRoutingInformation(const QByteArray &lsaData)
 {
     LSA lsa = LSA::fromByteArray(lsaData);
 
-    if (!LSDB.contains(lsa.routerIP))
+    if (!LSDB.contains(lsa.routerIP)) {
         sendRoutingInformation(lsa.toByteArray());
+    }
+
     LSDB[lsa.routerIP] = lsa;
+
     calculateSPF();
 }
 
@@ -58,14 +60,14 @@ void OSPF::calculateSPF()
     QMap<IPv4Ptr_t, int> distance;
     QMap<IPv4Ptr_t, IPv4Ptr_t> previousHop;
 
-    for (const auto &routerIP : Network::getAllRoutersIPs()) {
-        distance[routerIP] = std::numeric_limits<int>::max();
+    for (const auto &routerIP : shortestPathTree.keys()) {
+        distance[routerIP] = shortestPathTree[routerIP];
     }
-    distance[m_routerIP] = 0;
 
     auto compare = [](const std::pair<int, IPv4Ptr_t> &a, const std::pair<int, IPv4Ptr_t> &b) {
         return a.first > b.first;
     };
+
     std::priority_queue<std::pair<int, IPv4Ptr_t>, QList<std::pair<int, IPv4Ptr_t>>, decltype(compare)>
         pq(compare);
 
@@ -80,6 +82,7 @@ void OSPF::calculateSPF()
 
         if (LSDB.contains(currentRouter)) {
             const auto &lsa = LSDB[currentRouter];
+
             for (const auto &neighborIP : lsa.neighborIPs) {
                 int newCost = currentCost + 1;
                 if (newCost < distance[neighborIP]) {

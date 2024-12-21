@@ -22,6 +22,16 @@ Router::~Router()
         disconnect(ports[i].get(), &Port::packetReceived, this, &Router::receivePacket);
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
     }
+    if (routingProtocol) {
+        disconnect(routingProtocol,
+                   &RoutingProtocol::sendPacketToNeighbors,
+                   this,
+                   &Router::sendRoutingPacket);
+        disconnect(routingProtocol,
+                   &RoutingProtocol::updateRoutingTable,
+                   this,
+                   &Router::updateRoutingTableFromProtocol);
+    }
     this->quit();
     this->wait();
 }
@@ -39,13 +49,13 @@ void Router::connectPortsToSignals()
 
 void Router::initializeRoutingProtocol()
 {
-    if (SimulationConfig::routingProtocol == "OSPF") {
+    if (SimulationConfig::routingProtocol == "OSPF")
         routingProtocol = new OSPF();
-    } else if (SimulationConfig::routingProtocol == "RIP") {
-        // routingProtocol = new RIP();
-    } else {
+    else if (SimulationConfig::routingProtocol == "RIP")
         routingProtocol = nullptr;
-    }
+    else
+        routingProtocol = nullptr;
+
     if (routingProtocol) {
         routingProtocol->initialize();
         connect(routingProtocol,
@@ -72,6 +82,11 @@ void Router::markAsBroken()
 bool Router::isBroken() const
 {
     return broken;
+}
+
+QList<PortPtr_t> Router::getPorts() const
+{
+    return ports;
 }
 
 PortPtr_t Router::getAnUnboundPort() const
