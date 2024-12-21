@@ -18,6 +18,17 @@ Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QOb
     }
     moveToThread(this);
     this->start();
+    // TODO: add RIP
+    routingProtocol = SimulationConfig::routingProtocol == "OSPF" ? new OSPF() : nullptr;
+    routingProtocol->initialize();
+    connect(routingProtocol,
+            &RoutingProtocol::sendPacketToNeighbors,
+            this,
+            &Router::sendRoutingPacket);
+    connect(routingProtocol,
+            &RoutingProtocol::updateRoutingTable,
+            this,
+            &Router::secondUpdateRoutingTable);
 }
 
 Router::~Router()
@@ -227,11 +238,42 @@ void Router::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighb
     updateRoutingTable(newEntry);
 }
 
-void Router::updateRoutingTable(RoutingTableEntry newEntry){
-    for (auto &entry : routingTable){
-        if (*entry.destination == *newEntry.destination){
-            entry = newEntry;
+void Router::secondUpdateRoutingTable(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
+                                      UT::RoutingProtocol protocol)
+{
+    for (auto it = routingTable.begin(); it != routingTable.end(); ++it) {
+        RoutingTableEntry entry;
+        entry.destination = it.key();
+        entry.metric = it.value().first;
+        entry.nextHop = it.value().second;
+        entry.protocol = protocol;
+        entry.outPort = findSendPort(entry.nextHop);
+        updateRoutingTable(entry);
+    }
+}
+
+void Router::updateRoutingTable(RoutingTableEntry newEntry)
+{
+    auto it = std::find_if(routingTable.begin(),
+                           routingTable.end(),
+                           [&newEntry](const RoutingTableEntry &entry) {
+                               return entry.destination == newEntry.destination;
+                           });
+
+    if (it == routingTable.end()) {
+        routingTable.append(newEntry);
+    } else if (it->metric > newEntry.metric) {
+        *it = newEntry;
+    }
+}
+
+void Router::sendRoutingPacket(const QByteArray &data)
+{
+    for (const auto &port : ports) {
+        if (PortBindingManager::isBounded(port)) {
+            PacketPtr_t packet = PacketPtr_t::create(data);
+            // TODO: I didn't know what is port number in this situation
+            // port->sendPacket(packet);
         }
     }
-    routingTable.append(newEntry);
 }
