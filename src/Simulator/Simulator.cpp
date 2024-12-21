@@ -4,8 +4,23 @@
 
 SimulationConfig Simulator::simulationConfig;
 
-Simulator::Simulator()
-    : numOfRoutersDone(0)
+Simulator *Simulator::instance(QObject *parent)
+{
+    if (!m_self) {
+        m_self = new Simulator(parent);
+    }
+    return m_self;
+}
+
+void Simulator::release()
+{
+    delete m_self;
+    m_self = nullptr;
+}
+
+Simulator::Simulator(QObject *parent)
+    : QObject(parent)
+    , numOfRoutersDone(0)
     , currentPhase(Phase::Idle)
 {
     if (!eventsCoordinator) {
@@ -17,7 +32,6 @@ Simulator::Simulator()
                      &EventsCoordinator::executionIsDone,
                      this,
                      &Simulator::executionIsDone);
-    // TODO: Add connection for when a router is done
 }
 
 Simulator::~Simulator()

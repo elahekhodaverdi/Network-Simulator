@@ -5,6 +5,7 @@
 #include <QJsonValue>
 #include "../Network/Network.h"
 #include "../PortBindingManager/PortBindingManager.h"
+#include "../Simulator/Simulator.h"
 #include "../Topology/TopologyBuilder.h"
 AutonomousSystem::AutonomousSystem() {}
 
@@ -22,6 +23,7 @@ void AutonomousSystem::build(QJsonObject config)
     nodeCount = config["node_count"].toInt();
     routers = TopologyBuilder::buildTopology(nodeCount, topologyType, id);
 
+    connectRouterSignalsToSimulator();
     auto asGatewayIds = config["as_gateways"].toArray();
     setASGateaways(asGatewayIds);
 
@@ -192,4 +194,15 @@ QList<IPv4Ptr_t> AutonomousSystem::getAllRoutersIPs()
 int AutonomousSystem::numOfRouters()
 {
     return routers.size();
+}
+
+void AutonomousSystem::connectRouterSignalsToSimulator()
+{
+    Simulator* simulator = Simulator::instance();
+    for (RouterPtr_t router : routers) {
+        QObject::connect(router.get(),
+                         &Router::routingProtocolIsDone,
+                         simulator,
+                         &Simulator::aRouterIsDone);
+    }
 }
