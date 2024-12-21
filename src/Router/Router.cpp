@@ -2,6 +2,7 @@
 #include "../PortBindingManager/PortBindingManager.h"
 #include "../Network/SimulationConfig.h"
 #include "../RoutingProtocol/rip.h"
+#include "../Simulator/Simulator.h"
 //#include "../RoutingProtocol/OSPF.h"
 
 
@@ -40,9 +41,9 @@ void Router::connectPortsToSignals()
 
 void Router::initializeRoutingProtocol()
 {
-    if (SimulationConfig::routingProtocol == "OSPF"){}
+    if (Simulator::simulationConfig.routingProtocol == "OSPF"){}
         //routingProtocol = new OSPF();
-    else if (SimulationConfig::routingProtocol == "RIP")
+    else if (Simulator::simulationConfig.routingProtocol == "RIP")
         routingProtocol = new RIP();
     else
         routingProtocol = nullptr;
@@ -200,7 +201,7 @@ void Router::sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort){
     for (const auto& port : ports){
         if (PortBindingManager::isBounded(port))
             continue;
-        if (port->getPortNumber() == triggeringPort->getPortNumber())
+        if (port != triggeringPort && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;
         Q_EMIT newPacket(packet, port->getPortNumber());
     }

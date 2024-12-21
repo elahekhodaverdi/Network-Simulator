@@ -27,17 +27,25 @@ void OSPF::addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort)
     }
 }
 
-void OSPF::advertiseLinkState()
+LSA OSPF::createOwnLSA()
 {
     LSA lsa;
     lsa.routerIP = m_routerIP;
     lsa.neighborIPs = neighbors;
-    sendRoutingInformation(lsa.toByteArray());
+    return lsa;
 }
 
-void OSPF::sendRoutingInformation(const QByteArray &lsaData)
+void OSPF::sendOwnLSAPacket(const QByteArray &lsaData)
 {
-    Q_EMIT sendPacketToNeighbors(lsaData);
+    LSA lsa = createOwnLSA();
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setSourceIp(m_routerIP);
+    packet->setIPHeader(ipHeader);
+    packet->setPacketType(UT::PacketType::Control);
+    packet->setControlType(UT::PacketControlType::OSPF);
+    packet->setPayload(lsa.toByteArray());
+    Q_EMIT NewOutgoingRoutingPacket(packet, nullptr);
 }
 
 void OSPF::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort)
@@ -47,7 +55,7 @@ void OSPF::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort)
     LSA lsa = LSA::fromByteArray(lsaData);
 
     if (!LSDB.contains(lsa.routerIP)) {
-        sendRoutingInformation(lsa.toByteArray());
+        Q_EMIT NewOutgoingRoutingPacket(packet, outPort);
     }
 
     LSDB[lsa.routerIP] = lsa;

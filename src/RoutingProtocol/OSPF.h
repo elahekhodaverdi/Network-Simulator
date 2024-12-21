@@ -19,8 +19,6 @@ public:
     void initialize() override;
     void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) override;
     void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) override;
-    void advertiseLinkState();
-    void calculateSPF();
     struct LinkStateAdvertisement
     {
         IPv4Ptr_t routerIP;
@@ -75,6 +73,10 @@ private:
     QMap<IPv4Ptr_t, LinkStateAdvertisement> LSDB;
     QMap<IPv4Ptr_t, int> shortestPathTree;
     QList<IPv4Ptr_t> neighbors;
+
+    LinkStateAdvertisement createOwnLSA();
+    void sendOwnLSAPacket(const QByteArray &lsaData);
+    void calculateSPF();
     void buildRoutingTable(const QMap<IPv4Ptr_t, IPv4Ptr_t> &previousHop);
 };
 
