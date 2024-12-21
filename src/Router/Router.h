@@ -36,6 +36,9 @@ public Q_SLOTS:
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
 
+Q_SIGNALS:
+    void routingProtocolIsDone();
+
 private:
     int maxPorts;
     int maxBufferSize;
