@@ -24,6 +24,8 @@ void RoutingProtocol::printRoutingTable() const
 {
     QTextStream out(stdout);
 
+    out << "Routing Table for Router ID: " << m_routerIP->toString() << "\n";
+
     out << "---------------------------------------------------------------\n";
     out << QString("%1\t%2\t%3\t%4\t%5\n")
              .arg("Prtcol", -6)

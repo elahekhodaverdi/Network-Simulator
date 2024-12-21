@@ -37,7 +37,6 @@ protected:
     void updateRoutingTable(RoutingTableEntry newEntry);
     QList<RoutingTableEntry> routingTable;
     IPv4Ptr_t m_routerIP;
-    QList<IPv4Ptr_t> neighbors;
 };
 
 #endif // ROUTINGPROTOCOL_H

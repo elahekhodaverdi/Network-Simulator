@@ -17,8 +17,8 @@ public:
     //virtual ~OSPF() = default;
 
     void initialize() override;
-    void processReceivedRoutingInformation(const QByteArray &lsaData) override;
-    void addNeighbor(IPv4Ptr_t neighborIP) override;
+    void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) override;
+    void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) override;
     void advertiseLinkState();
     void calculateSPF();
     struct LinkStateAdvertisement
@@ -72,9 +72,9 @@ public:
     };
 
 private:
-    void sendRoutingInformation(const QByteArray &lsaData) override;
     QMap<IPv4Ptr_t, LinkStateAdvertisement> LSDB;
     QMap<IPv4Ptr_t, int> shortestPathTree;
+    QList<IPv4Ptr_t> neighbors;
     void buildRoutingTable(const QMap<IPv4Ptr_t, IPv4Ptr_t> &previousHop);
 };
 

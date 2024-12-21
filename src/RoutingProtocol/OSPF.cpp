@@ -4,8 +4,6 @@
 #include <queue>
 #include <tuple>
 
-#define INF std::numeric_limits<int>::max()
-
 OSPF::OSPF(QObject *parent)
     : RoutingProtocol{parent}
 {}
@@ -21,7 +19,7 @@ void OSPF::initialize()
     }
 }
 
-void OSPF::addNeighbor(IPv4Ptr_t neighborIP)
+void OSPF::addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort)
 {
     if (!neighbors.contains(neighborIP)) {
         neighbors.append(neighborIP);
@@ -42,8 +40,10 @@ void OSPF::sendRoutingInformation(const QByteArray &lsaData)
     Q_EMIT sendPacketToNeighbors(lsaData);
 }
 
-void OSPF::processReceivedRoutingInformation(const QByteArray &lsaData)
+void OSPF::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort)
 {
+    QByteArray lsaData = packet->payload();
+
     LSA lsa = LSA::fromByteArray(lsaData);
 
     if (!LSDB.contains(lsa.routerIP)) {

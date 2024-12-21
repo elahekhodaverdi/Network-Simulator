@@ -104,9 +104,6 @@ void Router::setIP(IPv4Ptr_t ip)
 
 void Router::printRoutingTable() const
 {
-    QTextStream out(stdout);
-
-    out << "Routing Table for Router ID: " << m_id << "\n";
     routingProtocol->printRoutingTable();
 }
 
