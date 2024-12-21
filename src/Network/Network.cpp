@@ -14,6 +14,15 @@ Network::~Network()
 {
         
 }
+
+int Network::numOfRouters()
+{
+    int num = 0;
+    for (AutonomousSystemPtr_t as : autonomousSystems) {
+        num += as->numOfRouters();
+    }
+    return num;
+}
 AutonomousSystemPtr_t Network::findASById(int id)
 {
     AutonomousSystemPtr_t target = nullptr;

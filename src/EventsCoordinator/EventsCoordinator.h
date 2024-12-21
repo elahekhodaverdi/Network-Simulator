@@ -28,6 +28,7 @@ public:
 
 Q_SIGNALS:
     void nextTick(const QVector<PCPtr_t> &selectedPCs);
+    void executionIsDone();
 
 private:
     void run() override;

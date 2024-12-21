@@ -1,56 +1,95 @@
 #include "Simulator.h"
 #include <QDir>
 #include "../Utils/ConfigReader.h"
+
+SimulationConfig Simulator::simulationConfig;
+
 Simulator::Simulator()
+    : numOfRoutersDone(0)
+    , currentPhase(Phase::Idle)
 {
-    currentPhase = Phase::Start;
-    tick = 0;
-    eventsCoordinator = EventsCoordinator::instance();
-    QObject::connect(eventsCoordinator, &EventsCoordinator::nextTick, this, &Simulator::nextTick);
+    if (!eventsCoordinator) {
+        eventsCoordinator.reset(EventsCoordinator::instance());
+    }
+
+    QObject::connect(this, &Simulator::phaseChanged, this, &Simulator::nextPhase);
+    QObject::connect(eventsCoordinator.get(),
+                     &EventsCoordinator::executionIsDone,
+                     this,
+                     &Simulator::executionIsDone);
+    // TODO: Add connection for when a router is done
 }
 
-void Simulator::nextTick()
+Simulator::~Simulator()
 {
+    eventsCoordinator.clear();
+}
+
+void Simulator::run()
+{
+    Q_EMIT phaseChanged(Phase::Start);
+}
+
+void Simulator::nextPhase(Phase nextPhase)
+{
+    if (nextPhase == currentPhase)
+        return;
+
+    currentPhase = nextPhase;
+
     switch (currentPhase) {
-    case Simulator::Phase::Start:
-
+    case Phase::Start:
+        start();
+        Q_EMIT phaseChanged(Phase::Identification);
         break;
-    case Simulator::Phase::Identification:
-
+    case Phase::Identification:
+        identification();
         break;
-    case Simulator::Phase::Execution:
-
+    case Phase::Execution:
+        execution();
         break;
-    case Simulator::Phase::Analysis:
-
+    case Phase::Analysis:
+        analysis();
         break;
     default:
         break;
     }
-    tick++;
 }
-Simulator::~Simulator()
-{
-    eventsCoordinator->release();
-}
+
 void Simulator::start()
 {
     QString projectDir = QString(PROJECT_DIR_PATH);
     QString configFilePath = QDir(projectDir).filePath("assets/config.json");
     ConfigReader::readNetworkConfig(configFilePath);
 }
+
 void Simulator::identification()
 {
-    // TODO: start trasnferrring control packet
-    // eventsCoordinator->startSimulation
+    // TODO: Start transferring control packets
+    // Example: eventsCoordinator->startIdentification();
 }
+
 void Simulator::execution()
 {
     eventsCoordinator->startSimulation(simulationConfig.cycleDurationMs,
                                        simulationConfig.simulationDurationMs,
                                        network.PCs);
 }
+
 void Simulator::analysis()
 {
-    // TODO: reading input commands
+    // TODO: Perform analysis on the simulation results
+}
+
+void Simulator::aRouterIsDone()
+{
+    numOfRoutersDone++;
+    if (numOfRoutersDone >= network.numOfRouters()) {
+        Q_EMIT phaseChanged(Phase::Execution);
+    }
+}
+
+void Simulator::executionIsDone()
+{
+    Q_EMIT phaseChanged(Phase::Analysis);
 }

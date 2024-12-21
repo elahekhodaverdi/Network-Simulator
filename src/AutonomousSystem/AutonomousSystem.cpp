@@ -188,3 +188,8 @@ QList<IPv4Ptr_t> AutonomousSystem::getAllRoutersIPs()
     }
     return allRoutersIPs;
 }
+
+int AutonomousSystem::numOfRouters()
+{
+    return routers.size();
+}

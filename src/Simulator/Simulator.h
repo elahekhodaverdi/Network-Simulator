@@ -1,31 +1,39 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+#include <QObject>
+#include <QSharedPointer>
 #include "../EventsCoordinator/EventsCoordinator.h"
 #include "../Network/Network.h"
 #include "../Network/SimulationConfig.h"
-class Simulator
+
+class Simulator : public QObject
 {
+    Q_OBJECT
+
 public:
     Simulator();
     ~Simulator();
+
+    enum class Phase { Idle, Start, Identification, Execution, Analysis };
 
     void run();
 
     static SimulationConfig simulationConfig;
 
 public Q_SLOTS:
-    void nextTick();
+    void nextPhase(Simulator::Phase nextPhase);
+    void aRouterIsDone();
+    void executionIsDone();
+
+Q_SIGNALS:
+    void phaseChanged(Simulator::Phase nextPhase);
 
 private:
-    enum class Phase { Start, Identification, Execution, Analysis };
-
-    // TODO: I think it should be QSharedPointer
-    static EventsCoordinator *eventsCoordinator;
+    QSharedPointer<EventsCoordinator> eventsCoordinator;
 
     Network network;
-    int tick;
-    int routerDone; //TODO: rename later
+    int numOfRoutersDone;
     Phase currentPhase;
 
     void start();

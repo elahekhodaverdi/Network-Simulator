@@ -12,6 +12,7 @@ public:
     ~Network();
     static AutonomousSystemPtr_t findASById(int id);
     static QList<IPv4Ptr_t> getAllRoutersIPs();
+    static int numOfRouters();
 
 public:
     static QList<PCPtr_t> PCs;
