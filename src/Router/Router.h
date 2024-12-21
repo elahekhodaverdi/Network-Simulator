@@ -21,8 +21,8 @@ public:
                     QObject *parent = nullptr);
     ~Router();
     void setRouterAsDHCPServer();
-    void setRouterBroken();
-    bool routerIsBroken() const;
+    void markAsBroken();
+    bool isBroken() const;
 
     PortPtr_t getAnUnboundPort() const;
     int remainingPorts() const;
@@ -37,8 +37,8 @@ public Q_SLOTS:
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void sendRoutingPacket(const QByteArray &data);
     // TODO: rename this
-    void secondUpdateRoutingTable(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
-                                  UT::RoutingProtocol protocol);
+    void updateRoutingTableFromProtocol(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
+                                        UT::RoutingProtocol protocol);
 
 private:
     struct RoutingTableEntry
@@ -64,11 +64,13 @@ private:
 
     PortPtr_t findSendPort(IPv4Ptr_t destIP);
     QMap<PortPtr_t, PacketPtr_t> findPacketsToSend();
-    void updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, uint8_t portNumber);
+    void connectPortsToSignals();
+    void initializeRoutingProtocol();
     void updateRoutingTable(RoutingTableEntry newEntry);
-    void handleControlPacket(const PacketPtr_t &data, uint8_t portNumber);
     void addNewNeighbor(const IPv4Ptr_t &neighborIP, uint8_t portNumber);
+    void handleControlPacket(const PacketPtr_t &data, uint8_t portNumber);
     void sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber);
+    void updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, uint8_t portNumber);
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;

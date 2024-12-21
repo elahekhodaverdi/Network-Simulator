@@ -9,26 +9,10 @@ Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QOb
     , maxPorts(portCount)
     , maxBufferSize(bufferSize)
 {
-    for (int i = 0; i < maxPorts; ++i) {
-        PortPtr_t port = PortPtr_t::create(this);
-        port->setPortNumber(i + 1);
-        ports.append(port);
-        connect(port.get(), &Port::packetReceived, this, &Router::receivePacket);
-        connect(this, &Router::newPacket, port.get(), &Port::sendPacket);
-    }
+    connectPortsToSignals();
+    initializeRoutingProtocol();
     moveToThread(this);
     this->start();
-    // TODO: add RIP
-    routingProtocol = SimulationConfig::routingProtocol == "OSPF" ? new OSPF() : nullptr;
-    routingProtocol->initialize();
-    connect(routingProtocol,
-            &RoutingProtocol::sendPacketToNeighbors,
-            this,
-            &Router::sendRoutingPacket);
-    connect(routingProtocol,
-            &RoutingProtocol::updateRoutingTable,
-            this,
-            &Router::secondUpdateRoutingTable);
 }
 
 Router::~Router()
@@ -42,17 +26,50 @@ Router::~Router()
     this->wait();
 }
 
+void Router::connectPortsToSignals()
+{
+    for (int i = 0; i < maxPorts; ++i) {
+        auto port = PortPtr_t::create(this);
+        port->setPortNumber(i + 1);
+        ports.append(port);
+        connect(port.get(), &Port::packetReceived, this, &Router::receivePacket);
+        connect(this, &Router::newPacket, port.get(), &Port::sendPacket);
+    }
+}
+
+void Router::initializeRoutingProtocol()
+{
+    if (SimulationConfig::routingProtocol == "OSPF") {
+        routingProtocol = new OSPF();
+    } else if (SimulationConfig::routingProtocol == "RIP") {
+        // routingProtocol = new RIP();
+    } else {
+        routingProtocol = nullptr;
+    }
+    if (routingProtocol) {
+        routingProtocol->initialize();
+        connect(routingProtocol,
+                &RoutingProtocol::sendPacketToNeighbors,
+                this,
+                &Router::sendRoutingPacket);
+        connect(routingProtocol,
+                &RoutingProtocol::updateRoutingTable,
+                this,
+                &Router::updateRoutingTableFromProtocol);
+    }
+}
+
 void Router::setRouterAsDHCPServer()
 {
     DHCPServer = true;
 }
 
-void Router::setRouterBroken()
+void Router::markAsBroken()
 {
     broken = true;
 }
 
-bool Router::routerIsBroken() const
+bool Router::isBroken() const
 {
     return broken;
 }
@@ -238,8 +255,8 @@ void Router::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighb
     updateRoutingTable(newEntry);
 }
 
-void Router::secondUpdateRoutingTable(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
-                                      UT::RoutingProtocol protocol)
+void Router::updateRoutingTableFromProtocol(QMap<IPv4Ptr_t, std::pair<int, IPv4Ptr_t>> routingTable,
+                                            UT::RoutingProtocol protocol)
 {
     for (auto it = routingTable.begin(); it != routingTable.end(); ++it) {
         RoutingTableEntry entry;
