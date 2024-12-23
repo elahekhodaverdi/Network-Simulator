@@ -7,7 +7,7 @@ INCLUDEPATH += $$PWD\Globals
 
 SOURCES += \
     $$PWD/AutonomousSystem/AutonomousSystem.cpp \
-    # $$PWD/DHCPServer/DHCPServer.cpp \
+    $$PWD/DHCPServer/DHCPServer.cpp \
     $$PWD/EventsCoordinator/EventsCoordinator.cpp \
     $$PWD/DataGenerator/DataGenerator.cpp \
     # $$PWD/Headers/BGPHeader.cpp \
@@ -35,7 +35,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/AutonomousSystem/AutonomousSystem.h \
-    # $$PWD/DHCPServer/DHCPServer.h \
+    $$PWD/DHCPServer/DHCPServer.h \
     $$PWD/EventsCoordinator/EventsCoordinator.h \
     $$PWD/DataGenerator/DataGenerator.h \
     $$PWD/Globals/Globals.h \

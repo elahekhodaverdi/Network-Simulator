@@ -27,7 +27,7 @@ Simulator::Simulator(QObject *parent)
         eventsCoordinator.reset(EventsCoordinator::instance());
     }
 
-    QObject::connect(this, &Simulator::phaseChanged, this, &Simulator::nextPhase);
+    QObject::connect(this, &Simulator::phaseChanged, eventsCoordinator.get(), &EventsCoordinator::]);
     QObject::connect(eventsCoordinator.get(),
                      &EventsCoordinator::executionIsDone,
                      this,
@@ -41,26 +41,21 @@ Simulator::~Simulator()
 
 void Simulator::run()
 {
-    Q_EMIT phaseChanged(Phase::Start);
+    goToNextPhase(Phase::Start);
 }
 
-void Simulator::nextPhase(Phase nextPhase)
+void Simulator::goToNextPhase(Phase nextPhase)
 {
     if (nextPhase == currentPhase)
         return;
 
     currentPhase = nextPhase;
+    numOfRoutersDone = 0;
 
+    Q_EMIT phaseChanged(currentPhase);
     switch (currentPhase) {
     case Phase::Start:
         start();
-        Q_EMIT phaseChanged(Phase::Identification);
-        break;
-    case Phase::Identification:
-        identification();
-        break;
-    case Phase::Execution:
-        execution();
         break;
     case Phase::Analysis:
         analysis();
@@ -75,13 +70,14 @@ void Simulator::start()
     QString projectDir = QString(PROJECT_DIR_PATH);
     QString configFilePath = QDir(projectDir).filePath("assets/config.json");
     ConfigReader::readNetworkConfig(configFilePath);
+    goToNextPhase(Phase::DHCP);
 }
 
-void Simulator::identification()
-{
-    // TODO: Start transferring control packets
-    // Example: eventsCoordinator->startIdentification();
-}
+void Simulator::startDHCP() {}
+
+void Simulator::startIdentifyingNeighbors() {}
+
+void Simulator::startRouting() {}
 
 void Simulator::execution()
 {
@@ -95,12 +91,17 @@ void Simulator::analysis()
     // TODO: Perform analysis on the simulation results
 }
 
-void Simulator::aRouterIsDone()
+void Simulator::routerIsDone()
 {
     numOfRoutersDone++;
-    if (numOfRoutersDone >= network.numOfRouters()) {
+    if (numOfRoutersDone < network.numOfRouters())
+        return;
+    numOfRoutersDone = 0;
+    if (currentPhase == Phase::DHCP)
+        Q_EMIT phaseChanged(Phase::IdentifyNeighbors);
+
+    if (currentPhase == Phase::Routing)
         Q_EMIT phaseChanged(Phase::Execution);
-    }
 }
 
 void Simulator::executionIsDone()

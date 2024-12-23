@@ -203,6 +203,6 @@ void AutonomousSystem::connectRouterSignalsToSimulator()
         QObject::connect(router.get(),
                          &Router::routingProtocolIsDone,
                          simulator,
-                         &Simulator::aRouterIsDone);
+                         &Simulator::routerIsDone);
     }
 }

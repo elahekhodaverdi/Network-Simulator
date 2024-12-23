@@ -2,11 +2,13 @@
 #define EVENTSCOORDINATOR_H
 
 #include <QObject>
+#include <QSharedPointer>
 #include <QThread>
-#include <vector>
-#include <chrono>
+#include <QTimer>
 #include "../DataGenerator/DataGenerator.h"
 #include "../PC/PC.h"
+#include <chrono>
+#include <vector>
 
 class DataGenerator;
 
@@ -30,8 +32,8 @@ Q_SIGNALS:
     void nextTick(const QVector<PCPtr_t> &selectedPCs);
     void executionIsDone();
 
-private:
-    void run() override;
+private Q_SLOTS:
+    void onTimerTick();
 
 private:
     inline static EventsCoordinator *m_self = nullptr;
@@ -41,6 +43,9 @@ private:
     std::vector<int>                 m_dataArray;
     QVector<PCPtr_t> m_pcs;
     DataGenerator                   *m_dataGenerator {nullptr};
+    int m_currentCycle{0};
+    QSharedPointer<QTimer> m_timer{nullptr};
+    void run() override;
 };
 
 #endif

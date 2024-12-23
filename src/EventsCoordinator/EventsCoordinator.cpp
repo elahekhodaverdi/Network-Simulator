@@ -64,24 +64,40 @@ void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QV
 void EventsCoordinator::stopSimulation()
 {
     m_running = false;
-    wait();
+    if (m_timer) {
+        m_timer->stop();
+    }
+    wait(); // Wait for the thread to finish
+    Q_EMIT executionIsDone();
 }
 
 void EventsCoordinator::run()
 {
-    int cycleCount = m_durationMs / m_intervalMs;
-    for (int i = 0; i < cycleCount && m_running; ++i) {
-        QVector<PCPtr_t> selectedPCs;
-        if (m_dataArray[i] > 0) {
-            std::vector<int> indices(m_pcs.size());
-            std::iota(indices.begin(), indices.end(), 0);
-            std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
-            for (int j = 0; j < m_dataArray[i]; ++j) {
-                selectedPCs.push_back(m_pcs[indices[j]]);
-            }
-        }
+    m_timer = QSharedPointer<QTimer>::create();
+    connect(m_timer.get(), &QTimer::timeout, this, &EventsCoordinator::onTimerTick);
 
-        Q_EMIT nextTick(selectedPCs);
-        QThread::msleep(m_intervalMs);
+    m_timer->start(m_intervalMs);
+
+    exec();
+}
+
+void EventsCoordinator::onTimerTick()
+{
+    if (!m_running || m_currentCycle >= (m_durationMs / m_intervalMs)) {
+        stopSimulation();
+        return;
     }
+
+    QVector<PCPtr_t> selectedPCs;
+    if (m_dataArray[m_currentCycle] > 0) {
+        std::vector<int> indices(m_pcs.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
+        for (int j = 0; j < m_dataArray[m_currentCycle]; ++j) {
+            selectedPCs.push_back(m_pcs[indices[j]]);
+        }
+    }
+
+    Q_EMIT nextTick(selectedPCs);
+    ++m_currentCycle;
 }
