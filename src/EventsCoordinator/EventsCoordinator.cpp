@@ -67,7 +67,7 @@ void EventsCoordinator::stopSimulation()
     if (m_timer) {
         m_timer->stop();
     }
-    wait(); // Wait for the thread to finish
+    wait();
     Q_EMIT executionIsDone();
 }
 
@@ -100,4 +100,8 @@ void EventsCoordinator::onTimerTick()
 
     Q_EMIT nextTick(selectedPCs);
     ++m_currentCycle;
+}
+
+void EventsCoordinator::changePhase(UT::Phase nextPhase){
+    m_currentPhase = nextPhase;
 }
