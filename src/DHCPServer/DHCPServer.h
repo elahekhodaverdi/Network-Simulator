@@ -2,23 +2,28 @@
 #define DHCPSERVER_H
 
 #include <QObject>
+#include <QString>
+#include "../Packet/Packet.h"
+#include "../Port/Port.h"
 
 class DHCPServer : public QObject
 {
     Q_OBJECT
 
-public:    // constructors
-    explicit DHCPServer(QObject *parent = nullptr);
+public:
+    explicit DHCPServer(QString ipRange, QObject *parent = nullptr);
     ~DHCPServer() override;
 
-public:    // methods
+    void handleDiscoveryPacket(PacketPtr_t packet);
+    void handleRequestPacket(PacketPtr_t packet);
+    QString getIP(int id);
+
 Q_SIGNALS:
+    void newPacket(PacketPtr_t packet, PortPtr_t triggeringPort);
+private:
+    QList<int> sentOffers;
+    QString m_ipRange;
 
-public Q_SLOTS:
-
-private:    // methods
-
-private:    // members
 };
 
 #endif      // DHCPSERVER_H

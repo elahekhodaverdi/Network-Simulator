@@ -70,9 +70,8 @@ void Router::handleNewTick(UT::Phase phase){
 }
 
 void Router::updateBuffer(){
-    uint8_t numPacketsToSend = 0;
     int bufferIndex = 0;
-    while (numPacketsToSend != numBoundPorts() && bufferIndex < buffer.size()){
+    while (packetsToSend.size() < numBoundPorts() && bufferIndex < buffer.size()){
         auto currentPacket = buffer[bufferIndex].first;
         auto packetInPort = buffer[bufferIndex].second;
         if (currentPacket->packetType() == UT::PacketType::Control){
@@ -86,20 +85,35 @@ void Router::updateBuffer(){
         }
         packetsToSend.insert(sendPort, currentPacket);
         buffer.removeAt(bufferIndex);
-        numPacketsToSend++;
     }
 }
 
 void Router::handlePhaseChange(const UT::Phase nextPhase){
     m_currentPhase = nextPhase;
     if (m_currentPhase == UT::Phase::DHCP){
-        sendDiscoveryDHCP();
+        if (isDHCPServer()){
+            QString ip = dhcpServer->getIP(m_id);
+            setIP(IPv4Ptr_t::create(ip));
+        }
+        else
+            sendDiscoveryDHCP();
+        return;
     }
 }
 
-void Router::setRouterAsDHCPServer()
+void Router::setAsDHCPServer(QString ipRange)
 {
-    DHCPServer = true;
+    dhcpServer = QSharedPointer<DHCPServer>::create(ipRange);
+    QObject::connect(dhcpServer.get(),
+                     &DHCPServer::newPacket,
+                     this,
+                     &Router::addNewPacketTobBuffer);
+}
+
+void Router::addNewPacketTobBuffer(PacketPtr_t &packet, PortPtr_t triggeringPort){
+    if (m_IP)
+        packet->ipHeader()->setSourceIp(m_IP);
+    buffer.append(qMakePair(packet, triggeringPort));
 }
 
 void Router::markAsBroken()
@@ -149,6 +163,7 @@ void Router::setIP(IPv4Ptr_t ip)
     for (const auto &port : ports) {
         port->setRouterIP(ip->toString());
     }
+    qDebug() << "Router with ID: " << m_id << "set it IP: " << m_IP->toString();
 }
 
 void Router::printRoutingTable() const
@@ -158,7 +173,7 @@ void Router::printRoutingTable() const
 
 bool Router::isDHCPServer() const
 {
-    return DHCPServer;
+    return (dhcpServer != nullptr);
 }
 
 void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
@@ -177,7 +192,7 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
     if (data->controlType() == UT::PacketControlType::DHCPDiscovery ){
         if (isDHCPServer()){
-            //TODO
+            dhcpServer->handleDiscoveryPacket(data);
         }
         else if (data->ipHeader()->ttl() > 0)
             buffer.append(qMakePair(data, ports[portNumber - 1]));

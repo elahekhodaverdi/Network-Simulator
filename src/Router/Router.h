@@ -4,10 +4,11 @@
 #include "../Globals/Globals.h"
 #include "../IP/IP.h"
 #include "../Node/Node.h"
-#include "../PC/PC.h"
 #include "../Packet/Packet.h"
 #include "../Port/Port.h"
 #include "../RoutingProtocol/RoutingProtocol.h"
+#include "../DHCPServer/DHCPServer.h"
+#include <QString>
 
 class Router : public Node
 {
@@ -29,12 +30,13 @@ public:
     PortPtr_t getAnUnboundPort() const;
     QList<PortPtr_t> getPorts() const;
     void setIP(IPv4Ptr_t ip) override;
-    void setRouterAsDHCPServer();
+    void setAsDHCPServer(QString ipRange);
 
 public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
+    void addNewPacketTobBuffer(PacketPtr_t &packet, PortPtr_t triggeringPort);
 
 Q_SIGNALS:
     void routingProtocolIsDone();
@@ -43,14 +45,13 @@ private:
     int maxPorts;
     int maxBufferSize;
     bool broken = false;
-    bool DHCPServer = false;
+    QSharedPointer<DHCPServer> dhcpServer = nullptr;
     QList<PortPtr_t> ports;
     QList<QPair<PacketPtr_t, PortPtr_t>> buffer;
     RoutingProtocol *routingProtocol;
     UT::IPVersion ipVersion = UT::IPVersion::IPv4;
     QMap<PortPtr_t, PacketPtr_t> packetsToSend;
 
-    QMap<PortPtr_t, PacketPtr_t> findPacketsToSend();
     int numBoundPorts() const;
     void connectPortsToSignals();
     void initializeRoutingProtocol();
