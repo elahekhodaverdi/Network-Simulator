@@ -55,7 +55,16 @@ void Router::initializeRoutingProtocol()
 }
 
 void Router::handleNewTick(UT::Phase phase){
-    //TODO
+    if (m_currentPhase != phase){
+        handlePhaseChange(phase);
+    }
+}
+
+void Router::handlePhaseChange(const UT::Phase nextPhase){
+    m_currentPhase = nextPhase;
+    if (m_currentPhase == UT::Phase::DHCP){
+        sendDiscoveryDHCP();
+    }
 }
 
 void Router::setRouterAsDHCPServer()
@@ -153,6 +162,16 @@ void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNu
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::Response);
     Q_EMIT newPacket(packet, portNumber);
+}
+
+void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    for (const auto& port : ports){
+        if (PortBindingManager::isBounded(port))
+            continue;
+        if (port != triggeringPort && port->getPortNumber() == triggeringPort->getPortNumber())
+            continue;
+        Q_EMIT newPacket(packet, port->getPortNumber());
+    }
 }
 
 

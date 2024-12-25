@@ -90,7 +90,7 @@ void EventsCoordinator::runExecutionCycle(){
             selectedPCs.push_back(m_pcs[indices[j]]);
         }
     }
-    Q_EMIT sendPacket(selectedPCs);
+    Q_EMIT newPacket(selectedPCs);
     ++m_numExecutionCycles;
 }
 

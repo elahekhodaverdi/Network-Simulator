@@ -19,14 +19,19 @@ public:
     PortPtr_t gateway();
 public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;
-    void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
+    void setShouldSendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
 
 private:
-    void setupGateway();
+    bool shouldSendNewPacket{false};
     PortPtr_t m_gateway;
+
     PacketPtr_t createNewPacket();
     QSharedPointer<PC> chooseRandomPC();
+    void setupGateway();
+    void sendNewPacket();
+    void handlePhaseChange(const UT::Phase nextPhase);
+    void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
 };
 
 typedef QSharedPointer<PC> PCPtr_t;

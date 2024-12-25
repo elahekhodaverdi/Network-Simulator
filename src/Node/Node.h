@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QThread>
 #include "../Packet/Packet.h"
+#include "../Port/Port.h"
 #include "../IP/IP.h"
 #include "../MACAddress/MACAddress.h"
 
@@ -35,6 +36,8 @@ protected:
     UT::Phase m_currentPhase;
 
     void checkCurrentThread();
+    void sendDiscoveryDHCP();
+    virtual void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) = 0;
 };
 
 #endif    // NODE_H

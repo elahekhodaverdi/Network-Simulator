@@ -31,7 +31,7 @@ public:
 
 Q_SIGNALS:
     void nextTick(UT::Phase currentPhase);
-    void sendPacket(QVector<PCPtr_t> selectedPCs);
+    void newPacket(QVector<PCPtr_t> selectedPCs);
     void executionIsDone();
 
 public Q_SLOTS:

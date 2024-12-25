@@ -16,6 +16,12 @@ Node::Node(int id, QObject *parent)
     m_MACAddress = MACAddressGenerator::getRandomMAC();
 }
 
+Node::~Node()
+{
+    if (!m_IP.isNull())
+        m_IP.clear();
+}
+
 void Node::checkCurrentThread() {
     QThread* currentThread = QThread::currentThread();
 
@@ -27,10 +33,14 @@ void Node::checkCurrentThread() {
     }
 }
 
-Node::~Node()
-{
-    if (!m_IP.isNull())
-        m_IP.clear();
+void Node::sendDiscoveryDHCP(){
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    packet->setIPHeader(ipHeader);
+    packet->setPacketType(UT::PacketType::Control);
+    packet->setControlType(UT::PacketControlType::DHCPDiscovery);
+    packet->setPayload(QByteArray::number(m_id));
+    broadcastPacket(packet, nullptr);
 }
 
 int Node::getId(){

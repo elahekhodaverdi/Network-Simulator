@@ -32,13 +32,30 @@ PC::~PC()
 }
 
 void PC::handleNewTick(UT::Phase phase){
-    //TODO
+    if (phase != m_currentPhase){
+        handlePhaseChange(phase);
+    }
+    if (shouldSendNewPacket)
+        sendNewPacket();
 }
 
-void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
+void PC::setShouldSendPacket(QVector<QSharedPointer<PC>> selectedPCs)
 {
-    if (!selectedPCs.contains(this))
+    if (selectedPCs.contains(this)){
+        shouldSendNewPacket = true;
         return;
+    }
+    shouldSendNewPacket = false;
+}
+
+void PC::handlePhaseChange(const UT::Phase nextPhase){
+    m_currentPhase = nextPhase;
+    if (m_currentPhase == UT::Phase::DHCP){
+        sendDiscoveryDHCP();
+    }
+}
+
+void PC::sendNewPacket(){
     qDebug() << "Sending packet from PC:" << m_id;
     checkCurrentThread();
     PacketPtr_t packet = createNewPacket();
@@ -91,6 +108,10 @@ void PC::receivePacket(const PacketPtr_t &data, uint8_t port_number)
 {
     qDebug() << "here id";
     qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
+}
+
+void PC::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    Q_EMIT newPacket(packet, m_gateway->getPortNumber());
 }
 
 void PC::setIP(IPv4Ptr_t ip)
