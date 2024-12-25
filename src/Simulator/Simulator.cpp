@@ -27,7 +27,11 @@ Simulator::Simulator(QObject *parent)
         eventsCoordinator.reset(EventsCoordinator::instance());
     }
 
-    QObject::connect(this, &Simulator::phaseChanged, eventsCoordinator.get(), &EventsCoordinator);
+    QObject::connect(this,
+                     &Simulator::phaseChanged,
+                     eventsCoordinator.get(),
+                     &EventsCoordinator::changePhase);
+
     QObject::connect(eventsCoordinator.get(),
                      &EventsCoordinator::executionIsDone,
                      this,
@@ -52,17 +56,17 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
     currentPhase = nextPhase;
     numOfRoutersDone = 0;
 
-    Q_EMIT phaseChanged(currentPhase);
     switch (currentPhase) {
-    case UT::Phase::Start:
-        start();
-        break;
-    case UT::Phase::Analysis:
-        analysis();
-        break;
-    default:
-        break;
+        case UT::Phase::Start:
+            start();
+            break;
+        case UT::Phase::Analysis:
+            analysis();
+            break;
+        default:
+            break;
     }
+
 }
 
 void Simulator::start()
@@ -70,6 +74,10 @@ void Simulator::start()
     QString projectDir = QString(PROJECT_DIR_PATH);
     QString configFilePath = QDir(projectDir).filePath("assets/config.json");
     ConfigReader::readNetworkConfig(configFilePath);
+    eventsCoordinator->setDurationMs(simulationConfig.simulationDurationMs);
+    eventsCoordinator->setIntervalMs(simulationConfig.cycleDurationMs);
+    eventsCoordinator->setPcs(network.PCs);
+    Q_EMIT phaseChanged(UT::Phase::Start);
     goToNextPhase(UT::Phase::DHCP);
 }
 
@@ -81,9 +89,7 @@ void Simulator::startRouting() {}
 
 void Simulator::execution()
 {
-    eventsCoordinator->startSimulation(simulationConfig.cycleDurationMs,
-                                       simulationConfig.simulationDurationMs,
-                                       network.PCs);
+
 }
 
 void Simulator::analysis()

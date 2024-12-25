@@ -30,12 +30,9 @@ void EventsCoordinator::release()
     qDebug() << "done";
 }
 
-void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QVector<PCPtr_t> &pcs)
+void EventsCoordinator::startSimulation()
 {
-    m_intervalMs = intervalMs;
-    m_durationMs = durationMs;
-    m_pcs = pcs;
-    m_dataArray.assign(durationMs / intervalMs, 0);
+    m_dataArray.assign(m_durationMs / m_intervalMs, 0);
     size_t TOTAL_PACKETS = m_dataArray.size();
     std::fill(m_dataArray.begin(), m_dataArray.end(), 0);
 
@@ -54,8 +51,6 @@ void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QV
         res += ":" + QString::number(m_dataArray[i]);
     }
     qDebug() << "Number of Packets in each Cycle: " << res;
-
-
 
     m_running = true;
     start();
@@ -88,6 +83,20 @@ void EventsCoordinator::onTimerTick()
         return;
     }
 
+    switch (m_currentPhase) {
+        case UT::Phase::Start:
+            startSimulation();
+            break;
+        case UT::Phase::Start:
+            break;
+        case UT::Phase::Start:
+            break;
+        case UT::Phase::Start:
+            break;
+        default:
+            break;
+    }
+
     QVector<PCPtr_t> selectedPCs;
     if (m_dataArray[m_currentCycle] > 0) {
         std::vector<int> indices(m_pcs.size());
@@ -104,4 +113,16 @@ void EventsCoordinator::onTimerTick()
 
 void EventsCoordinator::changePhase(UT::Phase nextPhase){
     m_currentPhase = nextPhase;
+}
+
+void EventsCoordinator::setDurationMs(int durationMs){
+    m_durationMs = durationMs;
+}
+
+void EventsCoordinator::setIntervalMs(int intervalMs){
+    m_intervalMs = intervalMs;
+}
+
+void EventsCoordinator::setPcs(QVector<PCPtr_t> pcs){
+    m_pcs = pcs;
 }
