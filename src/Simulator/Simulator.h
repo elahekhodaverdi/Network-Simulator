@@ -5,6 +5,7 @@
 #include <QSharedPointer>
 #include "../EventsCoordinator/EventsCoordinator.h"
 #include "../Network/Network.h"
+#include "../Globals/Globals.h"
 #include "../Network/SimulationConfig.h"
 
 class Simulator : public QObject
@@ -19,8 +20,6 @@ public:
     static Simulator *instance(QObject *parent = nullptr);
     static void release();
 
-    enum class Phase { Idle, Start, DHCP, IdentifyNeighbors, Routing, Execution, Analysis };
-
     void run();
 
     static SimulationConfig simulationConfig;
@@ -31,7 +30,7 @@ public Q_SLOTS:
     void executionIsDone();
 
 Q_SIGNALS:
-    void phaseChanged(Simulator::Phase nextPhase);
+    void phaseChanged(UT::Phase nextPhase);
 
 private:
     inline static Simulator *m_self = nullptr;
@@ -39,9 +38,9 @@ private:
 
     Network network;
     int numOfRoutersDone;
-    Phase currentPhase;
+    UT::Phase currentPhase;
 
-    void goToNextPhase(Simulator::Phase nextPhase);
+    void goToNextPhase(UT::Phase nextPhase);
     void start();
     void startDHCP();
     void startIdentifyingNeighbors();

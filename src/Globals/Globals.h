@@ -6,6 +6,8 @@
 namespace UT
 {
 
+enum class Phase { Idle, Start, DHCP, IdentifyNeighbors, Routing, Execution, Analysis };
+
 enum class RoutingProtocol { OSPF, RIP };
 
 enum class IPVersion { IPv4, IPv6 };

@@ -21,13 +21,13 @@ void Simulator::release()
 Simulator::Simulator(QObject *parent)
     : QObject(parent)
     , numOfRoutersDone(0)
-    , currentPhase(Phase::Idle)
+    , currentPhase(UT::Phase::Idle)
 {
     if (!eventsCoordinator) {
         eventsCoordinator.reset(EventsCoordinator::instance());
     }
 
-    QObject::connect(this, &Simulator::phaseChanged, eventsCoordinator.get(), &EventsCoordinator::]);
+    QObject::connect(this, &Simulator::phaseChanged, eventsCoordinator.get(), &EventsCoordinator);
     QObject::connect(eventsCoordinator.get(),
                      &EventsCoordinator::executionIsDone,
                      this,
@@ -41,10 +41,10 @@ Simulator::~Simulator()
 
 void Simulator::run()
 {
-    goToNextPhase(Phase::Start);
+    goToNextPhase(UT::Phase::Start);
 }
 
-void Simulator::goToNextPhase(Phase nextPhase)
+void Simulator::goToNextPhase(UT::Phase nextPhase)
 {
     if (nextPhase == currentPhase)
         return;
@@ -54,10 +54,10 @@ void Simulator::goToNextPhase(Phase nextPhase)
 
     Q_EMIT phaseChanged(currentPhase);
     switch (currentPhase) {
-    case Phase::Start:
+    case UT::Phase::Start:
         start();
         break;
-    case Phase::Analysis:
+    case UT::Phase::Analysis:
         analysis();
         break;
     default:
@@ -70,7 +70,7 @@ void Simulator::start()
     QString projectDir = QString(PROJECT_DIR_PATH);
     QString configFilePath = QDir(projectDir).filePath("assets/config.json");
     ConfigReader::readNetworkConfig(configFilePath);
-    goToNextPhase(Phase::DHCP);
+    goToNextPhase(UT::Phase::DHCP);
 }
 
 void Simulator::startDHCP() {}
@@ -97,14 +97,14 @@ void Simulator::routerIsDone()
     if (numOfRoutersDone < network.numOfRouters())
         return;
     numOfRoutersDone = 0;
-    if (currentPhase == Phase::DHCP)
-        Q_EMIT phaseChanged(Phase::IdentifyNeighbors);
+    if (currentPhase == UT::Phase::DHCP)
+        Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbors);
 
-    if (currentPhase == Phase::Routing)
-        Q_EMIT phaseChanged(Phase::Execution);
+    if (currentPhase == UT::Phase::Routing)
+        Q_EMIT phaseChanged(UT::Phase::Execution);
 }
 
 void Simulator::executionIsDone()
 {
-    Q_EMIT phaseChanged(Phase::Analysis);
+    Q_EMIT phaseChanged(UT::Phase::Analysis);
 }
