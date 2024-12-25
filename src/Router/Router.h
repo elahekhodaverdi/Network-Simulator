@@ -32,6 +32,7 @@ public:
     void setRouterAsDHCPServer();
 
 public Q_SLOTS:
+    void handleNewTick(const UT::Phase phase) override;
     void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);

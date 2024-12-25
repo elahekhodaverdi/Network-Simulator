@@ -54,6 +54,10 @@ void Router::initializeRoutingProtocol()
             &Router::sendRoutingPacket);
 }
 
+void Router::handleNewTick(UT::Phase phase){
+    //TODO
+}
+
 void Router::setRouterAsDHCPServer()
 {
     DHCPServer = true;

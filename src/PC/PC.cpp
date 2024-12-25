@@ -31,6 +31,10 @@ PC::~PC()
     this->wait();
 }
 
+void PC::handleNewTick(UT::Phase phase){
+    //TODO
+}
+
 void PC::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
 {
     if (!selectedPCs.contains(this))

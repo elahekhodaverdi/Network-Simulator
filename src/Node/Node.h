@@ -25,12 +25,15 @@ Q_SIGNALS:
     void newPacket(const PacketPtr_t &data, uint8_t port_number);
 
 public Q_SLOTS:
+    virtual void handleNewTick(const UT::Phase phase);
     virtual void receivePacket(const PacketPtr_t &data, uint8_t port_number) = 0;
 
 protected:
     int m_id;
     MACAddress m_MACAddress;
     IPv4Ptr_t m_IP;
+    UT::Phase m_currentPhase;
+
     void checkCurrentThread();
 };
 

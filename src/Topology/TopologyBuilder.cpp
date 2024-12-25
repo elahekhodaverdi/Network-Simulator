@@ -18,7 +18,7 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyTy
         IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
         newRouter->setIP(ip);
         routers.append(newRouter);
-        QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, newRouter.get(), &Router::sendPacket);
+        QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, newRouter.get(), &Router::handleNewTick);
 
         routersNum++;
     }
