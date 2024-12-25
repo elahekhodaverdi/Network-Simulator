@@ -24,7 +24,7 @@ public:
     void markAsBroken();
     bool isBroken() const;
     bool isDHCPServer() const;
-    int remainingPorts() const;
+    int numRemainingPorts() const;
     void printRoutingTable() const;
     PortPtr_t getAnUnboundPort() const;
     QList<PortPtr_t> getPorts() const;
@@ -33,7 +33,6 @@ public:
 
 public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;
-    void sendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
 
@@ -46,13 +45,17 @@ private:
     bool broken = false;
     bool DHCPServer = false;
     QList<PortPtr_t> ports;
-    QList<PacketPtr_t> buffer;
+    QList<QPair<PacketPtr_t, PortPtr_t>> buffer;
     RoutingProtocol *routingProtocol;
     UT::IPVersion ipVersion = UT::IPVersion::IPv4;
+    QMap<PortPtr_t, PacketPtr_t> packetsToSend;
 
     QMap<PortPtr_t, PacketPtr_t> findPacketsToSend();
+    int numBoundPorts() const;
     void connectPortsToSignals();
     void initializeRoutingProtocol();
+    void updateBuffer();
+    void sendPackets();
     void handleControlPacket(const PacketPtr_t &data, uint8_t portNumber);
     void sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber);
     void handlePhaseChange(const UT::Phase nextPhase);

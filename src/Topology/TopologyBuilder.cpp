@@ -53,14 +53,14 @@ void TopologyBuilder::buildMeshTopology(QList<RouterPtr_t>& routers)
         for (int col = 0; col < n; ++col) {
             int currentIndex = getRouterIndexAtMesh(row, col, n);
 
-            if (routers[currentIndex]->remainingPorts() == 0)
+            if (routers[currentIndex]->numRemainingPorts() == 0)
                 continue;
 
             // Right - Left
             if (col > 0) {
                 int leftIndex = getRouterIndexAtMesh(row, col - 1, n);
-                if (routers[leftIndex]->remainingPorts() > 0
-                   && routers[currentIndex]->remainingPorts() > 0) {
+                if (routers[leftIndex]->numRemainingPorts() > 0
+                   && routers[currentIndex]->numRemainingPorts() > 0) {
                     PortPtr_t port1 = routers[currentIndex]->getAnUnboundPort();
                     PortPtr_t port2 = routers[leftIndex]->getAnUnboundPort();
                     PortBindingManager::bind(port1, port2);
@@ -70,8 +70,8 @@ void TopologyBuilder::buildMeshTopology(QList<RouterPtr_t>& routers)
             // Up - Down
             if (row < n - 1) {
                 int downIndex = getRouterIndexAtMesh(row + 1, col, n);
-                if (routers[downIndex]->remainingPorts() > 0
-                   && routers[currentIndex]->remainingPorts() > 0) {
+                if (routers[downIndex]->numRemainingPorts() > 0
+                   && routers[currentIndex]->numRemainingPorts() > 0) {
                     PortPtr_t port1 = routers[currentIndex]->getAnUnboundPort();
                     PortPtr_t port2 = routers[downIndex]->getAnUnboundPort();
                     PortBindingManager::bind(port1, port2);
@@ -115,7 +115,7 @@ void TopologyBuilder::buildRingStarTopology(QList<RouterPtr_t>& routers)
 
     for (int i = 0; i < routers.size() - 1; ++i) {
         int next = (i + 1) % (routers.size() - 1);
-        if (routers[i]->remainingPorts() > 0 && routers[next]->remainingPorts() > 0) {
+        if (routers[i]->numRemainingPorts() > 0 && routers[next]->numRemainingPorts() > 0) {
             PortPtr_t port1 = routers[i]->getAnUnboundPort();
             PortPtr_t port2 = routers[next]->getAnUnboundPort();
             PortBindingManager::bind(port1, port2);
@@ -123,7 +123,7 @@ void TopologyBuilder::buildRingStarTopology(QList<RouterPtr_t>& routers)
     }
 
     for (int i = 0; i < routers.size() - 1; i += 2) {
-        if (routers[i]->remainingPorts() > 0 && centralRouter->remainingPorts() > 0) {
+        if (routers[i]->numRemainingPorts() > 0 && centralRouter->numRemainingPorts() > 0) {
             PortPtr_t port1 = routers[i]->getAnUnboundPort();
             PortPtr_t port2 = centralRouter->getAnUnboundPort();
             PortBindingManager::bind(port1, port2);

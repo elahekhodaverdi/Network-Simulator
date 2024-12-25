@@ -55,8 +55,38 @@ void Router::initializeRoutingProtocol()
 }
 
 void Router::handleNewTick(UT::Phase phase){
+    packetsToSend.clear();
     if (m_currentPhase != phase){
         handlePhaseChange(phase);
+    }
+    for (int i = 0; i < buffer.size(); i++){
+        buffer[i].first->incTotalCycles();
+    }
+    updateBuffer();
+    sendPackets();
+    for (int i = 0; i < buffer.size(); i++){
+        buffer[i].first->incWaitingCycles();
+    }
+}
+
+void Router::updateBuffer(){
+    uint8_t numPacketsToSend = 0;
+    int bufferIndex = 0;
+    while (numPacketsToSend != numBoundPorts() && bufferIndex < buffer.size()){
+        auto currentPacket = buffer[bufferIndex].first;
+        auto packetInPort = buffer[bufferIndex].second;
+        if (currentPacket->packetType() == UT::PacketType::Control){
+            broadcastPacket(currentPacket, packetInPort);
+            continue;
+        }
+        auto sendPort = routingProtocol->findOutPort(currentPacket->ipHeader()->destIp());
+        if (sendPort == nullptr || packetsToSend.contains(sendPort)){
+            bufferIndex++;
+            continue;
+        }
+        packetsToSend.insert(sendPort, currentPacket);
+        buffer.removeAt(bufferIndex);
+        numPacketsToSend++;
     }
 }
 
@@ -97,7 +127,7 @@ PortPtr_t Router::getAnUnboundPort() const
     return nullptr;
 }
 
-int Router::remainingPorts() const
+int Router::numRemainingPorts() const
 {
     int boundPorts = 0;
     for (const auto &port : ports) {
@@ -106,6 +136,11 @@ int Router::remainingPorts() const
         }
     }
     return maxPorts - boundPorts;
+}
+
+int Router::numBoundPorts() const
+{
+    return maxPorts - numRemainingPorts();
 }
 
 void Router::setIP(IPv4Ptr_t ip)
@@ -130,27 +165,36 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
     if (broken)
         return;
+    qDebug() << "Packet Received from: " << portNumber << " Content:" << data->payload();
+    data->ipHeader()->decTTL();
     if (data->packetType() == UT::PacketType::Control){
         handleControlPacket(data, portNumber);
-        return;
     }
-    buffer.append(data);
-    qDebug() << "Packet Received from: " << portNumber << " Content:" << data->payload();
+    else if (data->ipHeader()->ttl() > 0)
+        buffer.append(qMakePair(data, ports[portNumber - 1]));
 }
 
 void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
-    if (data->controlType() == UT::PacketControlType::Response){
-        routingProtocol->addNewNeighbor(data->ipHeader()->sourceIp(), ports[portNumber - 1]);
+    if (data->controlType() == UT::PacketControlType::DHCPDiscovery ){
+        if (isDHCPServer()){
+            //TODO
+        }
+        else if (data->ipHeader()->ttl() > 0)
+            buffer.append(qMakePair(data, ports[portNumber - 1]));
         return;
     }
-    if (data->controlType() == UT::PacketControlType::Request){
-        sendResponsePacket(data, portNumber);
-        return;
-    }
-    if(data->controlType() == UT::PacketControlType::RIP || data->controlType() == UT::PacketControlType::OSPF){
-        routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
-        return;
-    }
+    // if (data->controlType() == UT::PacketControlType::Response){
+    //     routingProtocol->addNewNeighbor(data->ipHeader()->sourceIp(), ports[portNumber - 1]);
+    //     return;
+    // }
+    // if (data->controlType() == UT::PacketControlType::Request){
+    //     sendResponsePacket(data, portNumber);
+    //     return;
+    // }
+    // if(data->controlType() == UT::PacketControlType::RIP || data->controlType() == UT::PacketControlType::OSPF){
+    //     routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
+    //     return;
+    // }
 }
 
 void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber){
@@ -170,54 +214,17 @@ void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort
             continue;
         if (port != triggeringPort && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;
-        Q_EMIT newPacket(packet, port->getPortNumber());
+        packetsToSend.insert(port, packet);
     }
 }
 
-
-QMap<PortPtr_t, PacketPtr_t> Router::findPacketsToSend(){
-    uint8_t numBoundPorts = 0;
-    for (auto& port : ports){
-        if (PortBindingManager::isBounded(port))
-            numBoundPorts++;
-    }
-    uint8_t numPacketsToSend = 0;
-    int bufferIndex = 0;
-    QMap<PortPtr_t, PacketPtr_t> portPacketsMap;
-    while (numPacketsToSend != numBoundPorts && bufferIndex < buffer.size()){
-        auto currentPacket = buffer[bufferIndex];
-        auto sendPort = routingProtocol->findOutPort(currentPacket->ipHeader()->destIp());
-        if (sendPort == nullptr || portPacketsMap.contains(sendPort)){
-            bufferIndex++;
-            continue;
-        }
-        portPacketsMap.insert(sendPort, currentPacket);
-        buffer.removeAt(bufferIndex);
-        numPacketsToSend++;
-    }
-    return portPacketsMap;
-
-}
-
-void Router::sendPacket(QVector<QSharedPointer<PC>> selectedPCs)
+void Router::sendPackets()
 {
-    if (buffer.isEmpty())
-        return;
-    if (broken)
-        return;
-    qDebug() << "Sending packets from Router:" << m_id;
-    checkCurrentThread();
-    for (auto packet : buffer)
-        packet->incTotalCycles();
-    auto portPacketsMap = findPacketsToSend();
-    qDebug() << "map size" << portPacketsMap.size();
-    for (auto i = portPacketsMap.cbegin(); i != portPacketsMap.cend(); ++i){
+    for (auto i = packetsToSend.cbegin(); i != packetsToSend.cend(); ++i){
         PacketPtr_t packet = i.value();
         PortPtr_t port = i.key();
         Q_EMIT newPacket(packet, port->getPortNumber());
     }
-    for (auto packet : buffer)
-        packet->incWaitingCycles();
 }
 
 void Router::sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort){
