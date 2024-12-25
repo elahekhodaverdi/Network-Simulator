@@ -104,13 +104,27 @@ PacketPtr_t PC::createNewPacket()
 }
 
 
-void PC::receivePacket(const PacketPtr_t &data, uint8_t port_number)
+void PC::handleControlPacket(const PacketPtr_t &data){
+    if (data->controlType() == UT::PacketControlType::DHCPOffer){
+        handleOfferDHCP(data, m_gateway);
+    }
+    else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
+        handleAckDHCP(data, m_gateway);
+    }
+}
+
+void PC::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
+    if (data->packetType() == UT::PacketType::Control){
+        handleControlPacket(data);
+    }
     // qDebug() << "here id";
     // qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
 }
 
 void PC::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    if (triggeringPort != nullptr && triggeringPort->getPortNumber() == m_gateway->getPortNumber())
+        return;
     Q_EMIT newPacket(packet, m_gateway->getPortNumber());
 }
 
@@ -129,5 +143,8 @@ void PC::setupGateway()
 {
     connect(m_gateway.get(), &Port::packetReceived, this, &PC::receivePacket);
     connect(this, &PC::newPacket, m_gateway.get(), &Port::sendPacket);
-    m_gateway->setRouterIP(m_IP->toString());
+}
+
+void PC::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    broadcastPacket(packet, triggeringPort);
 }

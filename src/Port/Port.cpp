@@ -33,7 +33,16 @@ void Port::setPortNumber(uint8_t number)
 {
     m_number = number;
 }
+
 void Port::setRouterIP(QString routerIP)
 {
     m_routerIP = routerIP;
+}
+
+void Port::setIsInterASConnection(){
+    m_isInterASConnection = true;
+}
+
+bool Port::isInterAsConnection(){
+    return m_isInterASConnection;
 }

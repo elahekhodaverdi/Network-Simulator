@@ -1,17 +1,18 @@
 #include "Node.h"
 #include "../MACAddress/MACAddressGenerator.h"
+#include "../Utils/utils.cpp"
 
 Node::Node(int id, MACAddress macAddress, QObject *parent)
     : QThread(parent)
     , m_id(id)
     , m_MACAddress(macAddress)
-    , m_IP(IPv4Ptr_t::create())
+    , m_IP(nullptr)
 {}
 
 Node::Node(int id, QObject *parent)
     : QThread(parent)
     , m_id(id)
-    , m_IP(IPv4Ptr_t::create())
+    , m_IP(nullptr)
 {
     m_MACAddress = MACAddressGenerator::getRandomMAC();
 }
@@ -40,12 +41,52 @@ void Node::sendDiscoveryDHCP(){
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::DHCPDiscovery);
     packet->setPayload(QByteArray::number(m_id));
-    broadcastPacket(packet, nullptr);
+    addPacketForBroadcast(packet, nullptr);
+}
+
+void Node::sendRequestDHCP(){
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setDestIp(m_IP);
+    packet->setIPHeader(ipHeader);
+    packet->setPacketType(UT::PacketType::Control);
+    packet->setControlType(UT::PacketControlType::DHCPRequest);
+    addPacketForBroadcast(packet, nullptr);
+}
+
+void Node::handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    QJsonObject payloadJson = convertPayloadToJson(packet->payload());
+    int id = payloadJson["id"].toInt();
+    if (id != m_id){
+        addPacketForBroadcast(packet, triggeringPort);
+        return;
+    }
+    if (m_IP != nullptr)
+        return;
+    QString ip = payloadJson["ip"].toString();
+    setIP(IPv4Ptr_t::create(ip));
+    sendRequestDHCP();
+}
+
+void Node::handleAckDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    if (m_IP == nullptr && *packet->ipHeader()->destIp() != *m_IP){
+        addPacketForBroadcast(packet, triggeringPort);
+        return;
+    }
+    setDHCPDone();
+}
+
+void Node::setDHCPDone(){
+    if (m_dhcpIsDone)
+        return;
+    m_dhcpIsDone = true;
+    Q_EMIT dhcpIsDone();
 }
 
 int Node::getId(){
     return m_id;
 }
+
 IPv4Ptr_t Node::getIP()
 {
     return m_IP;

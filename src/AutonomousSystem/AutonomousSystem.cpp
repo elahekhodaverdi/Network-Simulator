@@ -175,6 +175,8 @@ void AutonomousSystem::setConnectToAS(QJsonArray ASs)
             if (sourceRouter && targetRouter) {
                 PortPtr_t port1 = sourceRouter->getAnUnboundPort();
                 PortPtr_t port2 = targetRouter->getAnUnboundPort();
+                port1->setIsInterASConnection();
+                port2->setIsInterASConnection();
                 PortBindingManager::bind(port1, port2);
             } else {
                 qWarning() << "Source Router with ID:" << sourceRouterId

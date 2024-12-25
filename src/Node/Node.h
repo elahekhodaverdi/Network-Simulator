@@ -24,6 +24,7 @@ public:
 
 Q_SIGNALS:
     void newPacket(const PacketPtr_t &data, uint8_t port_number);
+    void dhcpIsDone();
 
 public Q_SLOTS:
     virtual void handleNewTick(const UT::Phase phase) = 0;
@@ -34,10 +35,15 @@ protected:
     MACAddress m_MACAddress;
     IPv4Ptr_t m_IP;
     UT::Phase m_currentPhase;
+    bool m_dhcpIsDone;
 
+    void setDHCPDone();
     void checkCurrentThread();
     void sendDiscoveryDHCP();
-    virtual void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) = 0;
+    void sendRequestDHCP();
+    void handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort);
+    void handleAckDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort);
+    virtual void addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort) = 0;
 };
 
 #endif    // NODE_H

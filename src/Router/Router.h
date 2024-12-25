@@ -60,7 +60,8 @@ private:
     void handleControlPacket(const PacketPtr_t &data, uint8_t portNumber);
     void sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber);
     void handlePhaseChange(const UT::Phase nextPhase);
-    void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
+    void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort);
+    void addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
 };
 
 typedef QSharedPointer<Router> RouterPtr_t;

@@ -31,6 +31,7 @@ SOURCES += \
     $$PWD/Simulator/Simulator.cpp \
     $$PWD/Topology/TopologyBuilder.cpp \
     $$PWD/Utils/ConfigReader.cpp \
+    $$PWD/Utils/utils.cpp \
     $$PWD/main.cpp
 
 HEADERS += \

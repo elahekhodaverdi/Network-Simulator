@@ -1,11 +1,11 @@
 #include "DHCPServer.h"
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QThread>
 
 DHCPServer::DHCPServer(QString ipRange, QObject *parent) :
     QObject {parent}, m_ipRange(ipRange)
 {
-
 }
 
 DHCPServer::~DHCPServer()
@@ -19,7 +19,6 @@ QString DHCPServer::getIP(int id){
 void DHCPServer::handleDiscoveryPacket(PacketPtr_t packet)
 {
     int id = packet->payload().toInt();
-    qDebug() << "discovery packet from: " << id;
     if (sentOffers.contains(id))
         return;
     sentOffers.append(id);
@@ -30,7 +29,7 @@ void DHCPServer::handleDiscoveryPacket(PacketPtr_t packet)
     QJsonDocument jsonDoc(jsonObject);
     QByteArray payload = jsonDoc.toJson(QJsonDocument::Compact);
 
-    PacketPtr_t offerPacket = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t offerPacket = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     offerPacket->setIPHeader(ipHeader);
     offerPacket->setPacketType(UT::PacketType::Control);
@@ -40,7 +39,7 @@ void DHCPServer::handleDiscoveryPacket(PacketPtr_t packet)
 }
 
 void DHCPServer::handleRequestPacket(PacketPtr_t packet){
-    PacketPtr_t ackPacket = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t ackPacket = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     ipHeader->setDestIp(packet->ipHeader()->sourceIp());
     ackPacket->setIPHeader(ipHeader);

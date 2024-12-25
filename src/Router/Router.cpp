@@ -202,7 +202,20 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
         else if (data->ipHeader()->ttl() > 0){
             buffer.append(qMakePair(data, ports[portNumber - 1]));
         }
-        return;
+    }
+    else if (data->controlType() == UT::PacketControlType::DHCPOffer){
+        handleOfferDHCP(data, ports[portNumber - 1]);
+    }
+    else if (data->controlType() == UT::PacketControlType::DHCPRequest){
+        if (isDHCPServer()){
+            dhcpServer->handleRequestPacket(data);
+        }
+        else if (data->ipHeader()->ttl() > 0){
+            buffer.append(qMakePair(data, ports[portNumber - 1]));
+        }
+    }
+    else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
+        handleAckDHCP(data, ports[portNumber - 1]);
     }
     // if (data->controlType() == UT::PacketControlType::Response){
     //     routingProtocol->addNewNeighbor(data->ipHeader()->sourceIp(), ports[portNumber - 1]);
@@ -219,7 +232,7 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
 }
 
 void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber){
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     ipHeader->setSourceIp(m_IP);
     ipHeader->setDestIp(requestPacket->ipHeader()->sourceIp());
@@ -232,6 +245,8 @@ void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNu
 void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
     for (const auto& port : ports){
         if (!PortBindingManager::isBounded(port))
+            continue;
+        if (port->isInterAsConnection())
             continue;
         if (triggeringPort != nullptr && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;
@@ -257,6 +272,10 @@ void Router::sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort){
             continue;
         Q_EMIT newPacket(packet, port->getPortNumber());
     }
+}
+
+void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+    buffer.append(qMakePair(packet, triggeringPort));
 }
 
 

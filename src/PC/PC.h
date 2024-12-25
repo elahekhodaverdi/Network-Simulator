@@ -31,7 +31,9 @@ private:
     void setupGateway();
     void sendNewPacket();
     void handlePhaseChange(const UT::Phase nextPhase);
-    void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
+    void handleControlPacket(const PacketPtr_t &data);
+    void addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
+    void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort);
 };
 
 typedef QSharedPointer<PC> PCPtr_t;
