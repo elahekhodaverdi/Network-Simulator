@@ -26,11 +26,12 @@ public:
     static void release();
     void setIntervalMs(int intervalMs);
     void setDurationMs(int durationMs);
-    void setPcs(int pcs);
+    void setPcs(QVector<PCPtr_t> pcs);
 
 
 Q_SIGNALS:
-    void nextTick(const QVector<PCPtr_t> &selectedPCs);
+    void nextTick(UT::Phase currentPhase);
+    void sendPacket(QVector<PCPtr_t> selectedPCs);
     void executionIsDone();
 
 public Q_SLOTS:
@@ -47,13 +48,14 @@ private:
     std::vector<int>                 m_dataArray;
     QVector<PCPtr_t>                 m_pcs;
     DataGenerator                   *m_dataGenerator {nullptr};
-    int                              m_currentCycle{0};
+    int                              m_numExecutionCycles{0};
     QSharedPointer<QTimer>           m_timer{nullptr};
     UT::Phase                        m_currentPhase{UT::Phase::Idle};
 
     void                             run() override;
     void                             startSimulation();
     void                             stopSimulation();
+    void                             runExecutionCycle();
 };
 
 #endif

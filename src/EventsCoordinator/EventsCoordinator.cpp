@@ -76,43 +76,41 @@ void EventsCoordinator::run()
     exec();
 }
 
-void EventsCoordinator::onTimerTick()
-{
-    if (!m_running || m_currentCycle >= (m_durationMs / m_intervalMs)) {
-        stopSimulation();
+void EventsCoordinator::runExecutionCycle(){
+    if (!m_running || m_numExecutionCycles >= (m_durationMs / m_intervalMs)) {
+        Q_EMIT executionIsDone();
         return;
     }
+    QVector<PCPtr_t> selectedPCs;
+    if (m_dataArray[m_numExecutionCycles] > 0) {
+        std::vector<int> indices(m_pcs.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
+        for (int j = 0; j < m_dataArray[m_numExecutionCycles]; ++j) {
+            selectedPCs.push_back(m_pcs[indices[j]]);
+        }
+    }
+    Q_EMIT sendPacket(selectedPCs);
+    ++m_numExecutionCycles;
+}
 
+void EventsCoordinator::onTimerTick()
+{
     switch (m_currentPhase) {
-        case UT::Phase::Start:
-            startSimulation();
-            break;
-        case UT::Phase::Start:
-            break;
-        case UT::Phase::Start:
-            break;
-        case UT::Phase::Start:
+        case UT::Phase::Execution:
+            runExecutionCycle();
             break;
         default:
             break;
     }
+    Q_EMIT nextTick(m_currentPhase);
 
-    QVector<PCPtr_t> selectedPCs;
-    if (m_dataArray[m_currentCycle] > 0) {
-        std::vector<int> indices(m_pcs.size());
-        std::iota(indices.begin(), indices.end(), 0);
-        std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
-        for (int j = 0; j < m_dataArray[m_currentCycle]; ++j) {
-            selectedPCs.push_back(m_pcs[indices[j]]);
-        }
-    }
-
-    Q_EMIT nextTick(selectedPCs);
-    ++m_currentCycle;
 }
 
 void EventsCoordinator::changePhase(UT::Phase nextPhase){
     m_currentPhase = nextPhase;
+    if (m_currentPhase == UT::Phase::Start)
+        startSimulation();
 }
 
 void EventsCoordinator::setDurationMs(int durationMs){
