@@ -60,6 +60,9 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
         case UT::Phase::Start:
             start();
             break;
+        case UT::Phase::DHCP:
+            Q_EMIT phaseChanged(UT::Phase::DHCP);
+            break;
         case UT::Phase::Analysis:
             analysis();
             break;

@@ -14,9 +14,9 @@ QList<RouterPtr_t> TopologyBuilder::buildTopology(int nodeNumber, UT::TopologyTy
                                                     MACAddressGenerator::getRandomMAC(),
                                                     Simulator::simulationConfig.routerPortCount,
                                                     Simulator::simulationConfig.routerBufferSize);
-        QString ipString = QString("192.168.%1.%2").arg(asId * 100).arg(routersNum);
-        IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
-        newRouter->setIP(ip);
+        //QString ipString = QString("192.168.%1.%2").arg(asId * 100).arg(routersNum);
+        //IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
+        //newRouter->setIP(ip);
         routers.append(newRouter);
         QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, newRouter.get(), &Router::handleNewTick);
 

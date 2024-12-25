@@ -59,7 +59,8 @@ void AutonomousSystem::setDHCPServer(int dhcpId)
     RouterPtr_t router = findRouterById(dhcpId);
     if (router) {
         dhcpServer = router;
-        router->setRouterAsDHCPServer();
+        QString ipRange = QString("192.168.%100.").arg(id);
+        router->setAsDHCPServer(ipRange);
     } else {
         qWarning() << "DHCP Server with ID" << dhcpId << "not found in the list of routers.";
     }
@@ -129,11 +130,11 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
                 int userId = userValue.toInt();
                 PCPtr_t pc = QSharedPointer<PC>::create(userId);
 
-                QString ipString = QString("192.168.%1.%2").arg(id * 100).arg(userId);
+                // QString ipString = QString("192.168.%1.%2").arg(id * 100).arg(userId);
 
-                IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
+                // IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
 
-                pc->setIP(ip);
+                // pc->setIP(ip);
                 pcs.append(pc);
                 QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, pc.get(), &PC::handleNewTick);
                 QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::newPacket, pc.get(), &PC::setShouldSendPacket);
@@ -186,7 +187,7 @@ void AutonomousSystem::setConnectToAS(QJsonArray ASs)
 QList<IPv4Ptr_t> AutonomousSystem::getAllRoutersIPs()
 {
     QList<IPv4Ptr_t> allRoutersIPs;
-    for (RouterPtr_t router : routers) {
+    for (RouterPtr_t& router : routers) {
         allRoutersIPs.append(router->getIP());
     }
     return allRoutersIPs;
@@ -200,7 +201,7 @@ int AutonomousSystem::numOfRouters()
 void AutonomousSystem::connectRouterSignalsToSimulator()
 {
     Simulator* simulator = Simulator::instance();
-    for (RouterPtr_t router : routers) {
+    for (RouterPtr_t& router : routers) {
         QObject::connect(router.get(),
                          &Router::routingProtocolIsDone,
                          simulator,

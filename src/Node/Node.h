@@ -26,7 +26,7 @@ Q_SIGNALS:
     void newPacket(const PacketPtr_t &data, uint8_t port_number);
 
 public Q_SLOTS:
-    virtual void handleNewTick(const UT::Phase phase);
+    virtual void handleNewTick(const UT::Phase phase) = 0;
     virtual void receivePacket(const PacketPtr_t &data, uint8_t port_number) = 0;
 
 protected:

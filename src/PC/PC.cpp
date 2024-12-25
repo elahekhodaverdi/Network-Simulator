@@ -106,8 +106,8 @@ PacketPtr_t PC::createNewPacket()
 
 void PC::receivePacket(const PacketPtr_t &data, uint8_t port_number)
 {
-    qDebug() << "here id";
-    qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
+    // qDebug() << "here id";
+    // qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
 }
 
 void PC::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){

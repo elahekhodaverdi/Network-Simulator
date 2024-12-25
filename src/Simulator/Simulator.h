@@ -12,9 +12,9 @@ class Simulator : public QObject
 {
     Q_OBJECT
 
-    explicit Simulator(QObject *parent = nullptr);
 
 public:
+    explicit Simulator(QObject *parent = nullptr);
     ~Simulator() override;
 
     static Simulator *instance(QObject *parent = nullptr);
@@ -26,7 +26,7 @@ public:
 
 public Q_SLOTS:
     void routerIsDone();
-    void neighborsIdentified();
+    //void neighborsIdentified();
     void executionIsDone();
 
 Q_SIGNALS:

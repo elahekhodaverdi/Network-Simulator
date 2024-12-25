@@ -1,15 +1,13 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include "Network/Network.h"
-
+#include "Simulator/Simulator.h"
 
 
 int main(int argc, char* argv[])
 {
     QCoreApplication a(argc, argv);
 
-    Network network;
-    network.run();
-
+    Simulator simulator;
+    simulator.run();
     return a.exec();
 }

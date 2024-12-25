@@ -13,12 +13,13 @@ DHCPServer::~DHCPServer()
 }
 
 QString DHCPServer::getIP(int id){
-    return m_ipRange.arg(id);
+    return m_ipRange + QString::number(id);
 }
 
 void DHCPServer::handleDiscoveryPacket(PacketPtr_t packet)
 {
     int id = packet->payload().toInt();
+    qDebug() << "discovery packet from: " << id;
     if (sentOffers.contains(id))
         return;
     sentOffers.append(id);

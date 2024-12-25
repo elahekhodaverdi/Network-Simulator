@@ -75,7 +75,12 @@ void Router::updateBuffer(){
         auto currentPacket = buffer[bufferIndex].first;
         auto packetInPort = buffer[bufferIndex].second;
         if (currentPacket->packetType() == UT::PacketType::Control){
+            if (packetsToSend.size() > 0){
+                bufferIndex++;
+                continue;
+            }
             broadcastPacket(currentPacket, packetInPort);
+            buffer.removeAt(bufferIndex);
             continue;
         }
         auto sendPort = routingProtocol->findOutPort(currentPacket->ipHeader()->destIp());
@@ -110,7 +115,7 @@ void Router::setAsDHCPServer(QString ipRange)
                      &Router::addNewPacketTobBuffer);
 }
 
-void Router::addNewPacketTobBuffer(PacketPtr_t &packet, PortPtr_t triggeringPort){
+void Router::addNewPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort){
     if (m_IP)
         packet->ipHeader()->setSourceIp(m_IP);
     buffer.append(qMakePair(packet, triggeringPort));
@@ -180,7 +185,7 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
     if (broken)
         return;
-    qDebug() << "Packet Received from: " << portNumber << " Content:" << data->payload();
+    //qDebug() << "Packet Received from: " << portNumber << " Content:" << data->payload();
     data->ipHeader()->decTTL();
     if (data->packetType() == UT::PacketType::Control){
         handleControlPacket(data, portNumber);
@@ -194,8 +199,9 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
         if (isDHCPServer()){
             dhcpServer->handleDiscoveryPacket(data);
         }
-        else if (data->ipHeader()->ttl() > 0)
+        else if (data->ipHeader()->ttl() > 0){
             buffer.append(qMakePair(data, ports[portNumber - 1]));
+        }
         return;
     }
     // if (data->controlType() == UT::PacketControlType::Response){
@@ -225,9 +231,9 @@ void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNu
 
 void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
     for (const auto& port : ports){
-        if (PortBindingManager::isBounded(port))
+        if (!PortBindingManager::isBounded(port))
             continue;
-        if (port != triggeringPort && port->getPortNumber() == triggeringPort->getPortNumber())
+        if (triggeringPort != nullptr && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;
         packetsToSend.insert(port, packet);
     }
@@ -235,6 +241,7 @@ void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort
 
 void Router::sendPackets()
 {
+    //qDebug() << m_id << " " << packetsToSend.size();
     for (auto i = packetsToSend.cbegin(); i != packetsToSend.cend(); ++i){
         PacketPtr_t packet = i.value();
         PortPtr_t port = i.key();
@@ -244,7 +251,7 @@ void Router::sendPackets()
 
 void Router::sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort){
     for (const auto& port : ports){
-        if (PortBindingManager::isBounded(port))
+        if (!PortBindingManager::isBounded(port))
             continue;
         if (port != triggeringPort && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;

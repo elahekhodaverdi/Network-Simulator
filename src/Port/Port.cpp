@@ -16,7 +16,7 @@ Port::sendPacket(const PacketPtr_t &data, uint8_t port_number)
 
 void Port::receivePacket(const PacketPtr_t &data)
 {
-    qDebug() << "Packet recieved in Port: " << m_number << "of ip: " << m_routerIP;
+    //qDebug() << "Packet recieved in Port: " << m_number << "of ip: " << m_routerIP;
     Q_EMIT packetReceived(data, m_number);
 }
 
