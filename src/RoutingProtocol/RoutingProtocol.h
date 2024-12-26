@@ -14,14 +14,15 @@ public:
     explicit RoutingProtocol(QObject *parent = nullptr);
     explicit RoutingProtocol(QString routerIP, QObject *parent = nullptr);
     void printRoutingTable() const;
+    virtual void startRouting() = 0;
     PortPtr_t findOutPort(IPv4Ptr_t destIP);
     //virtual ~RoutingProtocol() = default;
     virtual void initialize() = 0;
-    virtual void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) = 0;
-    virtual void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) = 0;
+    virtual void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort) = 0;
+    virtual void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t inPort) = 0;
 
 Q_SIGNALS:
-    void NewOutgoingRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
+    void newRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
 
 protected:
     struct RoutingTableEntry
@@ -34,6 +35,7 @@ protected:
         UT::RoutingProtocol protocol;
     };
 
+    bool m_routingStarted{false};
     void updateRoutingTable(RoutingTableEntry newEntry);
     QList<RoutingTableEntry> routingTable;
     IPv4Ptr_t m_routerIP;

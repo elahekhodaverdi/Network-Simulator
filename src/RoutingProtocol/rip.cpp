@@ -1,6 +1,7 @@
 #include "rip.h"
 #include <QJsonObject>
 #include <QJsonDocument>
+#include "../Utils/utils.h"
 
 RIP::RIP(QObject *parent) :
     RoutingProtocol {parent}
@@ -15,7 +16,12 @@ void RIP::initialize(){
 
 }
 
-void RIP::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, PortPtr_t outPort)
+void RIP::startRouting(){
+    m_routingStarted = true;
+    sendRIPPacket();
+}
+
+void RIP::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, PortPtr_t inPort)
 {
     int currentMetric = distanceVector.value(destIP, INF);
     if (currentMetric <= metric + 1)
@@ -25,19 +31,20 @@ void RIP::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborI
         destIP,
         IPv4Ptr_t::create("255.255.255.0"),
         neighborIP,
-        outPort,
+        inPort,
         metric + 1,
         UT::RoutingProtocol::RIP
     };
     updateRoutingTable(newEntry);
-    sendRIPPacket(outPort);
+    if (m_routingStarted)
+        sendRIPPacket(inPort);
 }
 
-void RIP::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort){
+void RIP::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort){
     QMap<IPv4Ptr_t, int> neighborDistanceVector = convertToDistanceVector(packet->payload());
     IPv4Ptr_t neighborIP = packet->ipHeader()->sourceIp();
     for (auto it = neighborDistanceVector.cbegin(); it != neighborDistanceVector.cend(); ++it)
-        updateDistanceVector(it.key(), it.value(), neighborIP, outPort);
+        updateDistanceVector(it.key(), it.value(), neighborIP, inPort);
 }
 
 void RIP::sendRIPPacket(PortPtr_t triggeringPort){
@@ -49,7 +56,7 @@ void RIP::sendRIPPacket(PortPtr_t triggeringPort){
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::RIP);
     packet->setPayload(convertDistanceVectorToJson());
-    Q_EMIT NewOutgoingRoutingPacket(packet, triggeringPort);
+    Q_EMIT newRoutingPacket(packet, triggeringPort);
 }
 
 QByteArray RIP::convertDistanceVectorToJson()
@@ -75,14 +82,7 @@ QMap<IPv4Ptr_t, int> RIP::convertToDistanceVector(const QByteArray &jsonData)
 {
     QMap<IPv4Ptr_t, int> neighborDistanceVector;
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-    if (!jsonDoc.isObject())
-    {
-        qWarning() << "Invalid JSON: Expected a JSON object.";
-        return neighborDistanceVector;
-    }
-
-    QJsonObject jsonObject = jsonDoc.object();
+    QJsonObject jsonObject = Utils::convertPayloadToJson(jsonData);
 
     for (auto it = jsonObject.constBegin(); it != jsonObject.constEnd(); ++it)
     {

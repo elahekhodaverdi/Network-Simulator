@@ -1,6 +1,7 @@
 #include "Node.h"
 #include "../MACAddress/MACAddressGenerator.h"
 #include "../Utils/utils.cpp"
+#include "../Utils/utils.h"
 
 Node::Node(int id, MACAddress macAddress, QObject *parent)
     : QThread(parent)
@@ -55,7 +56,7 @@ void Node::sendRequestDHCP(){
 }
 
 void Node::handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
-    QJsonObject payloadJson = convertPayloadToJson(packet->payload());
+    QJsonObject payloadJson = Utils::convertPayloadToJson(packet->payload());
     int id = payloadJson["id"].toInt();
     if (id != m_id){
         addPacketForBroadcast(packet, triggeringPort);

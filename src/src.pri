@@ -60,4 +60,5 @@ HEADERS += \
     $$PWD/RoutingProtocol/rip.h \
     $$PWD/Simulator/Simulator.h \
     $$PWD/Topology/TopologyBuilder.h \
-    $$PWD/Utils/ConfigReader.h
+    $$PWD/Utils/ConfigReader.h \
+    $$PWD/Utils/utils.h

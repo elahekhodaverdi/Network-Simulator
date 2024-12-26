@@ -4,8 +4,12 @@
 #include <QJsonObject>
 #include <QString>
 #include "../Globals/Globals.h"
+#include "utils.h"
 
-QJsonObject convertPayloadToJson(const QByteArray& payload)
+Utils::Utils() {}
+
+
+QJsonObject Utils::convertPayloadToJson(const QByteArray& payload)
 {
     QJsonDocument jsonDoc = QJsonDocument::fromJson(payload);
 

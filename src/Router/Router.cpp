@@ -49,9 +49,9 @@ void Router::initializeRoutingProtocol()
         routingProtocol = nullptr;
 
     connect(routingProtocol,
-            &RoutingProtocol::NewOutgoingRoutingPacket,
+            &RoutingProtocol::newRoutingPacket,
             this,
-            &Router::sendRoutingPacket);
+            &Router::addNewPacketTobBuffer);
 }
 
 void Router::handleNewTick(UT::Phase phase){
@@ -260,16 +260,6 @@ void Router::sendPackets()
     for (auto i = packetsToSend.cbegin(); i != packetsToSend.cend(); ++i){
         PacketPtr_t packet = i.value();
         PortPtr_t port = i.key();
-        Q_EMIT newPacket(packet, port->getPortNumber());
-    }
-}
-
-void Router::sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort){
-    for (const auto& port : ports){
-        if (!PortBindingManager::isBounded(port))
-            continue;
-        if (port != triggeringPort && port->getPortNumber() == triggeringPort->getPortNumber())
-            continue;
         Q_EMIT newPacket(packet, port->getPortNumber());
     }
 }

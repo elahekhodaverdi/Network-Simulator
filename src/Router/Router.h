@@ -35,7 +35,6 @@ public:
 public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
-    void sendRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
     void addNewPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort);
 
 Q_SIGNALS:
