@@ -55,7 +55,6 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
 
     currentPhase = nextPhase;
     numOfRoutersDone = 0;
-    qDebug() << "heeeee" << (phaseToString(currentPhase));
 
     switch (currentPhase) {
         case UT::Phase::Start:
@@ -63,6 +62,9 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
             break;
         case UT::Phase::DHCP:
             Q_EMIT phaseChanged(UT::Phase::DHCP);
+            break;
+        case UT::Phase::IdentifyNeighbors:
+            Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbors);
             break;
         case UT::Phase::Analysis:
             analysis();
@@ -104,16 +106,18 @@ void Simulator::analysis()
 void Simulator::routerIsDone()
 {
     numOfRoutersDone++;
-    qDebug() << (phaseToString(currentPhase)) << "all is done" << numOfRoutersDone;
-    if (numOfRoutersDone < network.numOfRouters())
+
+    if (currentPhase == UT::Phase::DHCP
+        && (numOfRoutersDone >= (network.numOfRouters() + network.PCs.size()
+                                 - network.autonomousSystems.size() - network.numOfBrokenRouters())))
+        goToNextPhase(UT::Phase::IdentifyNeighbors);
+
+    else if (currentPhase == UT::Phase::Routing
+             && numOfRoutersDone >= (network.numOfRouters() - network.numOfBrokenRouters()))
+        goToNextPhase(UT::Phase::Execution);
+    else
         return;
     numOfRoutersDone = 0;
-
-    if (currentPhase == UT::Phase::DHCP)
-        Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbors);
-
-    if (currentPhase == UT::Phase::Routing)
-        Q_EMIT phaseChanged(UT::Phase::Execution);
 }
 
 void Simulator::executionIsDone()

@@ -23,6 +23,15 @@ int Network::numOfRouters()
     }
     return num;
 }
+
+int Network::numOfBrokenRouters()
+{
+    int num = 0;
+    for (AutonomousSystemPtr_t as : autonomousSystems) {
+        num += as->numOfBrokenRouters();
+    }
+    return num;
+}
 AutonomousSystemPtr_t Network::findASById(int id)
 {
     AutonomousSystemPtr_t target = nullptr;

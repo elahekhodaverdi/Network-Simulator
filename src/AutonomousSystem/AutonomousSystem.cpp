@@ -193,6 +193,11 @@ int AutonomousSystem::numOfRouters()
     return routers.size();
 }
 
+int AutonomousSystem::numOfBrokenRouters()
+{
+    return brokenRouters.size();
+}
+
 void AutonomousSystem::connectRouterSignalsToSimulator()
 {
     Simulator* simulator = Simulator::instance();

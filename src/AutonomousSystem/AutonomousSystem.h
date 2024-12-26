@@ -16,6 +16,7 @@ public:
     int getID() const;
     QList<IPv4Ptr_t> getAllRoutersIPs();
     int numOfRouters();
+    int numOfBrokenRouters();
 
 private:
     int id;
