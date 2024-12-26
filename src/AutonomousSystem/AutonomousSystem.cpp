@@ -129,7 +129,7 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
             for (const QJsonValue& userValue : userIds) {
                 int userId = userValue.toInt();
                 PCPtr_t pc = QSharedPointer<PC>::create(userId);
-                connectPCsSignalsToSimulator();
+                connectPCsSignalsToSimulator(pc);
                 pcs.append(pc);
                 Network::PCs.append(pc);
                 PortPtr_t routerPort = router->getAnUnboundPort();

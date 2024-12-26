@@ -1,8 +1,9 @@
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QByteArray>
 #include <QDebug>
-
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QString>
+#include "../Globals/Globals.h"
 
 QJsonObject convertPayloadToJson(const QByteArray& payload)
 {

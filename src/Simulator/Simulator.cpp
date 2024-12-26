@@ -1,7 +1,6 @@
 #include "Simulator.h"
 #include <QDir>
 #include "../Utils/ConfigReader.h"
-
 SimulationConfig Simulator::simulationConfig;
 
 Simulator *Simulator::instance(QObject *parent)
@@ -45,6 +44,7 @@ Simulator::~Simulator()
 
 void Simulator::run()
 {
+    qDebug() << "herE" << (phaseToString(currentPhase));
     goToNextPhase(UT::Phase::Start);
 }
 
@@ -55,6 +55,7 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
 
     currentPhase = nextPhase;
     numOfRoutersDone = 0;
+    qDebug() << "heeeee" << (phaseToString(currentPhase));
 
     switch (currentPhase) {
         case UT::Phase::Start:
@@ -103,9 +104,11 @@ void Simulator::analysis()
 void Simulator::routerIsDone()
 {
     numOfRoutersDone++;
+    qDebug() << (phaseToString(currentPhase)) << "all is done" << numOfRoutersDone;
     if (numOfRoutersDone < network.numOfRouters())
         return;
     numOfRoutersDone = 0;
+
     if (currentPhase == UT::Phase::DHCP)
         Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbors);
 
@@ -116,4 +119,26 @@ void Simulator::routerIsDone()
 void Simulator::executionIsDone()
 {
     Q_EMIT phaseChanged(UT::Phase::Analysis);
+}
+
+QString Simulator::phaseToString(UT::Phase phase)
+{
+    switch (phase) {
+    case UT::Phase::Idle:
+        return "Idle";
+    case UT::Phase::Start:
+        return "Start";
+    case UT::Phase::DHCP:
+        return "DHCP";
+    case UT::Phase::IdentifyNeighbors:
+        return "IdentifyNeighbors";
+    case UT::Phase::Routing:
+        return "Routing";
+    case UT::Phase::Execution:
+        return "Execution";
+    case UT::Phase::Analysis:
+        return "Analysis";
+    default:
+        return "Unknown";
+    }
 }

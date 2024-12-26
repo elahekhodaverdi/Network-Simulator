@@ -80,6 +80,7 @@ void Node::setDHCPDone(){
     if (m_dhcpIsDone)
         return;
     m_dhcpIsDone = true;
+    qDebug() << "DHCP is emitted" << this->m_id;
     Q_EMIT dhcpIsDone();
 }
 

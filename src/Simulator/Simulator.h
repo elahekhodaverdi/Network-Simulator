@@ -47,6 +47,8 @@ private:
     void startRouting();
     void execution();
     void analysis();
+
+    QString phaseToString(UT::Phase phase);
 };
 
 #endif // SIMULATOR_H
