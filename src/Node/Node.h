@@ -35,7 +35,7 @@ protected:
     MACAddress m_MACAddress;
     IPv4Ptr_t m_IP;
     UT::Phase m_currentPhase;
-    bool m_dhcpIsDone;
+    bool m_dhcpIsDone{false};
 
     void setDHCPDone();
     void checkCurrentThread();

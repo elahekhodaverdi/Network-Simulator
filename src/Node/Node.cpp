@@ -47,7 +47,7 @@ void Node::sendDiscoveryDHCP(){
 void Node::sendRequestDHCP(){
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
-    ipHeader->setDestIp(m_IP);
+    ipHeader->setSourceIp(m_IP);
     packet->setIPHeader(ipHeader);
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::DHCPRequest);
@@ -69,7 +69,7 @@ void Node::handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
 }
 
 void Node::handleAckDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
-    if (m_IP == nullptr && *packet->ipHeader()->destIp() != *m_IP){
+    if (m_IP == nullptr || *packet->ipHeader()->destIp() != *m_IP){
         addPacketForBroadcast(packet, triggeringPort);
         return;
     }

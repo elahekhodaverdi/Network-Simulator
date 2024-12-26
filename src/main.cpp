@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
     QCoreApplication a(argc, argv);
 
-    Simulator simulator;
-    simulator.run();
+    Simulator* simulator = Simulator::instance();
+    simulator->run();
     return a.exec();
 }
