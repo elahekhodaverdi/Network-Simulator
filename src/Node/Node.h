@@ -39,10 +39,17 @@ protected:
 
     void setDHCPDone();
     void checkCurrentThread();
+
     void sendDiscoveryDHCP();
     void sendRequestDHCP();
     void handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort);
     void handleAckDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort);
+
+    virtual void sendRequestPacket() {}
+    void handleRequestPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort);
+    void sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber);
+    virtual void handleResponsePacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) {}
+
     virtual void addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort) = 0;
 };
 

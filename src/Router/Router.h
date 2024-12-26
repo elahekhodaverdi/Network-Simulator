@@ -36,6 +36,7 @@ public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
     void addNewPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort);
+    void flushBuffer();
 
 Q_SIGNALS:
     void routingProtocolIsDone();
@@ -55,10 +56,14 @@ private:
     void connectPortsToSignals();
     void initializeRoutingProtocol();
     void updateBuffer();
+
     void sendPackets();
+    void sendRequestPacket() override;
+    void handleResponsePacket(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
+
     void handleControlPacket(const PacketPtr_t &data, uint8_t portNumber);
-    void sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber);
     void handlePhaseChange(const UT::Phase nextPhase);
+
     void broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort);
     void addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort) override;
 };

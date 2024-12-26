@@ -104,6 +104,9 @@ void Router::handlePhaseChange(const UT::Phase nextPhase){
             sendDiscoveryDHCP();
         return;
     }
+    if (m_currentPhase == UT::Phase::IdentifyNeighbors) {
+        sendRequestPacket();
+    }
 }
 
 void Router::setAsDHCPServer(QString ipRange)
@@ -216,33 +219,21 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
     }
     else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
         handleAckDHCP(data, ports[portNumber - 1]);
+    } else if (data->controlType() == UT::PacketControlType::Request) {
+        handleRequestPacket(data, ports[portNumber - 1]);
+        return;
+    } else if (data->controlType() == UT::PacketControlType::Response) {
+        handleResponsePacket(data, ports[portNumber - 1]);
+        return;
     }
-    // if (data->controlType() == UT::PacketControlType::Response){
-    //     routingProtocol->addNewNeighbor(data->ipHeader()->sourceIp(), ports[portNumber - 1]);
-    //     return;
-    // }
-    // if (data->controlType() == UT::PacketControlType::Request){
-    //     sendResponsePacket(data, portNumber);
-    //     return;
-    // }
     // if(data->controlType() == UT::PacketControlType::RIP || data->controlType() == UT::PacketControlType::OSPF){
     //     routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
     //     return;
     // }
 }
 
-void Router::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber){
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
-    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
-    ipHeader->setSourceIp(m_IP);
-    ipHeader->setDestIp(requestPacket->ipHeader()->sourceIp());
-    packet->setIPHeader(ipHeader);
-    packet->setPacketType(UT::PacketType::Control);
-    packet->setControlType(UT::PacketControlType::Response);
-    Q_EMIT newPacket(packet, portNumber);
-}
-
-void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
+{
     for (const auto& port : ports){
         if (!PortBindingManager::isBounded(port))
             continue;
@@ -264,8 +255,28 @@ void Router::sendPackets()
     }
 }
 
-void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+void Router::sendRequestPacket()
+{
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    packet->setIPHeader(ipHeader);
+    packet->setPacketType(UT::PacketType::Control);
+    packet->setControlType(UT::PacketControlType::Request);
+    packet->setPayload(m_IP->toString().toUtf8());
+    addPacketForBroadcast(packet, nullptr);
+}
+
+void Router::handleResponsePacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
+{
+    routingProtocol->addNewNeighbor(packet->ipHeader()->sourceIp(), triggeringPort);
+}
+
+void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort)
+{
     buffer.append(qMakePair(packet, triggeringPort));
 }
 
-
+void Router::flushBuffer()
+{
+    buffer.clear();
+}

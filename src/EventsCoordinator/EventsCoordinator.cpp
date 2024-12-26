@@ -96,19 +96,24 @@ void EventsCoordinator::runExecutionCycle(){
 
 void EventsCoordinator::onTimerTick()
 {
+    ticksInCurrentPhase++;
     switch (m_currentPhase) {
-        case UT::Phase::Execution:
-            runExecutionCycle();
-            break;
-        default:
-            break;
+    case UT::Phase::IdentifyNeighbors:
+        if (ticksInCurrentPhase >= 2)
+            Q_EMIT neighboursDetectionIsDone();
+        break;
+    case UT::Phase::Execution:
+        runExecutionCycle();
+    default:
+        break;
     }
-    Q_EMIT nextTick(m_currentPhase);
 
+    Q_EMIT nextTick(m_currentPhase);
 }
 
 void EventsCoordinator::changePhase(UT::Phase nextPhase){
     m_currentPhase = nextPhase;
+    ticksInCurrentPhase = 0;
     if (m_currentPhase == UT::Phase::Start)
         startSimulation();
 }

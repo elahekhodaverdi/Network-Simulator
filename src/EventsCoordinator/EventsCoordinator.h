@@ -32,6 +32,7 @@ public:
 Q_SIGNALS:
     void nextTick(UT::Phase currentPhase);
     void newPacket(QVector<PCPtr_t> selectedPCs);
+    void neighboursDetectionIsDone();
     void executionIsDone();
 
 public Q_SLOTS:
@@ -51,8 +52,9 @@ private:
     int                              m_numExecutionCycles{0};
     QSharedPointer<QTimer>           m_timer{nullptr};
     UT::Phase                        m_currentPhase{UT::Phase::Idle};
+    int ticksInCurrentPhase{0};
 
-    void                             run() override;
+    void run() override;
     void                             startSimulation();
     void                             stopSimulation();
     void                             runExecutionCycle();

@@ -110,6 +110,9 @@ void PC::handleControlPacket(const PacketPtr_t &data){
     }
     else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
         handleAckDHCP(data, m_gateway);
+    } else if (data->controlType() == UT::PacketControlType::Request) {
+        handleRequestPacket(data, m_gateway);
+        return;
     }
 }
 

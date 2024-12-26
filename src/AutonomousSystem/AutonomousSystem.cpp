@@ -206,6 +206,7 @@ void AutonomousSystem::connectRouterSignalsToSimulator()
                          &Router::routingProtocolIsDone,
                          simulator,
                          &Simulator::routerIsDone);
+        QObject::connect(simulator, &Simulator::phaseChanged, router.get(), &Router::flushBuffer);
         QObject::connect(router.get(), &Router::dhcpIsDone, simulator, &Simulator::routerIsDone);
     }
 }

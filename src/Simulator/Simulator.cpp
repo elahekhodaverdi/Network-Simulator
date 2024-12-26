@@ -44,7 +44,6 @@ Simulator::~Simulator()
 
 void Simulator::run()
 {
-    qDebug() << "herE" << (phaseToString(currentPhase));
     goToNextPhase(UT::Phase::Start);
 }
 

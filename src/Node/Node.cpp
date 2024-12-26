@@ -85,6 +85,23 @@ void Node::setDHCPDone(){
     Q_EMIT dhcpIsDone();
 }
 
+void Node::handleRequestPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
+{
+    sendResponsePacket(packet, triggeringPort->getPortNumber());
+}
+
+void Node::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumber)
+{
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
+    QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setSourceIp(m_IP);
+    ipHeader->setDestIp(requestPacket->ipHeader()->sourceIp());
+    packet->setIPHeader(ipHeader);
+    packet->setPacketType(UT::PacketType::Control);
+    packet->setControlType(UT::PacketControlType::Response);
+    Q_EMIT newPacket(packet, portNumber);
+}
+
 int Node::getId(){
     return m_id;
 }
