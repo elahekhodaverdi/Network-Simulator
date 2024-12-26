@@ -121,7 +121,6 @@ void PC::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
     if (data->packetType() == UT::PacketType::Control){
         handleControlPacket(data);
     }
-    // qDebug() << "here id";
     // qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
 }
 

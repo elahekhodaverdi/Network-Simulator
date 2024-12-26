@@ -1,7 +1,7 @@
 {
     "simulation_duration": "1s",
     "cycle_duration": "10ms",
-    "TTL": 64,
+    "TTL": 10,
     "packets_per_simulation": 500,
     "statistical_distribution": "Pareto",
     "router_buffer_size": 6,

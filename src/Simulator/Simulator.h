@@ -26,7 +26,7 @@ public:
 
 public Q_SLOTS:
     void routerIsDone();
-    //void neighborsIdentified();
+    void neighboursIdentified();
     void executionIsDone();
 
 Q_SIGNALS:
@@ -43,7 +43,7 @@ private:
     void goToNextPhase(UT::Phase nextPhase);
     void start();
     void startDHCP();
-    void startIdentifyingNeighbors();
+    void startIdentifyingNeighbours();
     void startRouting();
     void execution();
     void analysis();

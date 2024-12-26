@@ -88,3 +88,12 @@ QSharedPointer<IPHeader> Packet::ipHeader(){
 UT::PacketControlType Packet::controlType(){
     return m_controlType.value();
 }
+
+bool Packet::isDHCPPacket()
+{
+    return (m_controlType.value() == UT::PacketControlType::DHCPAcknowledge)
+           || (m_controlType.value() == UT::PacketControlType::DHCPDiscovery)
+           || (m_controlType.value() == UT::PacketControlType::DHCPRequest)
+           || (m_controlType.value() == UT::PacketControlType::DHCPOffer)
+           || (m_controlType.value() == UT::PacketControlType::DHCPNak);
+}

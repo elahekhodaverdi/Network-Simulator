@@ -35,6 +35,10 @@ Simulator::Simulator(QObject *parent)
                      &EventsCoordinator::executionIsDone,
                      this,
                      &Simulator::executionIsDone);
+    QObject::connect(eventsCoordinator.get(),
+                     &EventsCoordinator::neighboursDetectionIsDone,
+                     this,
+                     &Simulator::neighboursIdentified);
 }
 
 Simulator::~Simulator()
@@ -62,8 +66,11 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
         case UT::Phase::DHCP:
             Q_EMIT phaseChanged(UT::Phase::DHCP);
             break;
-        case UT::Phase::IdentifyNeighbors:
-            Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbors);
+        case UT::Phase::IdentifyNeighbours:
+            Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbours);
+            break;
+        case UT::Phase::Routing:
+            Q_EMIT phaseChanged(UT::Phase::Routing);
             break;
         case UT::Phase::Analysis:
             analysis();
@@ -88,7 +95,7 @@ void Simulator::start()
 
 void Simulator::startDHCP() {}
 
-void Simulator::startIdentifyingNeighbors() {}
+void Simulator::startIdentifyingNeighbours() {}
 
 void Simulator::startRouting() {}
 
@@ -109,7 +116,7 @@ void Simulator::routerIsDone()
     if (currentPhase == UT::Phase::DHCP
         && (numOfRoutersDone >= (network.numOfRouters() + network.PCs.size()
                                  - network.autonomousSystems.size() - network.numOfBrokenRouters())))
-        goToNextPhase(UT::Phase::IdentifyNeighbors);
+        goToNextPhase(UT::Phase::IdentifyNeighbours);
 
     else if (currentPhase == UT::Phase::Routing
              && numOfRoutersDone >= (network.numOfRouters() - network.numOfBrokenRouters()))
@@ -119,9 +126,14 @@ void Simulator::routerIsDone()
     numOfRoutersDone = 0;
 }
 
+void Simulator::neighboursIdentified()
+{
+    goToNextPhase(UT::Phase::Routing);
+}
+
 void Simulator::executionIsDone()
 {
-    Q_EMIT phaseChanged(UT::Phase::Analysis);
+    goToNextPhase(UT::Phase::Analysis);
 }
 
 QString Simulator::phaseToString(UT::Phase phase)
@@ -133,8 +145,8 @@ QString Simulator::phaseToString(UT::Phase phase)
         return "Start";
     case UT::Phase::DHCP:
         return "DHCP";
-    case UT::Phase::IdentifyNeighbors:
-        return "IdentifyNeighbors";
+    case UT::Phase::IdentifyNeighbours:
+        return "IdentifyNeighbours";
     case UT::Phase::Routing:
         return "Routing";
     case UT::Phase::Execution:

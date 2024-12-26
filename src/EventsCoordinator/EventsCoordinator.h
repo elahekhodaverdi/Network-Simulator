@@ -58,6 +58,8 @@ private:
     void                             startSimulation();
     void                             stopSimulation();
     void                             runExecutionCycle();
+
+    QString phaseToString(UT::Phase phase);
 };
 
 #endif

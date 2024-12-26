@@ -27,6 +27,7 @@ public:
     void setTotalCycles(uint32_t totalCycles);
     void setIPHeader(QSharedPointer<IPHeader> ipHeader);
     void setControlType(UT::PacketControlType controlType);
+    bool isDHCPPacket();
 
     UT::PacketType packetType();
     QByteArray payload();

@@ -98,9 +98,10 @@ void EventsCoordinator::onTimerTick()
 {
     ticksInCurrentPhase++;
     switch (m_currentPhase) {
-    case UT::Phase::IdentifyNeighbors:
-        if (ticksInCurrentPhase >= 2)
+    case UT::Phase::IdentifyNeighbours:
+        if (ticksInCurrentPhase >= 2) {
             Q_EMIT neighboursDetectionIsDone();
+        }
         break;
     case UT::Phase::Execution:
         runExecutionCycle();
@@ -128,4 +129,26 @@ void EventsCoordinator::setIntervalMs(int intervalMs){
 
 void EventsCoordinator::setPcs(QVector<PCPtr_t> pcs){
     m_pcs = pcs;
+}
+
+QString EventsCoordinator::phaseToString(UT::Phase phase)
+{
+    switch (phase) {
+    case UT::Phase::Idle:
+        return "Idle";
+    case UT::Phase::Start:
+        return "Start";
+    case UT::Phase::DHCP:
+        return "DHCP";
+    case UT::Phase::IdentifyNeighbours:
+        return "IdentifyNeighbours";
+    case UT::Phase::Routing:
+        return "Routing";
+    case UT::Phase::Execution:
+        return "Execution";
+    case UT::Phase::Analysis:
+        return "Analysis";
+    default:
+        return "Unknown";
+    }
 }

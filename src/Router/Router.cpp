@@ -104,8 +104,9 @@ void Router::handlePhaseChange(const UT::Phase nextPhase){
             sendDiscoveryDHCP();
         return;
     }
-    if (m_currentPhase == UT::Phase::IdentifyNeighbors) {
-        sendRequestPacket();
+    if (m_currentPhase == UT::Phase::IdentifyNeighbours) {
+        if (!broken)
+            sendRequestPacket();
     }
 }
 
@@ -220,10 +221,12 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
     else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
         handleAckDHCP(data, ports[portNumber - 1]);
     } else if (data->controlType() == UT::PacketControlType::Request) {
-        handleRequestPacket(data, ports[portNumber - 1]);
+        if (!broken)
+            handleRequestPacket(data, ports[portNumber - 1]);
         return;
     } else if (data->controlType() == UT::PacketControlType::Response) {
-        handleResponsePacket(data, ports[portNumber - 1]);
+        if (!broken)
+            handleResponsePacket(data, ports[portNumber - 1]);
         return;
     }
     // if(data->controlType() == UT::PacketControlType::RIP || data->controlType() == UT::PacketControlType::OSPF){
@@ -237,7 +240,7 @@ void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort
     for (const auto& port : ports){
         if (!PortBindingManager::isBounded(port))
             continue;
-        if (port->isInterAsConnection())
+        if (port->isInterAsConnection() && packet->isDHCPPacket())
             continue;
         if (triggeringPort != nullptr && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;
@@ -259,16 +262,16 @@ void Router::sendRequestPacket()
 {
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setSourceIp(m_IP);
     packet->setIPHeader(ipHeader);
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::Request);
-    packet->setPayload(m_IP->toString().toUtf8());
     addPacketForBroadcast(packet, nullptr);
 }
 
 void Router::handleResponsePacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
 {
-    routingProtocol->addNewNeighbor(packet->ipHeader()->sourceIp(), triggeringPort);
+    routingProtocol->addNewNeighbour(packet->ipHeader()->sourceIp(), triggeringPort);
 }
 
 void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort)

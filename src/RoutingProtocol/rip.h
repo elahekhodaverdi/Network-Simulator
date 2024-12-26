@@ -9,14 +9,14 @@ public:
     explicit RIP(QObject *parent = nullptr);
     void initialize() override;
     void startRouting() override;
-    void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) override;
+    void addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort) override;
     void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) override;
 
 
 private:
     QMap<IPv4Ptr_t, int> distanceVector;
 
-    void updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighborIP, PortPtr_t outPort);
+    void updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighbourIP, PortPtr_t outPort);
     void sendRIPPacket(PortPtr_t triggeringPort = nullptr);
     QByteArray convertDistanceVectorToJson();
     QMap<IPv4Ptr_t, int> convertToDistanceVector(const QByteArray &jsonData);

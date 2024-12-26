@@ -19,7 +19,7 @@ public:
     //virtual ~RoutingProtocol() = default;
     virtual void initialize() = 0;
     virtual void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort) = 0;
-    virtual void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t inPort) = 0;
+    virtual void addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t inPort) = 0;
 
 Q_SIGNALS:
     void newRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
