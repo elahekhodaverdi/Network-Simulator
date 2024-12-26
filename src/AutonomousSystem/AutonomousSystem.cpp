@@ -129,15 +129,8 @@ void AutonomousSystem::setGateways(QJsonArray gateways)
             for (const QJsonValue& userValue : userIds) {
                 int userId = userValue.toInt();
                 PCPtr_t pc = QSharedPointer<PC>::create(userId);
-
-                // QString ipString = QString("192.168.%1.%2").arg(id * 100).arg(userId);
-
-                // IPv4Ptr_t ip = QSharedPointer<IPv4_t>::create(ipString);
-
-                // pc->setIP(ip);
+                connectPCsSignalsToSimulator();
                 pcs.append(pc);
-                QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::nextTick, pc.get(), &PC::handleNewTick);
-                QObject::connect(EventsCoordinator::instance(), &EventsCoordinator::newPacket, pc.get(), &PC::setShouldSendPacket);
                 Network::PCs.append(pc);
                 PortPtr_t routerPort = router->getAnUnboundPort();
                 PortBindingManager::bind(routerPort, pc->gateway());
@@ -208,5 +201,19 @@ void AutonomousSystem::connectRouterSignalsToSimulator()
                          &Router::routingProtocolIsDone,
                          simulator,
                          &Simulator::routerIsDone);
+        QObject::connect(router.get(), &Router::dhcpIsDone, simulator, &Simulator::routerIsDone);
     }
+}
+
+void AutonomousSystem::connectPCsSignalsToSimulator(PCPtr_t pc)
+{
+    QObject::connect(pc.get(), &PC::dhcpIsDone, Simulator::instance(), &Simulator::routerIsDone);
+    QObject::connect(EventsCoordinator::instance(),
+                     &EventsCoordinator::nextTick,
+                     pc.get(),
+                     &PC::handleNewTick);
+    QObject::connect(EventsCoordinator::instance(),
+                     &EventsCoordinator::newPacket,
+                     pc.get(),
+                     &PC::setShouldSendPacket);
 }
