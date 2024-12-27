@@ -16,6 +16,7 @@ class Packet : public QObject
     Q_OBJECT
 public:
     explicit Packet(DataLinkHeader dataLinkHeader, QObject* parent = nullptr);
+    Packet(const Packet& other);
     void addToPath(QString ip);
     void incWaitingCycles();
     void incTotalCycles();

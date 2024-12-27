@@ -10,6 +10,21 @@ Packet::Packet(DataLinkHeader dataLinkHeader, QObject *parent)
     , m_ipHeader(QSharedPointer<IPHeader>::create(this))
 {}
 
+
+Packet::Packet(const Packet& other)
+    : m_packetType(other.m_packetType),
+    m_payload(other.m_payload),
+    m_sequenceNumber(other.m_sequenceNumber),
+    m_waitingCycles(other.m_waitingCycles),
+    m_totalCycles(other.m_totalCycles),
+    m_path(other.m_path),
+    m_dataLinkHeader(other.m_dataLinkHeader),
+    m_ipHeader(other.m_ipHeader ? QSharedPointer<IPHeader>::create(*other.m_ipHeader) : nullptr),
+    m_controlType(other.m_controlType)
+{
+}
+
+
 Packet::~Packet()
 {
     m_path.clear();

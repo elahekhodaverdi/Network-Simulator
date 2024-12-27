@@ -39,6 +39,7 @@ void Node::sendDiscoveryDHCP(){
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     packet->setIPHeader(ipHeader);
+    ipHeader->setTTL(5);
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::DHCPDiscovery);
     packet->setPayload(QByteArray::number(m_id));
@@ -59,7 +60,8 @@ void Node::handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
     QJsonObject payloadJson = Utils::convertPayloadToJson(packet->payload());
     int id = payloadJson["id"].toInt();
     if (id != m_id){
-        addPacketForBroadcast(packet, triggeringPort);
+        if (packet->ipHeader()->ttl() > 0)
+            addPacketForBroadcast(packet, triggeringPort);
         return;
     }
     if (m_IP != nullptr)
@@ -71,7 +73,8 @@ void Node::handleOfferDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
 
 void Node::handleAckDHCP(const PacketPtr_t &packet, PortPtr_t triggeringPort){
     if (m_IP == nullptr || *packet->ipHeader()->destIp() != *m_IP){
-        addPacketForBroadcast(packet, triggeringPort);
+        if (packet->ipHeader()->ttl() > 0)
+            addPacketForBroadcast(packet, triggeringPort);
         return;
     }
     setDHCPDone();
@@ -95,6 +98,7 @@ void Node::sendResponsePacket(const PacketPtr_t &requestPacket, uint8_t portNumb
 {
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setTTL(5);
     ipHeader->setSourceIp(m_IP);
     ipHeader->setDestIp(requestPacket->ipHeader()->sourceIp());
     packet->setIPHeader(ipHeader);

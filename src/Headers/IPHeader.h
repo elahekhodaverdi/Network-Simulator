@@ -11,6 +11,7 @@ class IPHeader : public QObject
     Q_OBJECT
 public:
     explicit IPHeader(QObject *parent = nullptr);
+    IPHeader(const IPHeader &other);
 
     void setVersionHeaderLength(uint8_t versionHeaderLength);
     void setTypeOfService(uint8_t typeOfService);

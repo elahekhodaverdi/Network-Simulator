@@ -203,7 +203,7 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
         if (isDHCPServer()){
             dhcpServer->handleDiscoveryPacket(data);
         }
-        else if (data->ipHeader()->ttl() > 0){
+        else if (data->ipHeader()->ttl() > 0 && data->payload().toInt() != m_id){
             buffer.append(qMakePair(data, ports[portNumber - 1]));
         }
     }
@@ -244,7 +244,8 @@ void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort
             continue;
         if (triggeringPort != nullptr && port->getPortNumber() == triggeringPort->getPortNumber())
             continue;
-        packetsToSend.insert(port, packet);
+        PacketPtr_t copiedPacket = PacketPtr_t::create(*packet);
+        packetsToSend.insert(port, copiedPacket);
     }
 }
 

@@ -31,6 +31,7 @@ void DHCPServer::handleDiscoveryPacket(PacketPtr_t packet)
 
     PacketPtr_t offerPacket = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
+    ipHeader->setTTL(5);
     offerPacket->setIPHeader(ipHeader);
     offerPacket->setPacketType(UT::PacketType::Control);
     offerPacket->setControlType(UT::PacketControlType::DHCPOffer);
@@ -40,8 +41,13 @@ void DHCPServer::handleDiscoveryPacket(PacketPtr_t packet)
 
 void DHCPServer::handleRequestPacket(PacketPtr_t packet){
     PacketPtr_t ackPacket = PacketPtr_t::create(DataLinkHeader());
+    IPv4Ptr_t sourceIp = packet->ipHeader()->sourceIp();
+    if (sentAcks.contains(sourceIp->toString()))
+        return;
+    sentAcks.append(sourceIp->toString());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
-    ipHeader->setDestIp(packet->ipHeader()->sourceIp());
+    ipHeader->setTTL(5);
+    ipHeader->setDestIp(sourceIp);
     ackPacket->setIPHeader(ipHeader);
     ackPacket->setPacketType(UT::PacketType::Control);
     ackPacket->setControlType(UT::PacketControlType::DHCPAcknowledge);

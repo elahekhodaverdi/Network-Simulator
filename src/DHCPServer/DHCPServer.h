@@ -22,6 +22,7 @@ Q_SIGNALS:
     void newPacket(PacketPtr_t packet, PortPtr_t triggeringPort);
 private:
     QList<int> sentOffers;
+    QList<QString> sentAcks;
     QString m_ipRange;
 
 };

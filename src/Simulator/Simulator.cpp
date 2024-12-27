@@ -112,6 +112,7 @@ void Simulator::analysis()
 void Simulator::routerIsDone()
 {
     numOfRoutersDone++;
+    qDebug() << "done" << numOfRoutersDone;
 
     if (currentPhase == UT::Phase::DHCP
         && (numOfRoutersDone >= (network.numOfRouters() + network.PCs.size()
