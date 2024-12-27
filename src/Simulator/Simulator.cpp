@@ -58,7 +58,7 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
 
     currentPhase = nextPhase;
     numOfRoutersDone = 0;
-
+    qDebug() << "current phase" << phaseToString(currentPhase);
     switch (currentPhase) {
         case UT::Phase::Start:
             start();
@@ -115,8 +115,8 @@ void Simulator::routerIsDone()
     qDebug() << "done" << numOfRoutersDone;
 
     if (currentPhase == UT::Phase::DHCP
-        && (numOfRoutersDone >= (network.numOfRouters() + network.PCs.size()
-                                 - network.autonomousSystems.size() - network.numOfBrokenRouters())))
+        && (numOfRoutersDone
+            >= (network.numOfRouters() + network.PCs.size() - network.autonomousSystems.size())))
         goToNextPhase(UT::Phase::IdentifyNeighbours);
 
     else if (currentPhase == UT::Phase::Routing

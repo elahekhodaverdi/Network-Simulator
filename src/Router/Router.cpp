@@ -46,8 +46,8 @@ void Router::initializeRoutingProtocol()
     else if (Simulator::simulationConfig.routingProtocol == "RIP")
         routingProtocol = new RIP();
     else
-        routingProtocol = nullptr;
-
+        routingProtocol = new RIP();
+    routingProtocol->moveToThread(this->thread());
     connect(routingProtocol,
             &RoutingProtocol::newRoutingPacket,
             this,
@@ -104,9 +104,13 @@ void Router::handlePhaseChange(const UT::Phase nextPhase){
             sendDiscoveryDHCP();
         return;
     }
+    if (broken)
+        return;
     if (m_currentPhase == UT::Phase::IdentifyNeighbours) {
-        if (!broken)
-            sendRequestPacket();
+        sendRequestPacket();
+    }
+    if (m_currentPhase == UT::Phase::Routing) {
+        routingProtocol->startRouting();
     }
 }
 
@@ -187,14 +191,13 @@ bool Router::isDHCPServer() const
 
 void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
-    if (broken)
+    if (data->ipHeader()->ttl() <= 0)
         return;
-    //qDebug() << "Packet Received from: " << portNumber << " Content:" << data->payload();
+
     data->ipHeader()->decTTL();
-    if (data->packetType() == UT::PacketType::Control){
+    if (data->packetType() == UT::PacketType::Control && (!broken || data->isDHCPPacket())) {
         handleControlPacket(data, portNumber);
-    }
-    else if (data->ipHeader()->ttl() > 0)
+    } else if (!broken)
         buffer.append(qMakePair(data, ports[portNumber - 1]));
 }
 
@@ -202,8 +205,7 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
     if (data->controlType() == UT::PacketControlType::DHCPDiscovery ){
         if (isDHCPServer()){
             dhcpServer->handleDiscoveryPacket(data);
-        }
-        else if (data->ipHeader()->ttl() > 0 && data->payload().toInt() != m_id){
+        } else if (data->payload().toInt() != m_id) {
             buffer.append(qMakePair(data, ports[portNumber - 1]));
         }
     }
@@ -213,26 +215,21 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
     else if (data->controlType() == UT::PacketControlType::DHCPRequest){
         if (isDHCPServer()){
             dhcpServer->handleRequestPacket(data);
-        }
-        else if (data->ipHeader()->ttl() > 0){
+        } else {
             buffer.append(qMakePair(data, ports[portNumber - 1]));
         }
     }
     else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
         handleAckDHCP(data, ports[portNumber - 1]);
     } else if (data->controlType() == UT::PacketControlType::Request) {
-        if (!broken)
-            handleRequestPacket(data, ports[portNumber - 1]);
-        return;
+        handleRequestPacket(data, ports[portNumber - 1]);
     } else if (data->controlType() == UT::PacketControlType::Response) {
-        if (!broken)
-            handleResponsePacket(data, ports[portNumber - 1]);
-        return;
+        handleResponsePacket(data, ports[portNumber - 1]);
+    } else if (data->controlType() == UT::PacketControlType::RIP
+               || data->controlType() == UT::PacketControlType::OSPF) {
+        qDebug() << "RIP packet:" << data->ipHeader()->sourceIp()->toString() << data->payload();
+        routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
     }
-    // if(data->controlType() == UT::PacketControlType::RIP || data->controlType() == UT::PacketControlType::OSPF){
-    //     routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
-    //     return;
-    // }
 }
 
 void Router::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
@@ -261,7 +258,7 @@ void Router::sendPackets()
 
 void Router::sendRequestPacket()
 {
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     ipHeader->setSourceIp(m_IP);
     packet->setIPHeader(ipHeader);

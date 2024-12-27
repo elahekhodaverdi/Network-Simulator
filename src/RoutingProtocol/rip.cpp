@@ -48,7 +48,7 @@ void RIP::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort){
 }
 
 void RIP::sendRIPPacket(PortPtr_t triggeringPort){
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     ipHeader->setSourceIp(m_routerIP);
     ipHeader->setTTL(1);

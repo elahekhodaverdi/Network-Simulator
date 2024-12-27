@@ -36,7 +36,7 @@ void Node::checkCurrentThread() {
 }
 
 void Node::sendDiscoveryDHCP(){
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     packet->setIPHeader(ipHeader);
     ipHeader->setTTL(5);
@@ -47,7 +47,7 @@ void Node::sendDiscoveryDHCP(){
 }
 
 void Node::sendRequestDHCP(){
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(), this);
+    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     ipHeader->setSourceIp(m_IP);
     packet->setIPHeader(ipHeader);
@@ -84,6 +84,7 @@ void Node::setDHCPDone(){
     if (m_dhcpIsDone)
         return;
     m_dhcpIsDone = true;
+    qDebug() << "dhcp" << m_id;
     Q_EMIT dhcpIsDone();
 }
 

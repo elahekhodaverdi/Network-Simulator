@@ -78,7 +78,8 @@ PacketPtr_t PC::createNewPacket()
 {
     PCPtr_t destinationPC = chooseRandomPC();
 
-    PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader(this->getMACAddress(), destinationPC->getMACAddress()), this);
+    PacketPtr_t packet = PacketPtr_t::create(
+        DataLinkHeader(this->getMACAddress(), destinationPC->getMACAddress()));
 
     if (m_IP && destinationPC->m_IP) {
         QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
