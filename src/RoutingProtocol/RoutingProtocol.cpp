@@ -4,13 +4,15 @@ RoutingProtocol::RoutingProtocol(QObject *parent)
     : QObject{parent}
 {}
 
-
 void RoutingProtocol::updateRoutingTable(RoutingTableEntry newEntry)
 {
+    m_routingTableUpdatedFromLastTick = true;
+    m_ticksFromLastUpdate = 0;
     auto it = std::find_if(routingTable.begin(),
                            routingTable.end(),
                            [&newEntry](const RoutingTableEntry &entry) {
-                               return entry.destination == newEntry.destination;
+                               return entry.destination->toValue()
+                                      == newEntry.destination->toValue();
                            });
 
     if (it == routingTable.end()) {
@@ -18,6 +20,7 @@ void RoutingProtocol::updateRoutingTable(RoutingTableEntry newEntry)
     } else if (it->metric > newEntry.metric) {
         *it = newEntry;
     }
+    // qDebug() << "routing table updated" << m_routerIP->toString() << routingTable.size();
 }
 
 void RoutingProtocol::printRoutingTable() const
@@ -57,6 +60,26 @@ PortPtr_t RoutingProtocol::findOutPort(IPv4Ptr_t destIP) {
         }
     }
 
-    //qDebug() << "No route found for destination IP: " << destIP->toString();
     return nullptr;
+}
+
+void RoutingProtocol::handleNewTick(UT::Phase phase)
+{
+    if (phase != UT::Phase::Routing) {
+        m_routingStarted = false;
+        routingIsDone = false;
+    }
+    if (phase == UT::Phase::Routing && m_routingStarted && !routingIsDone) {
+        if (!m_routingTableUpdatedFromLastTick && m_ticksFromLastUpdate >= 300) {
+            routingIsDone = true;
+            Q_EMIT noUpdateAtRoutingTable();
+        }
+        m_routingTableUpdatedFromLastTick = false;
+        m_ticksFromLastUpdate++;
+    }
+}
+
+void RoutingProtocol::setRouterIP(IPv4Ptr_t routerIP)
+{
+    m_routerIP = routerIP;
 }

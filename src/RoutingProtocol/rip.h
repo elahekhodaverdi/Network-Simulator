@@ -12,7 +12,6 @@ public:
     void addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort) override;
     void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) override;
 
-
 private:
     QMap<IPv4Ptr_t, int> distanceVector;
 

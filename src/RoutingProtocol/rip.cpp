@@ -3,8 +3,8 @@
 #include <QJsonDocument>
 #include "../Utils/utils.h"
 
-RIP::RIP(QObject *parent) :
-    RoutingProtocol {parent}
+RIP::RIP(QObject *parent)
+    : RoutingProtocol{parent}
 {}
 
 void RIP::addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort)
@@ -23,7 +23,10 @@ void RIP::startRouting(){
 
 void RIP::updateDistanceVector(IPv4Ptr_t destIP, int metric, IPv4Ptr_t neighbourIP, PortPtr_t inPort)
 {
+    if (destIP->toValue() == m_routerIP->toValue())
+        return;
     int currentMetric = distanceVector.value(destIP, INF);
+
     if (currentMetric <= metric + 1)
         return;
     distanceVector[destIP] = metric + 1;
@@ -55,6 +58,7 @@ void RIP::sendRIPPacket(PortPtr_t triggeringPort){
     packet->setIPHeader(ipHeader);
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::RIP);
+    // qDebug() << "here the payload" << convertDistanceVectorToJson();
     packet->setPayload(convertDistanceVectorToJson());
     Q_EMIT newRoutingPacket(packet, triggeringPort);
 }
@@ -62,7 +66,6 @@ void RIP::sendRIPPacket(PortPtr_t triggeringPort){
 QByteArray RIP::convertDistanceVectorToJson()
 {
     QJsonObject jsonObject;
-
     for (auto it = distanceVector.cbegin(); it != distanceVector.cend(); ++it)
     {
         const IPv4Ptr_t &ipPtr = it.key();

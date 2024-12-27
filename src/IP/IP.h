@@ -104,4 +104,11 @@ private:    // methods
 private:
 };
 
+inline bool operator<(const QSharedPointer<IPv4_t> &lhs, const QSharedPointer<IPv4_t> &rhs)
+{
+    if (!lhs || !rhs)
+        return lhs < rhs;
+    return lhs->toValue() < rhs->toValue();
+}
+
 #endif    // IP_H

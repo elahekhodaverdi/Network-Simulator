@@ -52,13 +52,16 @@ void Router::initializeRoutingProtocol()
             &RoutingProtocol::newRoutingPacket,
             this,
             &Router::addNewPacketTobBuffer);
+    connect(routingProtocol, &RoutingProtocol::noUpdateAtRoutingTable, this, &Router::routingIsDone);
 }
 
 void Router::handleNewTick(UT::Phase phase){
     packetsToSend.clear();
-    if (m_currentPhase != phase){
+
+    if (m_currentPhase != phase) {
         handlePhaseChange(phase);
     }
+    routingProtocol->handleNewTick(phase);
     for (int i = 0; i < buffer.size(); i++){
         buffer[i].first->incTotalCycles();
     }
@@ -94,6 +97,7 @@ void Router::updateBuffer(){
 }
 
 void Router::handlePhaseChange(const UT::Phase nextPhase){
+    buffer.clear();
     m_currentPhase = nextPhase;
     if (m_currentPhase == UT::Phase::DHCP){
         if (isDHCPServer()){
@@ -176,6 +180,7 @@ void Router::setIP(IPv4Ptr_t ip)
     for (const auto &port : ports) {
         port->setRouterIP(ip->toString());
     }
+    routingProtocol->setRouterIP(ip);
     qDebug() << "Router with ID: " << m_id << "set it IP: " << m_IP->toString();
 }
 
@@ -228,7 +233,6 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
         handleResponsePacket(data, ports[portNumber - 1]);
     } else if (data->controlType() == UT::PacketControlType::RIP
                || data->controlType() == UT::PacketControlType::OSPF) {
-        qDebug() << "RIP packet:" << data->ipHeader()->sourceIp()->toString() << data->payload();
         routingProtocol->processRoutingPacket(data, ports[portNumber - 1]);
     }
 }
@@ -278,7 +282,8 @@ void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeri
     buffer.append(qMakePair(packet, triggeringPort));
 }
 
-void Router::flushBuffer()
+void Router::routingIsDone()
 {
-    buffer.clear();
+    // qDebug() << "emit protocol" << m_id;
+    Q_EMIT routingProtocolIsDone();
 }

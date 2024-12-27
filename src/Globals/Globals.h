@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define INF std::numeric_limits<int>::infinity()
+#define INF std::numeric_limits<int>::max()
 
 namespace UT
 {

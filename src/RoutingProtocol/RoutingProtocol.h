@@ -12,17 +12,18 @@ class RoutingProtocol : public QObject
     Q_OBJECT
 public:
     explicit RoutingProtocol(QObject *parent = nullptr);
-    explicit RoutingProtocol(QString routerIP, QObject *parent = nullptr);
     void printRoutingTable() const;
-    virtual void startRouting() = 0;
+    void handleNewTick(UT::Phase phase);
+    virtual void setRouterIP(IPv4Ptr_t routerIP);
     PortPtr_t findOutPort(IPv4Ptr_t destIP);
-    //virtual ~RoutingProtocol() = default;
     virtual void initialize() = 0;
-    virtual void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort) = 0;
+    virtual void startRouting() = 0;
     virtual void addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t inPort) = 0;
+    virtual void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort) = 0;
 
 Q_SIGNALS:
     void newRoutingPacket(PacketPtr_t &packet, PortPtr_t triggeringPort);
+    void noUpdateAtRoutingTable();
 
 protected:
     struct RoutingTableEntry
@@ -39,6 +40,9 @@ protected:
     void updateRoutingTable(RoutingTableEntry newEntry);
     QList<RoutingTableEntry> routingTable;
     IPv4Ptr_t m_routerIP;
+    bool m_routingTableUpdatedFromLastTick{false};
+    bool routingIsDone{false};
+    int m_ticksFromLastUpdate{0};
 };
 
 #endif // ROUTINGPROTOCOL_H

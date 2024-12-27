@@ -72,6 +72,9 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
         case UT::Phase::Routing:
             Q_EMIT phaseChanged(UT::Phase::Routing);
             break;
+        case UT::Phase::Execution:
+            Q_EMIT phaseChanged(UT::Phase::Execution);
+            break;
         case UT::Phase::Analysis:
             analysis();
             break;

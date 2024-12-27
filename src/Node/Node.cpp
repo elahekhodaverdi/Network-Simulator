@@ -84,14 +84,11 @@ void Node::setDHCPDone(){
     if (m_dhcpIsDone)
         return;
     m_dhcpIsDone = true;
-    qDebug() << "dhcp" << m_id;
     Q_EMIT dhcpIsDone();
 }
 
 void Node::handleRequestPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
 {
-    qDebug() << "request Packet received in" << m_id << "from"
-             << packet->ipHeader()->sourceIp()->toString();
     sendResponsePacket(packet, triggeringPort->getPortNumber());
 }
 
