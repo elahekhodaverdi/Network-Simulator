@@ -216,7 +216,8 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
         if (isDHCPServer()){
             dhcpServer->handleRequestPacket(data);
         } else {
-            buffer.append(qMakePair(data, ports[portNumber - 1]));
+            if (m_IP == nullptr || *m_IP != *data->ipHeader()->sourceIp())
+                buffer.append(qMakePair(data, ports[portNumber - 1]));
         }
     }
     else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
