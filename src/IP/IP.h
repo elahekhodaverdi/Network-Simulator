@@ -3,11 +3,11 @@
 
 #include "Globals.h"
 
+#include <QDebug>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
 #include <QTextStream>
-
 template <UT::IPVersion version>
 class IP;
 
@@ -111,4 +111,16 @@ inline bool operator<(const QSharedPointer<IPv4_t> &lhs, const QSharedPointer<IP
     return lhs->toValue() < rhs->toValue();
 }
 
-#endif    // IP_H
+inline bool operator==(const QSharedPointer<IPv4_t> &lhs, const QSharedPointer<IPv4_t> &rhs)
+{
+    if (!lhs || !rhs)
+        return lhs == rhs;
+    return lhs->toValue() == rhs->toValue();
+}
+
+inline uint qHash(const QSharedPointer<IPv4_t> &ip, uint seed = 0)
+{
+    return qHash(ip ? ip->toValue() : 0, seed);
+}
+
+#endif // IP_H

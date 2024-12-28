@@ -66,7 +66,6 @@ void OSPF::processLSA(const LinkStateAdvertisement &lsa)
         recomputeRoutingTable();
     }
 }
-
 void OSPF::recomputeRoutingTable()
 {
     QSet<IPv4Ptr_t> visited;
@@ -74,8 +73,8 @@ void OSPF::recomputeRoutingTable()
     QMap<IPv4Ptr_t, IPv4Ptr_t> nextHops;
 
     QQueue<IPv4Ptr_t> toVisit;
+
     shortestPaths[m_routerIP] = 0;
-    visited.insert(m_routerIP);
     toVisit.enqueue(m_routerIP);
 
     while (!toVisit.isEmpty()) {
@@ -87,29 +86,44 @@ void OSPF::recomputeRoutingTable()
             IPv4Ptr_t neighbour = it.key();
             int linkMetric = it.value();
 
-            if (!visited.contains(neighbour)
-                || currentMetric + linkMetric < shortestPaths[neighbour]) {
-                shortestPaths[neighbour] = currentMetric + linkMetric;
+            int newMetric = currentMetric + linkMetric;
+
+            if (!shortestPaths.contains(neighbour) || newMetric < shortestPaths[neighbour]) {
+                shortestPaths[neighbour] = newMetric;
                 nextHops[neighbour] = (nextHops.contains(currentRouter) ? nextHops[currentRouter]
                                                                         : neighbour);
-                visited.insert(neighbour);
                 toVisit.enqueue(neighbour);
             }
         }
     }
 
-    routingTable.clear();
     for (auto it = shortestPaths.cbegin(); it != shortestPaths.cend(); ++it) {
         IPv4Ptr_t destIP = it.key();
+        int newMetric = it.value();
+
         if (destIP == m_routerIP)
             continue;
 
-        RoutingTableEntry newEntry{destIP,
-                                   IPv4Ptr_t::create("255.255.255.0"),
-                                   nextHops[destIP],
-                                   neighbourPorts.value(nextHops[destIP], nullptr),
-                                   it.value(),
-                                   UT::RoutingProtocol::OSPF};
-        updateRoutingTable(newEntry);
+        PortPtr_t outPort = neighbourPorts.value(nextHops[destIP], nullptr);
+
+        auto entryIt = std::find_if(routingTable.begin(),
+                                    routingTable.end(),
+                                    [&destIP](const RoutingTableEntry &entry) {
+                                        return *entry.destination == *destIP;
+                                    });
+
+        if (entryIt == routingTable.end()) {
+            RoutingTableEntry newEntry{destIP,
+                                       IPv4Ptr_t::create("255.255.255.0"),
+                                       nextHops[destIP],
+                                       outPort,
+                                       newMetric,
+                                       UT::RoutingProtocol::OSPF};
+            updateRoutingTable(newEntry);
+        } else if (entryIt->metric > newMetric) {
+            entryIt->nextHop = nextHops[destIP];
+            entryIt->outPort = outPort;
+            entryIt->metric = newMetric;
+        }
     }
 }
