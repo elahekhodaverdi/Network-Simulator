@@ -1,10 +1,9 @@
 #include "Router.h"
-#include "../PortBindingManager/PortBindingManager.h"
 #include "../Network/SimulationConfig.h"
+#include "../PortBindingManager/PortBindingManager.h"
+#include "../RoutingProtocol/OSPF.h"
 #include "../RoutingProtocol/rip.h"
 #include "../Simulator/Simulator.h"
-//#include "../RoutingProtocol/OSPF.h"
-
 
 Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QObject *parent)
     : Node(id, macAddress, parent)
@@ -41,8 +40,8 @@ void Router::connectPortsToSignals()
 
 void Router::initializeRoutingProtocol()
 {
-    if (Simulator::simulationConfig.routingProtocol == "OSPF"){}
-        //routingProtocol = new OSPF();
+    if (Simulator::simulationConfig.routingProtocol == "OSPF")
+        routingProtocol = new OSPF();
     else if (Simulator::simulationConfig.routingProtocol == "RIP")
         routingProtocol = new RIP();
     else

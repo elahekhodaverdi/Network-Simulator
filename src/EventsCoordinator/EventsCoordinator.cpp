@@ -27,7 +27,6 @@ void EventsCoordinator::release()
 {
     delete m_self;
     m_self = nullptr;
-    qDebug() << "done";
 }
 
 void EventsCoordinator::startSimulation()

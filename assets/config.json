@@ -6,7 +6,7 @@
     "statistical_distribution": "Pareto",
     "router_buffer_size": 6,
     "router_port_count": 6,
-    "routing_protocol": "RIP",
+    "routing_protocol": "OSPF",
     "routing_table_update_interval": "20",
     "routing_per_port": true,
     "routing_table_size": 10,

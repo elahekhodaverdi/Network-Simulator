@@ -20,7 +20,8 @@ void RoutingProtocol::updateRoutingTable(RoutingTableEntry newEntry)
     } else if (it->metric > newEntry.metric) {
         *it = newEntry;
     }
-    // qDebug() << "routing table updated" << m_routerIP->toString() << routingTable.size();
+    if (routingTable.size() == 34)
+        qDebug() << "routing table updated" << m_routerIP->toString() << routingTable.size();
 }
 
 void RoutingProtocol::printRoutingTable() const

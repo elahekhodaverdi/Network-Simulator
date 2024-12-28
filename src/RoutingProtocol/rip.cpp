@@ -54,7 +54,6 @@ void RIP::sendRIPPacket(PortPtr_t triggeringPort){
     packet->setIPHeader(ipHeader);
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::RIP);
-    // qDebug() << "here the payload" << convertDistanceVectorToJson();
     packet->setPayload(convertDistanceVectorToJson());
     Q_EMIT newRoutingPacket(packet, triggeringPort);
 }
