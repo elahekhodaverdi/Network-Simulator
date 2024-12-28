@@ -1,84 +1,68 @@
 #ifndef OSPF_H
 #define OSPF_H
 
-#include <QByteArray>
-#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QList>
 #include <QMap>
-#include <QString>
-#include "./RoutingProtocol.h"
+#include <QQueue>
+#include <QSet>
+#include "RoutingProtocol.h"
+
 class OSPF : public RoutingProtocol
 {
 public:
     explicit OSPF(QObject *parent = nullptr);
-    explicit OSPF(QString routerIP, QObject *parent = nullptr);
-    //virtual ~OSPF() = default;
+    void startRouting() override;
+    void addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort) override;
+    void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort) override;
 
-    void initialize() override;
-    void processRoutingPacket(const PacketPtr_t &packet, PortPtr_t outPort) override;
-    void addNewNeighbor(const IPv4Ptr_t &neighborIP, PortPtr_t outPort) override;
+private:
     struct LinkStateAdvertisement
     {
-        IPv4Ptr_t routerIP;
-        QList<IPv4Ptr_t> neighborIPs;
+        IPv4Ptr_t originRouter;
+        QMap<IPv4Ptr_t, int> linkMetrics;
+        QJsonObject toJson() const
+        {
+            QJsonObject json;
+            json["originRouter"] = originRouter->toString();
+            QJsonObject metrics;
+            for (auto it = linkMetrics.cbegin(); it != linkMetrics.cend(); ++it) {
+                metrics[it.key()->toString()] = it.value();
+            }
+            json["linkMetrics"] = metrics;
+            return json;
+        }
 
         QByteArray toByteArray() const
         {
-            QJsonObject jsonObj;
-
-            jsonObj["routerIP"] = routerIP->toString();
-
-            QJsonArray neighborsArray;
-            for (const auto &neighborIP : neighborIPs) {
-                neighborsArray.append(neighborIP->toString());
-            }
-            jsonObj["neighborIPs"] = neighborsArray;
-
-            QJsonDocument jsonDoc(jsonObj);
-            return jsonDoc.toJson();
+            QJsonDocument doc(toJson());
+            return doc.toJson(QJsonDocument::Compact);
         }
 
-        static LinkStateAdvertisement fromByteArray(const QByteArray &byteArray)
+        static LinkStateAdvertisement fromJson(const QJsonObject &json)
         {
-            QJsonDocument jsonDoc = QJsonDocument::fromJson(byteArray);
-
-            if (!jsonDoc.isObject())
-                throw std::runtime_error("Invalid JSON format for LSA");
-
-            QJsonObject jsonObj = jsonDoc.object();
-
-            if (!jsonObj.contains("routerIP") || !jsonObj["routerIP"].isString())
-                throw std::runtime_error("Missing or invalid routerIP in LSA JSON");
-
-            IPv4Ptr_t routerIP = IPv4Ptr_t::create(jsonObj["routerIP"].toString());
-
-            if (!jsonObj.contains("neighborIPs") || !jsonObj["neighborIPs"].isArray())
-                throw std::runtime_error("Missing or invalid neighborIPs in LSA JSON");
-
-            QJsonArray neighborsArray = jsonObj["neighborIPs"].toArray();
-            QList<IPv4Ptr_t> neighborIPs;
-            for (const QJsonValue &value : neighborsArray) {
-                if (!value.isString())
-                    throw std::runtime_error("Invalid neighborIP in neighborIPs JSON array");
-                neighborIPs.append(IPv4Ptr_t::create(value.toString()));
+            LinkStateAdvertisement lsa;
+            lsa.originRouter = IPv4Ptr_t::create(json["originRouter"].toString());
+            QJsonObject metrics = json["linkMetrics"].toObject();
+            for (auto it = metrics.constBegin(); it != metrics.constEnd(); ++it) {
+                lsa.linkMetrics[IPv4Ptr_t::create(it.key())] = it.value().toInt();
             }
+            return lsa;
+        }
 
-            return LinkStateAdvertisement{routerIP, neighborIPs};
+        static LinkStateAdvertisement fromByteArray(const QByteArray &data)
+        {
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+            return fromJson(doc.object());
         }
     };
 
-private:
-    QMap<IPv4Ptr_t, LinkStateAdvertisement> LSDB;
-    QMap<IPv4Ptr_t, int> shortestPathTree;
-    QList<IPv4Ptr_t> neighbors;
+    QMap<IPv4Ptr_t, LinkStateAdvertisement> lsDatabase;
+    QMap<IPv4Ptr_t, PortPtr_t> neighbourPorts;
 
-    LinkStateAdvertisement createOwnLSA();
-    void sendOwnLSAPacket(const QByteArray &lsaData);
-    void calculateSPF();
-    void buildRoutingTable(const QMap<IPv4Ptr_t, IPv4Ptr_t> &previousHop);
+    void sendLSAPacket();
+    void processLSA(const LinkStateAdvertisement &lsa);
+    void recomputeRoutingTable();
 };
 
-typedef OSPF::LinkStateAdvertisement LSA;
 #endif // OSPF_H

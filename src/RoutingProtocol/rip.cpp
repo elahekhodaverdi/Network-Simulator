@@ -12,10 +12,6 @@ void RIP::addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort)
     updateDistanceVector(neighbourIP, 1, neighbourIP, outPort);
 }
 
-void RIP::initialize(){
-
-}
-
 void RIP::startRouting(){
     m_routingStarted = true;
     sendRIPPacket();
