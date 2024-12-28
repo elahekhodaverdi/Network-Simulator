@@ -56,8 +56,6 @@ void PC::handlePhaseChange(const UT::Phase nextPhase){
 }
 
 void PC::sendNewPacket(){
-    qDebug() << "Sending packet from PC:" << m_id;
-    checkCurrentThread();
     PacketPtr_t packet = createNewPacket();
     Q_EMIT newPacket(packet, m_gateway->getPortNumber());
 }
@@ -100,7 +98,6 @@ PacketPtr_t PC::createNewPacket()
     packet->setPacketType(UT::PacketType::Data);
     packet->incTotalCycles();
 
-    qDebug() << "Packet created from PC" << m_id << "to PC" << destinationPC->getId();
     return packet;
 }
 
@@ -121,11 +118,13 @@ void PC::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
     if (data->packetType() == UT::PacketType::Control){
         handleControlPacket(data);
+    } else {
+        Q_EMIT packetReceived(data);
     }
-    // qDebug() << "Packet received in PC: " << m_id << " Content: " << data->payload();
 }
 
-void PC::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort){
+void PC::broadcastPacket(const PacketPtr_t &packet, PortPtr_t triggeringPort)
+{
     if (triggeringPort != nullptr && triggeringPort->getPortNumber() == m_gateway->getPortNumber())
         return;
     Q_EMIT newPacket(packet, m_gateway->getPortNumber());

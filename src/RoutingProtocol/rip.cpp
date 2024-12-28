@@ -9,7 +9,7 @@ RIP::RIP(QObject *parent)
 
 void RIP::addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort)
 {
-    updateDistanceVector(neighbourIP, 1, neighbourIP, outPort);
+    updateDistanceVector(neighbourIP, 0, neighbourIP, outPort);
 }
 
 void RIP::startRouting(){

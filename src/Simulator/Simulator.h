@@ -28,6 +28,8 @@ public Q_SLOTS:
     void routerIsDone();
     void neighboursIdentified();
     void executionIsDone();
+    void incNumOfPackets(int num);
+    void storeSentPacket(const PacketPtr_t &packet);
 
 Q_SIGNALS:
     void phaseChanged(UT::Phase nextPhase);
@@ -39,7 +41,8 @@ private:
     Network network;
     int numOfRoutersDone;
     UT::Phase currentPhase;
-
+    QVector<PacketPtr_t> packetsSent;
+    int numOfPackets{0};
     void goToNextPhase(UT::Phase nextPhase);
     void start();
     void startDHCP();

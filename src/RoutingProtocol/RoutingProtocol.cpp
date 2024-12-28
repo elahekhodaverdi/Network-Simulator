@@ -20,8 +20,6 @@ void RoutingProtocol::updateRoutingTable(RoutingTableEntry newEntry)
     } else if (it->metric > newEntry.metric) {
         *it = newEntry;
     }
-    if (routingTable.size() == 34)
-        qDebug() << "routing table updated" << m_routerIP->toString() << routingTable.size();
 }
 
 void RoutingProtocol::printRoutingTable() const
@@ -73,6 +71,10 @@ void RoutingProtocol::handleNewTick(UT::Phase phase)
     if (phase == UT::Phase::Routing && m_routingStarted && !routingIsDone) {
         if (!m_routingTableUpdatedFromLastTick && m_ticksFromLastUpdate >= 300) {
             routingIsDone = true;
+            if (m_routerIP->toString() == "192.168.10.1") {
+                qDebug() << "rt" << m_routerIP->toString() << routingTable.size();
+                printRoutingTable();
+            }
             Q_EMIT noUpdateAtRoutingTable();
         }
         m_routingTableUpdatedFromLastTick = false;

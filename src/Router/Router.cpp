@@ -180,7 +180,6 @@ void Router::setIP(IPv4Ptr_t ip)
         port->setRouterIP(ip->toString());
     }
     routingProtocol->setRouterIP(ip);
-    qDebug() << "Router with ID: " << m_id << "set it IP: " << m_IP->toString();
 }
 
 void Router::printRoutingTable() const

@@ -16,14 +16,12 @@ void OSPF::addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort)
 {
     neighbourPorts[neighbourIP] = outPort;
 
-    if (lsDatabase.contains(m_routerIP)) {
+    if (!lsDatabase.contains(m_routerIP)) {
         LinkStateAdvertisement newLSA{m_routerIP, {{neighbourIP, 1}}};
         lsDatabase[m_routerIP] = newLSA;
     } else {
         lsDatabase[m_routerIP].linkMetrics[neighbourIP] = 1;
     }
-    qDebug() << "add neigb in router" << m_routerIP->toString()
-             << lsDatabase[m_routerIP].linkMetrics.size();
     RoutingTableEntry newEntry{neighbourIP,
                                IPv4Ptr_t::create("255.255.255.0"),
                                neighbourIP,
@@ -38,7 +36,6 @@ void OSPF::sendLSAPacket()
     LinkStateAdvertisement &lsa = lsDatabase[m_routerIP];
 
     QByteArray payload = lsa.toByteArray();
-    qDebug() << "here the payload in" << m_routerIP->toString() << ": " << payload;
     for (auto it = neighbourPorts.cbegin(); it != neighbourPorts.cend(); ++it) {
         PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
         QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
@@ -62,10 +59,8 @@ void OSPF::processRoutingPacket(const PacketPtr_t &packet, PortPtr_t inPort)
 
 void OSPF::processLSA(const LinkStateAdvertisement &lsa)
 {
-    qDebug() << "process LSA in router" << m_routerIP->toString();
     if (!lsDatabase.contains(lsa.originRouter)
         || lsDatabase[lsa.originRouter].linkMetrics != lsa.linkMetrics) {
-        qDebug() << "inside of router felan process LSA" << m_routerIP->toString();
         lsDatabase[lsa.originRouter] = lsa;
         recomputeRoutingTable();
     }

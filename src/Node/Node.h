@@ -25,6 +25,7 @@ public:
 Q_SIGNALS:
     void newPacket(const PacketPtr_t &data, uint8_t port_number);
     void dhcpIsDone();
+    void newPacketSent(int num);
 
 public Q_SLOTS:
     virtual void handleNewTick(const UT::Phase phase) = 0;

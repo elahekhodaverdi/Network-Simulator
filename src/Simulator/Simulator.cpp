@@ -116,7 +116,7 @@ void Simulator::routerIsDone()
 {
     numOfRoutersDone++;
 
-    if (currentPhase == UT::Phase::Routing)
+    if (currentPhase == UT::Phase::Routing && numOfRoutersDone == 20)
         qDebug() << "done" << numOfRoutersDone;
     if (currentPhase == UT::Phase::DHCP
         && (numOfRoutersDone
@@ -141,6 +141,16 @@ void Simulator::executionIsDone()
     goToNextPhase(UT::Phase::Analysis);
 }
 
+void Simulator::storeSentPacket(const PacketPtr_t &packet)
+{
+    packetsSent.append(packet);
+    qDebug() << "packet sent" << packetsSent.size();
+}
+
+void Simulator::incNumOfPackets(int num)
+{
+    numOfPackets += num;
+}
 QString Simulator::phaseToString(UT::Phase phase)
 {
     switch (phase) {

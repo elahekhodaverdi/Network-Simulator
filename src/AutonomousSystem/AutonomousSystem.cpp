@@ -213,6 +213,10 @@ void AutonomousSystem::connectRouterSignalsToSimulator()
 void AutonomousSystem::connectPCsSignalsToSimulator(PCPtr_t pc)
 {
     QObject::connect(pc.get(), &PC::dhcpIsDone, Simulator::instance(), &Simulator::routerIsDone);
+    QObject::connect(pc.get(),
+                     &PC::packetReceived,
+                     Simulator::instance(),
+                     &Simulator::storeSentPacket);
     QObject::connect(EventsCoordinator::instance(),
                      &EventsCoordinator::nextTick,
                      pc.get(),
