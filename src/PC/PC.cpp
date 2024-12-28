@@ -116,10 +116,9 @@ void PC::handleControlPacket(const PacketPtr_t &data){
 
 void PC::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
+    Q_EMIT packetReceived(data);
     if (data->packetType() == UT::PacketType::Control){
         handleControlPacket(data);
-    } else {
-        Q_EMIT packetReceived(data);
     }
 }
 
