@@ -196,9 +196,12 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 {
     if (data->ipHeader()->ttl() <= 0)
         return;
+    if (broken && !data->isDHCPPacket())
+        return;
 
     data->ipHeader()->decTTL();
-    if (data->packetType() == UT::PacketType::Control && (!broken || data->isDHCPPacket())) {
+    data->addToPath(m_IP->toString());
+    if (data->packetType() == UT::PacketType::Control) {
         Q_EMIT packetReceived(data);
         handleControlPacket(data, portNumber);
     } else if (!broken)
