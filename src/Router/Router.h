@@ -18,7 +18,7 @@ public:
     explicit Router(int id,
                     MACAddress macAddress,
                     int portCount = 6,
-                    int bufferSize = 6,
+                    int bufferSize = 1000,
                     QObject *parent = nullptr);
     ~Router();
 
@@ -35,7 +35,7 @@ public:
 public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;
     void receivePacket(const PacketPtr_t &data, uint8_t portNumber) override;
-    void addNewPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort);
+    void addPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort);
     void routingIsDone();
 
 Q_SIGNALS:

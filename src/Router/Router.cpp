@@ -50,7 +50,7 @@ void Router::initializeRoutingProtocol()
     connect(routingProtocol,
             &RoutingProtocol::newRoutingPacket,
             this,
-            &Router::addNewPacketTobBuffer);
+            &Router::addPacketTobBuffer);
     connect(routingProtocol, &RoutingProtocol::noUpdateAtRoutingTable, this, &Router::routingIsDone);
 }
 
@@ -123,12 +123,20 @@ void Router::setAsDHCPServer(QString ipRange)
     QObject::connect(dhcpServer.get(),
                      &DHCPServer::newPacket,
                      this,
-                     &Router::addNewPacketTobBuffer);
+                     &Router::addPacketTobBuffer);
 }
 
-void Router::addNewPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort){
-    if (m_IP)
-        packet->ipHeader()->setSourceIp(m_IP);
+void Router::addPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort){
+    if (buffer.size() + 1 > maxBufferSize){
+        qDebug() << maxBufferSize;
+        if (packet->packetType() == UT::PacketType::Control){
+            buffer.removeLast();
+            buffer.push_front(qMakePair(packet, triggeringPort));
+        }
+        return;
+    }
+    // if (buffer.size() > 1000)
+    // //qDebug() << buffer.size();
     buffer.append(qMakePair(packet, triggeringPort));
 }
 
@@ -200,12 +208,13 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
         return;
 
     data->ipHeader()->decTTL();
-    data->addToPath(m_IP->toString());
+    if (m_IP)
+        data->addToPath(m_IP->toString());
     if (data->packetType() == UT::PacketType::Control) {
         Q_EMIT packetReceived(data);
         handleControlPacket(data, portNumber);
     } else if (!broken)
-        buffer.append(qMakePair(data, ports[portNumber - 1]));
+        addPacketTobBuffer(data, ports[portNumber - 1]);
 }
 
 void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
@@ -213,7 +222,7 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
         if (isDHCPServer()){
             dhcpServer->handleDiscoveryPacket(data);
         } else if (data->payload().toInt() != m_id) {
-            buffer.append(qMakePair(data, ports[portNumber - 1]));
+            addPacketTobBuffer(data, ports[portNumber - 1]);
         }
     }
     else if (data->controlType() == UT::PacketControlType::DHCPOffer){
@@ -224,7 +233,7 @@ void Router::handleControlPacket(const PacketPtr_t &data, uint8_t portNumber){
             dhcpServer->handleRequestPacket(data);
         } else {
             if (m_IP == nullptr || *m_IP != *data->ipHeader()->sourceIp())
-                buffer.append(qMakePair(data, ports[portNumber - 1]));
+                addPacketTobBuffer(data, ports[portNumber - 1]);
         }
     }
     else if (data->controlType() == UT::PacketControlType::DHCPAcknowledge){
@@ -281,7 +290,7 @@ void Router::handleResponsePacket(const PacketPtr_t &packet, PortPtr_t triggerin
 
 void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeringPort)
 {
-    buffer.append(qMakePair(packet, triggeringPort));
+    addPacketTobBuffer(packet, triggeringPort);
 }
 
 void Router::routingIsDone()
