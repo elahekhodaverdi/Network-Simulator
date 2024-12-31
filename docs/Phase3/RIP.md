@@ -29,7 +29,3 @@ The `RIP` class implements the Routing Information Protocol (RIP), a distance-ve
 7. **`convertDistanceVectorToJson`:** Converts the distance vector to a JSON format for inclusion in RIP packets.
 
 8. **`convertToDistanceVector`:** Converts a JSON payload from a RIP packet into a distance vector map. 
-
----
-
-This report summarizes the `RIP` class, outlining its key fields, signals, and methods while emphasizing its role in implementing RIP within the simulation.
