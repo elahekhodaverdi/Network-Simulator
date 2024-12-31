@@ -76,7 +76,7 @@ This formula allows us to generate a random value $x$ following the Pareto distr
 - $\alpha$: The shape parameter.
 
 
-## Event Coordinator System  
+## **Event Coordinator System**  
 
 The **`EventsCoordinator`** class is the backbone of this project, managing the simulation of events and distributing data across PCs at defined intervals.  
 
@@ -90,14 +90,23 @@ The header file defines the structure of the `EventsCoordinator` class:
   - `m_intervalMs`: The time (in milliseconds) between events.  
   - `m_durationMs`: The total duration (in milliseconds) for which the simulation will run.  
   - `m_dataArray`: A vector storing the number of data packets to send during each interval.  
-  - `m_pcs`: A vector of `PC` objects that receive data.  
+  - `m_pcs`: A `QVector` of `PC` shared pointers that represent the PCs receiving data.  
   - `m_dataGenerator`: An instance of the `DataGenerator` class, used to generate packet counts.  
+  - `m_numExecutionCycles`: An `int` to count the number of execution cycles completed.  
+  - `m_timer`: A `QSharedPointer` to a `QTimer` used for periodic execution.  
+  - `m_currentPhase`: The current operational phase of the simulation, represented as `UT::Phase`.  
+  - `ticksInCurrentPhase`: Tracks the number of ticks within the current phase.  
 
 - **Key Functions**:  
   - `startSimulation`: Prepares and begins the simulation.  
   - `stopSimulation`: Stops the simulation gracefully.  
   - `run`: The main function executed by the thread to manage events.  
+  - `runExecutionCycle`: Handles a single execution cycle of the simulation.  
+  - `onTimerTick`: Processes timer events and manages phase-based logic.  
+  - `changePhase`: Changes the operational phase of the system.  
+  - `phaseToString`: Converts `UT::Phase` values to their string representations.  
   - `instance` and `release`: Manage the lifecycle of the singleton instance.  
+  - Setter functions: `setIntervalMs`, `setDurationMs`, and `setPcs` allow configuration of simulation parameters.  
 
 
 ### **Source File Explanation**  
@@ -147,7 +156,6 @@ EventsCoordinator::~EventsCoordinator()
   {
       delete m_self;
       m_self = nullptr;
-      qDebug() << "done";
   }
   ```
   - Deletes the singleton instance and sets the pointer to `nullptr`.  
@@ -158,51 +166,44 @@ EventsCoordinator::~EventsCoordinator()
 This is where the simulation setup happens:  
 
 ```cpp
-void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QVector<QSharedPointer<PC>> &pcs)
+void EventsCoordinator::startSimulation()
 {
-    m_intervalMs = intervalMs;
-    m_durationMs = durationMs;
-    m_pcs = pcs;
-    m_dataArray.assign(durationMs / intervalMs, 0);
+    m_dataArray.assign(m_durationMs / m_intervalMs, 0);
+    size_t TOTAL_PACKETS = m_dataArray.size();
+    std::fill(m_dataArray.begin(), m_dataArray.end(), 0);
+
+    for (size_t i = 0; i < TOTAL_PACKETS; ++i) {
+        while (true){
+            size_t generatedData = m_dataGenerator->generateParetoPacketCounts(1) - 1;
+            if (generatedData >= m_dataArray.size() || m_dataArray[generatedData] >= m_pcs.size()){
+                continue;
+            }
+            m_dataArray[generatedData] += 1;
+            break;
+        }
+    }
+    int totalPackets = 0;
+    QString res = "";
+    for (size_t i = 0; i < m_dataArray.size(); ++i) {
+        res += ":" + QString::number(m_dataArray[i]);
+        totalPackets += m_dataArray[i];
+    }
+    qDebug() << totalPackets << "Number of Packets in each Cycle: " << res;
+
+    m_running = true;
+    start();
 }
 ```
 
 1. **Initialize Parameters**:  
-   - `m_intervalMs` and `m_durationMs` store the timing configurations.  
-   - `m_pcs` is a list of PCs that will receive data.  
-   - `m_dataArray` is resized to hold the number of intervals and initialized to zero.  
+   - Prepares `m_dataArray` to store packet counts for each interval.  
+   - Uses a Pareto distribution to generate packet counts while avoiding overload.  
 
-2. **Data Distribution Logic**:  
-   ```cpp
-   size_t TOTAL_PACKETS = m_dataArray.size();
-   for (size_t i = 0; i < TOTAL_PACKETS; ++i) {
-       while (true) {
-           size_t generatedData = m_dataGenerator->generateParetoPacketCounts(1) - 1;
-           if (generatedData >= m_dataArray.size() || m_dataArray[generatedData] >= m_pcs.size()) {
-               continue;
-           }
-           m_dataArray[generatedData] += 1;
-           break;
-       }
-   }
-   ```
-   - `TOTAL_PACKETS` determines the total number of time intervals.  
-   - For each interval, it generates a random data packet count using Pareto distribution.  
-   - **Conditions**:  
-     - `generatedData >= m_dataArray.size()`: Ensures the index is within bounds.  
-     - `m_dataArray[generatedData] >= m_pcs.size()`: Ensures no single PC is overloaded.  
+2. **Debugging Output**:  
+   - Outputs the packet distribution for testing purposes.  
 
-3. **Debugging Output(For Testing)**:  
-   ```cpp
-   QString res = "";
-   for (size_t i = 0; i < m_dataArray.size(); ++i) {
-       res += ":" + QString::number(m_dataArray[i]);
-   }
-   qDebug() << "Number of Packets in each Cycle:" <<  res;
-   ```
-   - Displays the data distribution for test and debugging.  
-
-4. Starts the thread by setting `m_running` to `true` and calling `start()`.  
+3. **Starts the thread**:  
+   - Sets `m_running` to `true` and begins thread execution.  
 
 
 #### **`stopSimulation` Function**  
@@ -211,58 +212,93 @@ void EventsCoordinator::startSimulation(int intervalMs, int durationMs, const QV
 void EventsCoordinator::stopSimulation()
 {
     m_running = false;
+    if (m_timer) {
+        m_timer->stop();
+    }
     wait();
+    Q_EMIT executionIsDone();
 }
 ```
 
-- Stops the simulation and ensures the thread completes its work before exiting.  
+- Stops the simulation, halts the timer, and signals completion.  
 
 
 #### **`run` Function**  
 
-The `run` function is the heart of the simulation:  
-
 ```cpp
 void EventsCoordinator::run()
 {
-    int cycleCount = m_durationMs / m_intervalMs;
-    for (int i = 0; i < cycleCount && m_running; ++i) {
-        QVector<QSharedPointer<PC>> selectedPCs;
-        if (m_dataArray[i] > 0) {
-            std::vector<int> indices(m_pcs.size());
-            std::iota(indices.begin(), indices.end(), 0);
-            std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
-            for (int j = 0; j < m_dataArray[i]; ++j) {
-                selectedPCs.push_back(m_pcs[indices[j]]);
-            }
-        }
-        Q_EMIT nextTick(selectedPCs);
-        QThread::msleep(m_intervalMs);
-    }
+    m_timer = QSharedPointer<QTimer>::create();
+    connect(m_timer.get(), &QTimer::timeout, this, &EventsCoordinator::onTimerTick);
+
+    m_timer->start(m_intervalMs);
+
+    exec();
 }
 ```
 
-1. **Calculate Cycles**:  
-   - `cycleCount` determines how many intervals will run during the simulation.  
+- Creates and starts a timer to handle periodic execution.  
+- Enters an event loop to process timer ticks.  
 
-2. **Select PCs**:  
-   - If `m_dataArray[i] > 0`, it means there is data to distribute in this interval.  
-   - Shuffles the indices of PCs to randomize selection.  
-   - Picks PCs based on the data count for that interval.  
 
-3. **Emit Signal**:  
-   - Emits the `nextTick` signal with the selected PCs for that interval.  
+#### **`runExecutionCycle` Function**  
 
-4. **Delay**:  
-   - Waits for `m_intervalMs` milliseconds before moving to the next interval.  
+```cpp
+void EventsCoordinator::runExecutionCycle()
+{
+    if (!m_running || m_numExecutionCycles >= (m_durationMs / m_intervalMs)) {
+        Q_EMIT executionIsDone();
+        return;
+    }
+    QVector<PCPtr_t> selectedPCs;
+    if (m_dataArray[m_numExecutionCycles] > 0) {
+        std::vector<int> indices(m_pcs.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::shuffle(indices.begin(), indices.end(), std::mt19937{std::random_device{}()});
+        for (int j = 0; j < m_dataArray[m_numExecutionCycles]; ++j) {
+            selectedPCs.push_back(m_pcs[indices[j]]);
+        }
+    }
+    Q_EMIT newPacket(selectedPCs);
+    ++m_numExecutionCycles;
+}
+```
+
+- Executes a single cycle by selecting PCs to receive packets and emitting a signal.  
+
+
+#### **`onTimerTick` Function**  
+
+```cpp
+void EventsCoordinator::onTimerTick()
+{
+    ticksInCurrentPhase++;
+    switch (m_currentPhase) {
+    case UT::Phase::IdentifyNeighbours:
+        if (ticksInCurrentPhase >= 2) {
+            Q_EMIT neighboursDetectionIsDone();
+        }
+        break;
+    case UT::Phase::Execution:
+        runExecutionCycle();
+    default:
+        break;
+    }
+
+    Q_EMIT nextTick(m_currentPhase);
+}
+```
+
+- Handles periodic tasks based on the current phase.  
 
 
 ### **Code Flow Summary**  
 
 1. The `startSimulation` function prepares the simulation by initializing variables and distributing data.  
-2. The thread begins running the `run` function.  
-3. At each interval, it selects PCs and sends data to them using signals.  
-4. The simulation continues until the total duration is completed or `stopSimulation` is called.  
+2. The thread begins running the `run` function, which starts the timer.  
+3. The `onTimerTick` function processes timer events and triggers phase-specific logic.  
+4. Data packets are distributed during execution cycles, and results are sent using signals.  
+5. The simulation continues until the duration is completed or `stopSimulation` is called.  
 
 
 
