@@ -58,7 +58,6 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
 
     currentPhase = nextPhase;
     numOfRoutersDone = 0;
-    qDebug() << "current phase" << phaseToString(currentPhase);
     switch (currentPhase) {
         case UT::Phase::Start:
             start();
@@ -94,17 +93,6 @@ void Simulator::start()
     eventsCoordinator->setPcs(network.PCs);
     Q_EMIT phaseChanged(UT::Phase::Start);
     goToNextPhase(UT::Phase::DHCP);
-}
-
-void Simulator::startDHCP() {}
-
-void Simulator::startIdentifyingNeighbours() {}
-
-void Simulator::startRouting() {}
-
-void Simulator::execution()
-{
-
 }
 
 void Simulator::analysis()
@@ -150,25 +138,4 @@ void Simulator::storeSentPacket(const PacketPtr_t &packet)
 void Simulator::incNumOfPackets(int num)
 {
     numOfPackets += num;
-}
-QString Simulator::phaseToString(UT::Phase phase)
-{
-    switch (phase) {
-    case UT::Phase::Idle:
-        return "Idle";
-    case UT::Phase::Start:
-        return "Start";
-    case UT::Phase::DHCP:
-        return "DHCP";
-    case UT::Phase::IdentifyNeighbours:
-        return "IdentifyNeighbours";
-    case UT::Phase::Routing:
-        return "Routing";
-    case UT::Phase::Execution:
-        return "Execution";
-    case UT::Phase::Analysis:
-        return "Analysis";
-    default:
-        return "Unknown";
-    }
 }

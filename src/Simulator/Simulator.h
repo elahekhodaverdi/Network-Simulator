@@ -45,13 +45,8 @@ private:
     int numOfPackets{0};
     void goToNextPhase(UT::Phase nextPhase);
     void start();
-    void startDHCP();
-    void startIdentifyingNeighbours();
-    void startRouting();
-    void execution();
     void analysis();
 
-    QString phaseToString(UT::Phase phase);
 };
 
 #endif // SIMULATOR_H
