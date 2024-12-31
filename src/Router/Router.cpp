@@ -127,16 +127,9 @@ void Router::setAsDHCPServer(QString ipRange)
 }
 
 void Router::addPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort){
-    if (buffer.size() + 1 > maxBufferSize){
-        qDebug() << maxBufferSize;
-        if (packet->packetType() == UT::PacketType::Control){
-            buffer.removeLast();
-            buffer.push_front(qMakePair(packet, triggeringPort));
-        }
+    if (buffer.size() + 1 > maxBufferSize && packet->packetType() == UT::PacketType::Data){
         return;
     }
-    // if (buffer.size() > 1000)
-    // //qDebug() << buffer.size();
     buffer.append(qMakePair(packet, triggeringPort));
 }
 
