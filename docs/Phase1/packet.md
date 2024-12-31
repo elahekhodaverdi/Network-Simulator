@@ -20,7 +20,7 @@ The `Packet` class represents a network packet and provides methods to manipulat
    - Initializes a `Packet` object with a given `DataLinkHeader`.
    - Sets `m_totalCycles` and `m_waitingCycles` to zero.
 
-### Method Explanations
+### Method  
 
 1. **`addToPath(QString ip)`**
    - Adds an IP address to the packet's path.

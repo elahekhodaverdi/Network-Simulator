@@ -20,7 +20,6 @@ The `Simulator` class is a singleton responsible for managing the entire simulat
 
 - **`phaseChanged(UT::Phase nextPhase)`**: Emitted when the simulation moves to a new phase.
 
-
 ### Slots
 
 1. **`routerIsDone()`**: Updates the number of completed routers for the current phase and transitions to the next phase if conditions are met.
@@ -29,8 +28,7 @@ The `Simulator` class is a singleton responsible for managing the entire simulat
 4. **`incNumOfPackets(int num)`**: Increments the total packet count by the specified number.
 5. **`storeSentPacket(const PacketPtr_t &packet)`**: Stores a sent packet for tracking and analysis purposes.
 
-
-### Methods
+### Methods Explanations
 
 1. **Public Methods**
 

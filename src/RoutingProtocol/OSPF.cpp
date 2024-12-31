@@ -67,7 +67,6 @@ void OSPF::processLSA(const LinkStateAdvertisement &lsa)
 }
 void OSPF::recomputeRoutingTable()
 {
-    QSet<IPv4Ptr_t> visited;
     QMap<IPv4Ptr_t, int> shortestPaths;
     QMap<IPv4Ptr_t, IPv4Ptr_t> nextHops;
 
