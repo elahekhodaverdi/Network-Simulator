@@ -127,8 +127,13 @@ void Router::setAsDHCPServer(QString ipRange)
 }
 
 void Router::addPacketTobBuffer(PacketPtr_t packet, PortPtr_t triggeringPort){
-    if (buffer.size() + 1 > maxBufferSize && packet->packetType() == UT::PacketType::Data){
+    if (m_currentPhase == UT::Phase::Execution && buffer.size() + 1 > maxBufferSize){
         return;
+    }
+    if (m_IP){
+        if (packet->path().contains(m_IP->toString()))
+            return;
+        packet->addToPath(m_IP->toString());
     }
     buffer.append(qMakePair(packet, triggeringPort));
 }
@@ -201,8 +206,6 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
         return;
 
     data->ipHeader()->decTTL();
-    if (m_IP)
-        data->addToPath(m_IP->toString());
     if (data->packetType() == UT::PacketType::Control) {
         Q_EMIT packetReceived(data);
         handleControlPacket(data, portNumber);
