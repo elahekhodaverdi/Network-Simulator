@@ -1,50 +1,45 @@
+## Network Class
 
-## **Network Class**
+The `Network` class models the simulation network, managing its autonomous systems (AS), PCs, and providing utility functions for router statistics.
 
-The `Network` class models the overall simulation network, managing autonomous systems (AS), events coordination, and other components.
+### Fields
 
-### **Fields**
-1. **Static Fields:**
-   - `PCs`: List of all PCs in the network.
-   - `simulationConfig`: The simulation configuration object.
-   - `autonomousSystems`: List of autonomous systems in the network.
-   - `eventsCoordinator`: Pointer to the events coordinator.
+1. **Static Fields**
+   - **`PCs`**: A `QList` containing pointers to all PCs in the network.
+   - **`autonomousSystems`**: A `QList` containing pointers to all autonomous systems in the network.
 
 ### **Methods Explanation**
 
-1. **Constructors**
-    - **Default Constructor:**
-        - Initializes the `eventsCoordinator` singleton.
+#### **Constructors**
 
-        ```cpp
-        Network::Network()
-        {
-            eventsCoordinator = EventsCoordinator::instance();
-        }
-        ```
+1. **Default Constructor**
 
-    - **Destructor:**
-        - Releases the events coordinator.
+2. **Destructor**
 
-        ```cpp
-        Network::~Network()
-        {
-            eventsCoordinator->release();
-        }
-        ```
+#### **Static Methods**
 
-2. **`findASById`**
+1. **`findASById`**
+   - Searches for and retrieves an autonomous system by its ID.
+   - Returns `nullptr` if no matching autonomous system is found.
 
-    - Searches for and retrieves an autonomous system by its ID.
-    - Returns `nullptr` if the AS is not found.
+2. **`getAllRoutersIPs`**
+   - Collects and returns a list of all router IPs across the autonomous systems.
 
-    ```cpp
-    AutonomousSystemPtr_t Network::findASById(int id);
-    ```
+   ```cpp
+   QList<IPv4Ptr_t> Network::getAllRoutersIPs()
+   {
+       QList<IPv4Ptr_t> allRoutersIPs;
+       for (AutonomousSystemPtr_t AS : autonomousSystems) {
+           allRoutersIPs.append(AS->getAllRoutersIPs());
+       }
+       return allRoutersIPs;
+   }
+   ```
 
-3. **`run`**
+3. **`numOfRouters`**
 
-    - Initializes and runs the network simulation:
-        - Reads the configuration from a JSON file.
-        - Starts the simulation with parameters from `SimulationConfig`.
+Calculates and returns the total number of routers in all autonomous systems.
 
+4. **`numOfBrokenRouters`**
+
+Calculates and returns the total number of broken routers across all autonomous systems.

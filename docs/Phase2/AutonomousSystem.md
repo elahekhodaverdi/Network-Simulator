@@ -24,7 +24,6 @@ The `AutonomousSystem` class models a networked autonomous system, encapsulating
 
 - **`routers`**: Contains all routers within the autonomous system.
 
-
 ### Methods Explanations
 
 1. **Constructors**

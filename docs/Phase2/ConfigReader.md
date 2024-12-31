@@ -5,13 +5,13 @@
 The **ConfigReader** class is a utility designed to read and parse configuration files, specifically for setting up network simulations. It processes JSON-formatted files to extract simulation settings and build autonomous systems.
 
 ### Fields
+
 All methods in this class are static, ensuring they are accessible without instantiating the class.
 
 ### Method Explanations
 
 1. **`readJson`**
     - Reads a JSON file and validates its format.
-
 
 2. **`readNetworkConfig`**
     - Main entry point for reading and processing the network configuration.
