@@ -212,22 +212,52 @@ void Simulator::reset()
 {
     // packetsSent.clear();
     qDebug() << "Reseting the process";
+    lastCommandFilePosition = 0;
     network.reset();
 }
 
 void Simulator::calculatePacketLoss()
 {
-    qDebug() << "Calculating packet loss.";
+    qDebug() << "We have" << (packetsSent.size() / numOfPackets) << "percentage packet loss.";
 }
 
 void Simulator::calculateAverageHopCount()
 {
-    qDebug() << "Calculating average hop count.";
+    double sum = 0;
+    for (PacketPtr_t packet : packetsSent)
+        sum += packet->path().size();
+    qDebug() << "Average hop count is equal to:" << (sum / packetsSent.size());
 }
 
 void Simulator::calculateWaitingCyclesStats()
 {
-    qDebug() << "Calculating waiting cycles stats.";
+    if (packetsSent.isEmpty()) {
+        qDebug() << "No packets available for statistics.";
+        return;
+    }
+
+    qint64 totalWaitingCycles = 0;
+    int minWaitingCycles = INT_MAX;
+    int maxWaitingCycles = INT_MIN;
+
+    for (PacketPtr_t packet : packetsSent) {
+        int waitingCycles = packet->waitingCycles();
+        totalWaitingCycles += waitingCycles;
+
+        if (waitingCycles < minWaitingCycles) {
+            minWaitingCycles = waitingCycles;
+        }
+        if (waitingCycles > maxWaitingCycles) {
+            maxWaitingCycles = waitingCycles;
+        }
+    }
+
+    double averageWaitingCycles = static_cast<double>(totalWaitingCycles) / packetsSent.size();
+
+    qDebug() << "Total Waiting Cycles:" << totalWaitingCycles;
+    qDebug() << "Minimum Waiting Cycles:" << minWaitingCycles;
+    qDebug() << "Maximum Waiting Cycles:" << maxWaitingCycles;
+    qDebug() << "Average Waiting Cycles:" << averageWaitingCycles;
 }
 
 void Simulator::printRoutingTable(const QString &routerId)
@@ -237,6 +267,7 @@ void Simulator::printRoutingTable(const QString &routerId)
 
 void Simulator::listUsedRouters()
 {
+    // network.getAllRoutersIPs()
     qDebug() << "Listing used routers.";
 }
 
