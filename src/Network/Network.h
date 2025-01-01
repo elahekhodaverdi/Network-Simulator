@@ -14,6 +14,7 @@ public:
     static QList<IPv4Ptr_t> getAllRoutersIPs();
     static int numOfRouters();
     static int numOfBrokenRouters();
+    static void reset();
 
 public:
     static QList<PCPtr_t> PCs;

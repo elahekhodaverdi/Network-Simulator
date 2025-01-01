@@ -14,6 +14,58 @@ AutonomousSystem::AutonomousSystem(int asId, UT::TopologyType type)
     , topologyType(type)
 {}
 
+AutonomousSystem::~AutonomousSystem()
+{
+    qDebug() << " -----------------";
+    for (RouterPtr_t gateway : asGateways) {
+        if (!gateway.isNull())
+            gateway.clear();
+    }
+    asGateways.clear();
+    qDebug() << "AutonomousSystem AS gateways cleaned up.";
+
+    for (RouterPtr_t gateway : userGateways) {
+        if (!gateway.isNull())
+            gateway.clear();
+    }
+    qDebug() << "AutonomousSystem User gateways cleaned up.";
+
+    userGateways.clear();
+
+    if (!dhcpServer.isNull())
+        dhcpServer.clear();
+
+    for (RouterPtr_t brokenRouter : brokenRouters) {
+        if (!brokenRouter.isNull())
+            brokenRouter.clear();
+    }
+    brokenRouters.clear();
+    qDebug() << "AutonomousSystem broken routers cleaned up.";
+
+    for (QPair<RouterPtr_t, QList<PCPtr_t>> connection : connections) {
+        if (!connection.first.isNull())
+            connection.first.clear();
+        for (PCPtr_t pc : connection.second) {
+            if (!pc.isNull())
+                pc.clear();
+        }
+        connection.second.clear();
+    }
+    qDebug() << "AutonomousSystem connection cleaned up.";
+
+    connections.clear();
+    qDebug() << " idk";
+    for (RouterPtr_t router : routers) {
+        qDebug() << "here in loop for router" << router->getId();
+        if (!router.isNull())
+            router.clear();
+    }
+    qDebug() << "idk2";
+    routers.clear();
+    qDebug() << "idk3";
+    qDebug() << "AutonomousSystem resources cleaned up.";
+}
+
 int AutonomousSystem::getID() const
 {
     return id;
@@ -59,7 +111,7 @@ void AutonomousSystem::setDHCPServer(int dhcpId)
     RouterPtr_t router = findRouterById(dhcpId);
     if (router) {
         dhcpServer = router;
-        QString ipRange = QString("192.168.%100.").arg(id);
+        QString ipRange = QString("192.168.%1.").arg(id * 100);
         router->setAsDHCPServer(ipRange);
     } else {
         qWarning() << "DHCP Server with ID" << dhcpId << "not found in the list of routers.";

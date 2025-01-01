@@ -26,6 +26,19 @@ Simulator::Simulator(QObject *parent)
         eventsCoordinator.reset(EventsCoordinator::instance());
     }
 
+    // if (!commandFile.exists()) {
+    //     qDebug() << "Error: Command file does not exist.";
+    //     return;
+    // }
+
+    // if (!commandFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    //     qDebug() << "Error: Unable to open command file.";
+    //     return;
+    // }
+
+    // commandStream.setDevice(&commandFile);
+    // isFileOpen = true;
+
     QObject::connect(this,
                      &Simulator::phaseChanged,
                      eventsCoordinator.get(),
@@ -44,6 +57,10 @@ Simulator::Simulator(QObject *parent)
 Simulator::~Simulator()
 {
     eventsCoordinator.clear();
+    if (commandFile.isOpen()) {
+        commandFile.close();
+        qDebug() << "Command file closed.";
+    }
 }
 
 void Simulator::run()
@@ -63,19 +80,24 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
             start();
             break;
         case UT::Phase::DHCP:
+            qDebug() << "DHCP";
             Q_EMIT phaseChanged(UT::Phase::DHCP);
             break;
         case UT::Phase::IdentifyNeighbours:
+            qDebug() << "Identify";
             Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbours);
             break;
         case UT::Phase::Routing:
+            qDebug() << "Routing";
             Q_EMIT phaseChanged(UT::Phase::Routing);
             break;
         case UT::Phase::Execution:
+            qDebug() << "Execution";
             Q_EMIT phaseChanged(UT::Phase::Execution);
             break;
         case UT::Phase::Analysis:
-            analysis();
+            qDebug() << "Analysis";
+            reset();
             break;
         default:
             break;
@@ -93,11 +115,6 @@ void Simulator::start()
     eventsCoordinator->setPcs(network.PCs);
     Q_EMIT phaseChanged(UT::Phase::Start);
     goToNextPhase(UT::Phase::DHCP);
-}
-
-void Simulator::analysis()
-{
-    // TODO: Perform analysis on the simulation results
 }
 
 void Simulator::routerIsDone()
@@ -132,10 +149,103 @@ void Simulator::executionIsDone()
 void Simulator::storeSentPacket(const PacketPtr_t &packet)
 {
     packetsSent.append(packet);
-    qDebug() << "packet sent" << packetsSent.size();
+    // qDebug() << "packet sent" << packetsSent.size();
 }
 
 void Simulator::incNumOfPackets(int num)
 {
     numOfPackets += num;
+}
+
+void Simulator::analysis()
+{
+    if (!isFileOpen) {
+        qDebug() << "Error: Command file is not open.";
+        return;
+    }
+
+    commandStream.seek(lastCommandFilePosition);
+
+    while (!commandStream.atEnd()) {
+        QString commandLine = commandStream.readLine().trimmed();
+
+        if (commandLine.isEmpty()) {
+            continue;
+        }
+
+        qDebug() << "Processing command:" << commandLine;
+
+        if (commandLine == "Reset") {
+            qDebug() << "Simulation reset. Exiting analysis phase.";
+            lastCommandFilePosition = commandStream.pos();
+            reset();
+            return;
+        } else if (commandLine == "Packet-loss") {
+            calculatePacketLoss();
+        } else if (commandLine == "Hop-count-avg") {
+            calculateAverageHopCount();
+        } else if (commandLine == "Waiting-cycles-stat") {
+            calculateWaitingCyclesStats();
+        } else if (commandLine.startsWith("Print-routing-table")) {
+            QString routerId = commandLine.section(' ', 1, 1).trimmed();
+            printRoutingTable(routerId);
+        } else if (commandLine == "Used-routers") {
+            listUsedRouters();
+        } else if (commandLine == "Poor-routers") {
+            listPoorRouters();
+        } else if (commandLine == "Clean") {
+            exitSimulation();
+            return;
+        } else if (commandLine == "Exit") {
+            exitSimulation();
+            return;
+        } else {
+            qDebug() << "Unknown command";
+        }
+    }
+
+    lastCommandFilePosition = commandStream.pos();
+    qDebug() << "Finished processing all commands in the file.";
+}
+
+void Simulator::reset()
+{
+    // packetsSent.clear();
+    qDebug() << "Reseting the process";
+    network.reset();
+}
+
+void Simulator::calculatePacketLoss()
+{
+    qDebug() << "Calculating packet loss.";
+}
+
+void Simulator::calculateAverageHopCount()
+{
+    qDebug() << "Calculating average hop count.";
+}
+
+void Simulator::calculateWaitingCyclesStats()
+{
+    qDebug() << "Calculating waiting cycles stats.";
+}
+
+void Simulator::printRoutingTable(const QString &routerId)
+{
+    qDebug() << "Printing routing table for router:" << routerId;
+}
+
+void Simulator::listUsedRouters()
+{
+    qDebug() << "Listing used routers.";
+}
+
+void Simulator::listPoorRouters()
+{
+    qDebug() << "Listing poor routers.";
+}
+
+void Simulator::exitSimulation()
+{
+    qDebug() << "Exiting simulation.";
 }

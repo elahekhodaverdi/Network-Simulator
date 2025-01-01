@@ -12,6 +12,7 @@ class AutonomousSystem
 public:
     AutonomousSystem();
     AutonomousSystem(int asId, UT::TopologyType type);
+    ~AutonomousSystem();
     void build(QJsonObject config);
     int getID() const;
     QList<IPv4Ptr_t> getAllRoutersIPs();

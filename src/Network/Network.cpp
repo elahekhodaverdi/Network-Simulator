@@ -10,10 +10,7 @@ Network::Network()
     
 }
 
-Network::~Network()
-{
-        
-}
+Network::~Network() {}
 
 int Network::numOfRouters()
 {
@@ -51,4 +48,18 @@ QList<IPv4Ptr_t> Network::getAllRoutersIPs()
         allRoutersIPs.append(AS->getAllRoutersIPs());
     }
     return allRoutersIPs;
+}
+
+void Network::reset()
+{
+    qDebug() << "network reset";
+    for (PCPtr_t pc : PCs) {
+        pc.clear();
+    }
+    PCs.clear();
+    for (AutonomousSystemPtr_t as : autonomousSystems) {
+        as.clear();
+    }
+    qDebug() << "end of network reset";
+    autonomousSystems.clear();
 }

@@ -1,11 +1,12 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+#include <QFile>
 #include <QObject>
 #include <QSharedPointer>
 #include "../EventsCoordinator/EventsCoordinator.h"
-#include "../Network/Network.h"
 #include "../Globals/Globals.h"
+#include "../Network/Network.h"
 #include "../Network/SimulationConfig.h"
 
 class Simulator : public QObject
@@ -46,7 +47,19 @@ private:
     void goToNextPhase(UT::Phase nextPhase);
     void start();
     void analysis();
+    void reset();
+    void calculatePacketLoss();
+    void calculateAverageHopCount();
+    void calculateWaitingCyclesStats();
+    void printRoutingTable(const QString &routerId);
+    void listUsedRouters();
+    void listPoorRouters();
+    void exitSimulation();
 
+    QFile commandFile;
+    QTextStream commandStream;
+    qint64 lastCommandFilePosition = 0;
+    bool isFileOpen = false;
 };
 
 #endif // SIMULATOR_H

@@ -18,13 +18,19 @@ Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QOb
 
 Router::~Router()
 {
+    qDebug() << "Router dest start" << m_id;
     for (int i = 0; i < ports.size(); ++i) {
+        if (ports[i].isNull())
+            return;
         PortBindingManager::unbind(ports[i]);
         disconnect(ports[i].get(), &Port::packetReceived, this, &Router::receivePacket);
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
+        ports[i].clear();
     }
+    qDebug() << "Router dest middle" << m_id;
     this->quit();
     this->wait();
+    qDebug() << "Router dest end" << m_id;
 }
 
 void Router::connectPortsToSignals()
