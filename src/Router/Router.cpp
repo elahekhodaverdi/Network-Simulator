@@ -19,6 +19,8 @@ Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QOb
 Router::~Router()
 {
     qDebug() << "Router dest start" << m_id;
+    buffer.clear();
+    packetsToSend.clear();
     for (int i = 0; i < ports.size(); ++i) {
         if (ports[i].isNull())
             return;
@@ -27,6 +29,7 @@ Router::~Router()
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
         ports[i].clear();
     }
+    ports.clear();
     QObject::disconnect(EventsCoordinator::instance(),
                         &EventsCoordinator::nextTick,
                         this,
@@ -51,7 +54,7 @@ Router::~Router()
 void Router::connectPortsToSignals()
 {
     for (int i = 0; i < maxPorts; ++i) {
-        auto port = PortPtr_t::create(this);
+        auto port = PortPtr_t::create();
         port->setPortNumber(i + 1);
         ports.append(port);
         connect(port.get(), &Port::packetReceived, this, &Router::receivePacket);

@@ -57,8 +57,8 @@ void PortBindingManager::bind(const PortPtr_t &port1, const PortPtr_t &port2)
 
     bindings[port1].append(port2);
     bindings[port2].append(port1);
-    connect(port1.get(), &Port::packetSent, port2.get(), &Port::receivePacket);
-    connect(port2.get(), &Port::packetSent, port1.get(), &Port::receivePacket);
+    connect(port1.get(), &Port::packetSent, port2.get(), &Port::receivePacket, Qt::UniqueConnection);
+    connect(port2.get(), &Port::packetSent, port1.get(), &Port::receivePacket, Qt::UniqueConnection);
 }
 
 bool PortBindingManager::unbind(const PortPtr_t &port)

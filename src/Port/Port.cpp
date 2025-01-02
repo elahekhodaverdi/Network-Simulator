@@ -5,7 +5,6 @@ Port::Port(QObject *parent) :
 {}
 
 Port::~Port(){
-    qDebug() << "here";
 }
 
 void
