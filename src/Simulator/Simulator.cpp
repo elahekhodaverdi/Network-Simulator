@@ -193,6 +193,8 @@ void Simulator::analysis()
             listUsedRouters();
         } else if (commandLine == "Poor-routers") {
             listPoorRouters();
+        } else if (commandLine == "Poor-routers") {
+            listTopRouters();
         } else if (commandLine == "Clean") {
             exitSimulation();
             return;
@@ -278,7 +280,7 @@ void Simulator::listUsedRouters()
         }
     }
 
-    qDebug() << "List of routers used during the simulation:";
+    qDebug() << "List of routers used during the simulation:" << usedRouters.size();
     for (const QString &routerIp : usedRouters) {
         qDebug() << routerIp;
     }
@@ -306,7 +308,7 @@ void Simulator::listPoorRouters()
 
     QSet<QString> poorRouters = allRouters - usedRouters;
 
-    qDebug() << "List of poor routers (not used during the simulation):";
+    qDebug() << "List of poor routers (not used during the simulation):" << poorRouters.size();
     for (const QString &routerIp : poorRouters) {
         qDebug() << routerIp;
     }
@@ -315,4 +317,34 @@ void Simulator::listPoorRouters()
 void Simulator::exitSimulation()
 {
     qDebug() << "Exiting simulation.";
+}
+
+void Simulator::listTopRouters()
+{
+    QMap<QString, int> routerFrequency;
+    for (const PacketPtr_t &packet : packetsSent) {
+        if (packet) {
+            const QList<QString> &path = packet->path();
+            for (const QString &ip : path) {
+                routerFrequency[ip]++;
+            }
+        }
+    }
+
+    QList<QPair<QString, int>> frequencyList;
+    for (auto it = routerFrequency.begin(); it != routerFrequency.end(); ++it) {
+        frequencyList.append(qMakePair(it.key(), it.value()));
+    }
+
+    std::sort(frequencyList.begin(),
+              frequencyList.end(),
+              [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
+                  return a.second > b.second;
+              });
+
+    qDebug() << "Top 4 routers that delivered the most packets:";
+    for (int i = 0; i < qMin(4, frequencyList.size()); ++i) {
+        qDebug() << "Router:" << frequencyList[i].first
+                 << "- Delivered packets:" << frequencyList[i].second;
+    }
 }

@@ -54,6 +54,7 @@ private:
     void printRoutingTable(const QString &routerId);
     void listUsedRouters();
     void listPoorRouters();
+    void listTopRouters();
     void exitSimulation();
 
     QFile commandFile;
