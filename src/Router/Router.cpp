@@ -18,7 +18,6 @@ Router::Router(int id, MACAddress macAddress, int portCount, int bufferSize, QOb
 
 Router::~Router()
 {
-    qDebug() << "Router dest start" << m_id;
     buffer.clear();
     packetsToSend.clear();
     for (int i = 0; i < ports.size(); ++i) {
@@ -45,10 +44,8 @@ Router::~Router()
                          this,
                          &Router::addPacketTobBuffer);
     }
-    qDebug() << "Router dest middle" << m_id;
     this->quit();
     this->wait();
-    qDebug() << "Router dest end" << m_id;
 }
 
 void Router::connectPortsToSignals()

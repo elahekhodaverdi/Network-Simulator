@@ -153,3 +153,10 @@ QString EventsCoordinator::phaseToString(UT::Phase phase)
         return "Unknown";
     }
 }
+
+void EventsCoordinator::reset()
+{
+    m_running = false;
+    m_numExecutionCycles = 0;
+    ticksInCurrentPhase = 0;
+}

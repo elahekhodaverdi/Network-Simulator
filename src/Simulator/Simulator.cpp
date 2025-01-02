@@ -1,5 +1,7 @@
 #include "Simulator.h"
+#include <QCoreApplication>
 #include <QDir>
+#include "../Topology/TopologyBuilder.h"
 #include "../Utils/ConfigReader.h"
 
 SimulationConfig Simulator::simulationConfig;
@@ -74,13 +76,7 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
         Q_EMIT phaseChanged(UT::Phase::Execution);
         break;
     case UT::Phase::Analysis:
-        calculatePacketLoss();
-        calculateAverageHopCount();
-        calculateWaitingCyclesStats();
-        printRoutingTable("2");
-        listUsedRouters();
-        listPoorRouters();
-        listTopRouters();
+        analysis();
         break;
     default:
         break;
@@ -184,8 +180,11 @@ void Simulator::reset()
 {
     qDebug() << "Resetting simulation.";
     network.reset();
-    packetsSent.clear();
     numOfPackets = 0;
+    TopologyBuilder::reset();
+    EventsCoordinator::instance()->reset();
+    packetsSent.clear();
+    goToNextPhase(UT::Phase::Start);
 }
 
 void Simulator::calculatePacketLoss()
@@ -302,5 +301,7 @@ void Simulator::listTopRouters()
 
 void Simulator::exitSimulation()
 {
-    qDebug() << "Simulation ended.";
+    qDebug() << "Exiting simulation...";
+    EventsCoordinator::instance()->release();
+    QCoreApplication::quit();
 }

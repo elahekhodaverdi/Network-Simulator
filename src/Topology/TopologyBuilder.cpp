@@ -135,3 +135,8 @@ int TopologyBuilder::getRouterIndexAtMesh(int row, int col, int n)
 {
     return row * n + col;
 }
+
+void TopologyBuilder::reset()
+{
+    routersNum = 1;
+}

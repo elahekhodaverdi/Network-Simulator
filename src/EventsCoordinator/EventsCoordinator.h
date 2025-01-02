@@ -27,7 +27,7 @@ public:
     void setIntervalMs(int intervalMs);
     void setDurationMs(int durationMs);
     void setPcs(QVector<PCPtr_t> pcs);
-
+    void reset();
 
 Q_SIGNALS:
     void nextTick(UT::Phase currentPhase);

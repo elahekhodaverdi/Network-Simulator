@@ -52,7 +52,6 @@ QList<IPv4Ptr_t> Network::getAllRoutersIPs()
 
 void Network::reset()
 {
-    qDebug() << "network reset";
     for (PCPtr_t pc : PCs) {
         pc.clear();
     }
@@ -60,7 +59,6 @@ void Network::reset()
     for (AutonomousSystemPtr_t as : autonomousSystems) {
         as.clear();
     }
-    qDebug() << "end of network reset";
     autonomousSystems.clear();
 }
 

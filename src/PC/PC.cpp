@@ -22,7 +22,6 @@ PC::PC(int id, QObject *parent)
 
 PC::~PC()
 {
-    qDebug() << "PC dest";
     PortBindingManager::unbind(m_gateway);
     if (m_gateway && !m_gateway.isNull()) {
         disconnect(m_gateway.get(), &Port::packetReceived, this, &PC::receivePacket);

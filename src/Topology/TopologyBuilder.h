@@ -9,6 +9,7 @@ class TopologyBuilder
 public:
     TopologyBuilder();
     static QList<RouterPtr_t> buildTopology(int nodeNumber, UT::TopologyType topologyType, int asID);
+    static void reset();
 
 private:
     static int routersNum;

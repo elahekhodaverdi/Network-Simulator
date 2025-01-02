@@ -23,7 +23,6 @@ QJsonObject ConfigReader::readJson(const QString &filePath)
         qWarning("Invalid JSON format.");
         return QJsonObject();
     }
-
     return doc.object();
 }
 

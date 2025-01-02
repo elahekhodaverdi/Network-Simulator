@@ -2,7 +2,7 @@ QT     += core
 CONFIG += lrelease
 CONFIG += no_keywords
 CONFIG += c++20
-
+CONFIG += console
 INCLUDEPATH += $$PWD\Globals
 
 SOURCES += \

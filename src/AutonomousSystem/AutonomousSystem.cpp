@@ -56,8 +56,6 @@ AutonomousSystem::~AutonomousSystem()
             router.clear();
     }
     routers.clear();
-    qDebug() << "idk3";
-    qDebug() << "AutonomousSystem resources cleaned up.";
 }
 
 int AutonomousSystem::getID() const
