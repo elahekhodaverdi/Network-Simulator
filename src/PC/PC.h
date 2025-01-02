@@ -22,6 +22,7 @@ public Q_SLOTS:
     void setShouldSendPacket(QVector<QSharedPointer<PC>> selectedPCs);
     void receivePacket(const PacketPtr_t &data, uint8_t port_number) override;
 Q_SIGNALS:
+    void packetsSent(int num);
 
 private:
     bool shouldSendNewPacket{false};

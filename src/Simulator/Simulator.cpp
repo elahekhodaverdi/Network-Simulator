@@ -74,7 +74,13 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
         Q_EMIT phaseChanged(UT::Phase::Execution);
         break;
     case UT::Phase::Analysis:
-        analysis();
+        calculatePacketLoss();
+        calculateAverageHopCount();
+        calculateWaitingCyclesStats();
+        printRoutingTable("2");
+        listUsedRouters();
+        listPoorRouters();
+        listTopRouters();
         break;
     default:
         break;
@@ -189,7 +195,8 @@ void Simulator::calculatePacketLoss()
         return;
     }
     qDebug() << "Packet loss percentage:"
-             << (100.0 * (numOfPackets - packetsSent.size()) / numOfPackets) << "%";
+             << (100.0 * (numOfPackets - packetsSent.size()) / numOfPackets) << "%"
+             << " Total packets:" << numOfPackets;
 }
 
 void Simulator::calculateAverageHopCount()
@@ -232,7 +239,9 @@ void Simulator::calculateWaitingCyclesStats()
 
 void Simulator::printRoutingTable(const QString &routerId)
 {
-    qDebug() << "Routing table for router:" << routerId;
+    qDebug() << "Routing table for router:" << routerId.toInt();
+    RouterPtr_t router = network.findRouterById(routerId.toInt());
+    router->printRoutingTable();
 }
 
 void Simulator::listUsedRouters()

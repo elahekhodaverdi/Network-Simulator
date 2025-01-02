@@ -60,6 +60,7 @@ void PC::handlePhaseChange(const UT::Phase nextPhase){
 void PC::sendNewPacket(){
     PacketPtr_t packet = createNewPacket();
     Q_EMIT newPacket(packet, m_gateway->getPortNumber());
+    Q_EMIT packetsSent(1);
 }
 
 

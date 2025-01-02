@@ -18,6 +18,7 @@ public:
     QList<IPv4Ptr_t> getAllRoutersIPs();
     int numOfRouters();
     int numOfBrokenRouters();
+    RouterPtr_t findRouterById(int id);
 
 private:
     int id;
@@ -31,7 +32,6 @@ private:
     QList<RouterPtr_t> routers;
 
 private:
-    RouterPtr_t findRouterById(int id);
     void setASGateaways(QJsonArray ASgateawayIds);
     void setUserGateaways(QJsonArray gateawayIds);
     void setDHCPServer(int dhcpId);

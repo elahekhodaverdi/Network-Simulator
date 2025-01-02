@@ -275,6 +275,7 @@ void AutonomousSystem::connectPCsSignalsToSimulator(PCPtr_t pc)
                      &PC::packetReceived,
                      Simulator::instance(),
                      &Simulator::storeSentPacket);
+    QObject::connect(pc.get(), &PC::packetsSent, Simulator::instance(), &Simulator::incNumOfPackets);
     QObject::connect(EventsCoordinator::instance(),
                      &EventsCoordinator::nextTick,
                      pc.get(),
@@ -292,6 +293,10 @@ void AutonomousSystem::disconnectPCsSignalsToSimulator(PCPtr_t pc)
                         &PC::packetReceived,
                         Simulator::instance(),
                         &Simulator::storeSentPacket);
+    QObject::disconnect(pc.get(),
+                        &PC::packetsSent,
+                        Simulator::instance(),
+                        &Simulator::incNumOfPackets);
     QObject::disconnect(EventsCoordinator::instance(),
                         &EventsCoordinator::nextTick,
                         pc.get(),

@@ -63,3 +63,14 @@ void Network::reset()
     qDebug() << "end of network reset";
     autonomousSystems.clear();
 }
+
+RouterPtr_t Network::findRouterById(int id)
+{
+    for (const AutonomousSystemPtr_t& as : autonomousSystems) {
+        RouterPtr_t router = as->findRouterById(id);
+        if (router != nullptr) {
+            return router;
+        }
+    }
+    return nullptr;
+}
