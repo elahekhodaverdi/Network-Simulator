@@ -213,7 +213,6 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
 
     data->ipHeader()->decTTL();
     if (data->packetType() == UT::PacketType::Control) {
-        Q_EMIT packetReceived(data);
         handleControlPacket(data, portNumber);
     } else if (!broken)
         addPacketTobBuffer(data, ports[portNumber - 1]);

@@ -267,13 +267,49 @@ void Simulator::printRoutingTable(const QString &routerId)
 
 void Simulator::listUsedRouters()
 {
-    // network.getAllRoutersIPs()
-    qDebug() << "Listing used routers.";
+    QSet<QString> usedRouters;
+
+    for (const PacketPtr_t &packet : packetsSent) {
+        if (packet) {
+            const QList<QString> &path = packet->path();
+            for (const QString &ip : path) {
+                usedRouters.insert(ip);
+            }
+        }
+    }
+
+    qDebug() << "List of routers used during the simulation:";
+    for (const QString &routerIp : usedRouters) {
+        qDebug() << routerIp;
+    }
 }
 
 void Simulator::listPoorRouters()
 {
-    qDebug() << "Listing poor routers.";
+    QList<IPv4Ptr_t> allRouterPtrs = network.getAllRoutersIPs();
+    QSet<QString> allRouters;
+    for (const IPv4Ptr_t &ipPtr : allRouterPtrs) {
+        if (ipPtr) {
+            allRouters.insert(ipPtr->toString());
+        }
+    }
+
+    QSet<QString> usedRouters;
+    for (const PacketPtr_t &packet : packetsSent) {
+        if (packet) {
+            const QList<QString> &path = packet->path();
+            for (const QString &ip : path) {
+                usedRouters.insert(ip);
+            }
+        }
+    }
+
+    QSet<QString> poorRouters = allRouters - usedRouters;
+
+    qDebug() << "List of poor routers (not used during the simulation):";
+    for (const QString &routerIp : poorRouters) {
+        qDebug() << routerIp;
+    }
 }
 
 void Simulator::exitSimulation()
