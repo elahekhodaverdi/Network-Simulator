@@ -4,6 +4,10 @@ Port::Port(QObject *parent) :
     QObject {parent}
 {}
 
+Port::~Port(){
+    qDebug() << "here";
+}
+
 void
 Port::sendPacket(const PacketPtr_t &data, uint8_t port_number)
 {

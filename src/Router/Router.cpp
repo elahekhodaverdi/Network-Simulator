@@ -31,6 +31,17 @@ Router::~Router()
                         &EventsCoordinator::nextTick,
                         this,
                         &Router::handleNewTick);
+    QObject::disconnect(routingProtocol, &RoutingProtocol::noUpdateAtRoutingTable, this, &Router::routingIsDone);
+    QObject::disconnect(routingProtocol,
+                     &RoutingProtocol::newRoutingPacket,
+                     this,
+                     &Router::addPacketTobBuffer);
+    if (isDHCPServer()){
+        QObject::disconnect(dhcpServer.get(),
+                         &DHCPServer::newPacket,
+                         this,
+                         &Router::addPacketTobBuffer);
+    }
     qDebug() << "Router dest middle" << m_id;
     this->quit();
     this->wait();

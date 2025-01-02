@@ -11,6 +11,7 @@ class Port : public QObject
 
 public:
     explicit Port(QObject *parent = nullptr);
+    ~Port();
     uint8_t getPortNumber();
     QString getRouterIP();
     bool isInterAsConnection();
