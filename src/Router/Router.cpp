@@ -27,6 +27,10 @@ Router::~Router()
         disconnect(this, &Router::newPacket, ports[i].get(), &Port::sendPacket);
         ports[i].clear();
     }
+    QObject::disconnect(EventsCoordinator::instance(),
+                        &EventsCoordinator::nextTick,
+                        this,
+                        &Router::handleNewTick);
     qDebug() << "Router dest middle" << m_id;
     this->quit();
     this->wait();

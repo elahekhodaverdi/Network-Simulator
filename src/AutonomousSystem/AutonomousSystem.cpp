@@ -16,20 +16,17 @@ AutonomousSystem::AutonomousSystem(int asId, UT::TopologyType type)
 
 AutonomousSystem::~AutonomousSystem()
 {
-    qDebug() << " -----------------";
+    disconnectRouterSignalsToSimulator();
     for (RouterPtr_t gateway : asGateways) {
         if (!gateway.isNull())
             gateway.clear();
     }
     asGateways.clear();
-    qDebug() << "AutonomousSystem AS gateways cleaned up.";
 
     for (RouterPtr_t gateway : userGateways) {
         if (!gateway.isNull())
             gateway.clear();
     }
-    qDebug() << "AutonomousSystem User gateways cleaned up.";
-
     userGateways.clear();
 
     if (!dhcpServer.isNull())
@@ -40,27 +37,24 @@ AutonomousSystem::~AutonomousSystem()
             brokenRouter.clear();
     }
     brokenRouters.clear();
-    qDebug() << "AutonomousSystem broken routers cleaned up.";
 
     for (QPair<RouterPtr_t, QList<PCPtr_t>> connection : connections) {
         if (!connection.first.isNull())
             connection.first.clear();
         for (PCPtr_t pc : connection.second) {
-            if (!pc.isNull())
+            if (!pc.isNull()) {
+                disconnectPCsSignalsToSimulator(pc);
                 pc.clear();
+            }
         }
         connection.second.clear();
     }
-    qDebug() << "AutonomousSystem connection cleaned up.";
 
     connections.clear();
-    qDebug() << " idk";
     for (RouterPtr_t router : routers) {
-        qDebug() << "here in loop for router" << router->getId();
         if (!router.isNull())
             router.clear();
     }
-    qDebug() << "idk2";
     routers.clear();
     qDebug() << "idk3";
     qDebug() << "AutonomousSystem resources cleaned up.";
@@ -262,6 +256,18 @@ void AutonomousSystem::connectRouterSignalsToSimulator()
     }
 }
 
+void AutonomousSystem::disconnectRouterSignalsToSimulator()
+{
+    Simulator* simulator = Simulator::instance();
+    for (RouterPtr_t& router : routers) {
+        QObject::disconnect(router.get(),
+                            &Router::routingProtocolIsDone,
+                            simulator,
+                            &Simulator::routerIsDone);
+        QObject::disconnect(router.get(), &Router::dhcpIsDone, simulator, &Simulator::routerIsDone);
+    }
+}
+
 void AutonomousSystem::connectPCsSignalsToSimulator(PCPtr_t pc)
 {
     QObject::connect(pc.get(), &PC::dhcpIsDone, Simulator::instance(), &Simulator::routerIsDone);
@@ -277,4 +283,21 @@ void AutonomousSystem::connectPCsSignalsToSimulator(PCPtr_t pc)
                      &EventsCoordinator::newPacket,
                      pc.get(),
                      &PC::setShouldSendPacket);
+}
+
+void AutonomousSystem::disconnectPCsSignalsToSimulator(PCPtr_t pc)
+{
+    QObject::disconnect(pc.get(), &PC::dhcpIsDone, Simulator::instance(), &Simulator::routerIsDone);
+    QObject::disconnect(pc.get(),
+                        &PC::packetReceived,
+                        Simulator::instance(),
+                        &Simulator::storeSentPacket);
+    QObject::disconnect(EventsCoordinator::instance(),
+                        &EventsCoordinator::nextTick,
+                        pc.get(),
+                        &PC::handleNewTick);
+    QObject::disconnect(EventsCoordinator::instance(),
+                        &EventsCoordinator::newPacket,
+                        pc.get(),
+                        &PC::setShouldSendPacket);
 }

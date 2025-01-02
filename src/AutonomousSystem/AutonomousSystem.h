@@ -39,7 +39,9 @@ private:
     void setGateways(QJsonArray gateways);
     void setConnectToAS(QJsonArray ASs);
     void connectRouterSignalsToSimulator();
+    void disconnectRouterSignalsToSimulator();
     void connectPCsSignalsToSimulator(PCPtr_t pc);
+    void disconnectPCsSignalsToSimulator(PCPtr_t pc);
 };
 
 typedef QSharedPointer<AutonomousSystem> AutonomousSystemPtr_t;
