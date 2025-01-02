@@ -1,6 +1,7 @@
 #include "Simulator.h"
 #include <QDir>
 #include "../Utils/ConfigReader.h"
+
 SimulationConfig Simulator::simulationConfig;
 
 Simulator *Simulator::instance(QObject *parent)
@@ -19,48 +20,28 @@ void Simulator::release()
 
 Simulator::Simulator(QObject *parent)
     : QObject(parent)
-    , numOfRoutersDone(0)
-    , currentPhase(UT::Phase::Idle)
 {
     if (!eventsCoordinator) {
         eventsCoordinator.reset(EventsCoordinator::instance());
     }
 
-    // if (!commandFile.exists()) {
-    //     qDebug() << "Error: Command file does not exist.";
-    //     return;
-    // }
-
-    // if (!commandFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    //     qDebug() << "Error: Unable to open command file.";
-    //     return;
-    // }
-
-    // commandStream.setDevice(&commandFile);
-    // isFileOpen = true;
-
-    QObject::connect(this,
-                     &Simulator::phaseChanged,
-                     eventsCoordinator.get(),
-                     &EventsCoordinator::changePhase);
-
-    QObject::connect(eventsCoordinator.get(),
-                     &EventsCoordinator::executionIsDone,
-                     this,
-                     &Simulator::executionIsDone);
-    QObject::connect(eventsCoordinator.get(),
-                     &EventsCoordinator::neighboursDetectionIsDone,
-                     this,
-                     &Simulator::neighboursIdentified);
+    connect(this,
+            &Simulator::phaseChanged,
+            eventsCoordinator.get(),
+            &EventsCoordinator::changePhase);
+    connect(eventsCoordinator.get(),
+            &EventsCoordinator::executionIsDone,
+            this,
+            &Simulator::executionIsDone);
+    connect(eventsCoordinator.get(),
+            &EventsCoordinator::neighboursDetectionIsDone,
+            this,
+            &Simulator::neighboursIdentified);
 }
 
 Simulator::~Simulator()
 {
     eventsCoordinator.clear();
-    if (commandFile.isOpen()) {
-        commandFile.close();
-        qDebug() << "Command file closed.";
-    }
 }
 
 void Simulator::run()
@@ -75,34 +56,29 @@ void Simulator::goToNextPhase(UT::Phase nextPhase)
 
     currentPhase = nextPhase;
     numOfRoutersDone = 0;
-    switch (currentPhase) {
-        case UT::Phase::Start:
-            start();
-            break;
-        case UT::Phase::DHCP:
-            qDebug() << "DHCP";
-            Q_EMIT phaseChanged(UT::Phase::DHCP);
-            break;
-        case UT::Phase::IdentifyNeighbours:
-            qDebug() << "Identify";
-            Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbours);
-            break;
-        case UT::Phase::Routing:
-            qDebug() << "Routing";
-            Q_EMIT phaseChanged(UT::Phase::Routing);
-            break;
-        case UT::Phase::Execution:
-            qDebug() << "Execution";
-            Q_EMIT phaseChanged(UT::Phase::Execution);
-            break;
-        case UT::Phase::Analysis:
-            qDebug() << "Analysis";
-            reset();
-            break;
-        default:
-            break;
-    }
 
+    switch (currentPhase) {
+    case UT::Phase::Start:
+        start();
+        break;
+    case UT::Phase::DHCP:
+        Q_EMIT phaseChanged(UT::Phase::DHCP);
+        break;
+    case UT::Phase::IdentifyNeighbours:
+        Q_EMIT phaseChanged(UT::Phase::IdentifyNeighbours);
+        break;
+    case UT::Phase::Routing:
+        Q_EMIT phaseChanged(UT::Phase::Routing);
+        break;
+    case UT::Phase::Execution:
+        Q_EMIT phaseChanged(UT::Phase::Execution);
+        break;
+    case UT::Phase::Analysis:
+        analysis();
+        break;
+    default:
+        break;
+    }
 }
 
 void Simulator::start()
@@ -110,9 +86,11 @@ void Simulator::start()
     QString projectDir = QString(PROJECT_DIR_PATH);
     QString configFilePath = QDir(projectDir).filePath("assets/config.json");
     ConfigReader::readNetworkConfig(configFilePath);
+
     eventsCoordinator->setDurationMs(simulationConfig.simulationDurationMs);
     eventsCoordinator->setIntervalMs(simulationConfig.cycleDurationMs);
     eventsCoordinator->setPcs(network.PCs);
+
     Q_EMIT phaseChanged(UT::Phase::Start);
     goToNextPhase(UT::Phase::DHCP);
 }
@@ -120,20 +98,16 @@ void Simulator::start()
 void Simulator::routerIsDone()
 {
     numOfRoutersDone++;
-
-    if (currentPhase == UT::Phase::Routing && numOfRoutersDone == 20)
-        qDebug() << "done" << numOfRoutersDone;
     if (currentPhase == UT::Phase::DHCP
-        && (numOfRoutersDone
-            >= (network.numOfRouters() + network.PCs.size() - network.autonomousSystems.size())))
+        && numOfRoutersDone
+               >= network.numOfRouters() + network.PCs.size() - network.autonomousSystems.size()) {
+        numOfRoutersDone = 0;
         goToNextPhase(UT::Phase::IdentifyNeighbours);
-
-    else if (currentPhase == UT::Phase::Routing
-             && numOfRoutersDone >= (network.numOfRouters() - network.numOfBrokenRouters()))
+    } else if (currentPhase == UT::Phase::Routing
+               && numOfRoutersDone >= network.numOfRouters() - network.numOfBrokenRouters()) {
+        numOfRoutersDone = 0;
         goToNextPhase(UT::Phase::Execution);
-    else
-        return;
-    numOfRoutersDone = 0;
+    }
 }
 
 void Simulator::neighboursIdentified()
@@ -149,7 +123,6 @@ void Simulator::executionIsDone()
 void Simulator::storeSentPacket(const PacketPtr_t &packet)
 {
     packetsSent.append(packet);
-    // qDebug() << "packet sent" << packetsSent.size();
 }
 
 void Simulator::incNumOfPackets(int num)
@@ -157,27 +130,27 @@ void Simulator::incNumOfPackets(int num)
     numOfPackets += num;
 }
 
+#include <QDebug>
+#include <QString>
+#include <iostream>
+
 void Simulator::analysis()
 {
-    if (!isFileOpen) {
-        qDebug() << "Error: Command file is not open.";
-        return;
-    }
+    std::string input;
+    while (true) {
+        qDebug() << "Enter command for analysis (or 'Exit' to end):";
+        std::getline(std::cin, input);
 
-    commandStream.seek(lastCommandFilePosition);
-
-    while (!commandStream.atEnd()) {
-        QString commandLine = commandStream.readLine().trimmed();
+        QString commandLine = QString::fromStdString(input).trimmed();
 
         if (commandLine.isEmpty()) {
             continue;
         }
 
-        qDebug() << "Processing command:" << commandLine;
-
-        if (commandLine == "Reset") {
-            qDebug() << "Simulation reset. Exiting analysis phase.";
-            lastCommandFilePosition = commandStream.pos();
+        if (commandLine == "Exit") {
+            exitSimulation();
+            return;
+        } else if (commandLine == "Reset") {
             reset();
             return;
         } else if (commandLine == "Packet-loss") {
@@ -193,42 +166,45 @@ void Simulator::analysis()
             listUsedRouters();
         } else if (commandLine == "Poor-routers") {
             listPoorRouters();
-        } else if (commandLine == "Poor-routers") {
+        } else if (commandLine == "Top-routers") {
             listTopRouters();
-        } else if (commandLine == "Clean") {
-            exitSimulation();
-            return;
-        } else if (commandLine == "Exit") {
-            exitSimulation();
-            return;
         } else {
-            qDebug() << "Unknown command";
+            qDebug() << "Unknown command.";
         }
     }
-
-    lastCommandFilePosition = commandStream.pos();
-    qDebug() << "Finished processing all commands in the file.";
 }
 
 void Simulator::reset()
 {
-    // packetsSent.clear();
-    qDebug() << "Reseting the process";
-    lastCommandFilePosition = 0;
+    qDebug() << "Resetting simulation.";
     network.reset();
+    packetsSent.clear();
+    numOfPackets = 0;
 }
 
 void Simulator::calculatePacketLoss()
 {
-    qDebug() << "We have" << (packetsSent.size() / numOfPackets) << "percentage packet loss.";
+    if (numOfPackets == 0) {
+        qDebug() << "No packets sent, cannot calculate packet loss.";
+        return;
+    }
+    qDebug() << "Packet loss percentage:"
+             << (100.0 * (numOfPackets - packetsSent.size()) / numOfPackets) << "%";
 }
 
 void Simulator::calculateAverageHopCount()
 {
-    double sum = 0;
-    for (PacketPtr_t packet : packetsSent)
-        sum += packet->path().size();
-    qDebug() << "Average hop count is equal to:" << (sum / packetsSent.size());
+    if (packetsSent.isEmpty()) {
+        qDebug() << "No packets sent, cannot calculate average hop count.";
+        return;
+    }
+
+    double totalHops = 0;
+    for (const PacketPtr_t &packet : packetsSent) {
+        totalHops += packet->path().size();
+    }
+
+    qDebug() << "Average hop count:" << (totalHops / packetsSent.size());
 }
 
 void Simulator::calculateWaitingCyclesStats()
@@ -239,112 +215,83 @@ void Simulator::calculateWaitingCyclesStats()
     }
 
     qint64 totalWaitingCycles = 0;
-    int minWaitingCycles = INT_MAX;
-    int maxWaitingCycles = INT_MIN;
+    int minWaitingCycles = INT_MAX, maxWaitingCycles = INT_MIN;
 
-    for (PacketPtr_t packet : packetsSent) {
+    for (const PacketPtr_t &packet : packetsSent) {
         int waitingCycles = packet->waitingCycles();
         totalWaitingCycles += waitingCycles;
 
-        if (waitingCycles < minWaitingCycles) {
-            minWaitingCycles = waitingCycles;
-        }
-        if (waitingCycles > maxWaitingCycles) {
-            maxWaitingCycles = waitingCycles;
-        }
+        minWaitingCycles = qMin(minWaitingCycles, waitingCycles);
+        maxWaitingCycles = qMax(maxWaitingCycles, waitingCycles);
     }
 
-    double averageWaitingCycles = static_cast<double>(totalWaitingCycles) / packetsSent.size();
-
-    qDebug() << "Total Waiting Cycles:" << totalWaitingCycles;
-    qDebug() << "Minimum Waiting Cycles:" << minWaitingCycles;
-    qDebug() << "Maximum Waiting Cycles:" << maxWaitingCycles;
-    qDebug() << "Average Waiting Cycles:" << averageWaitingCycles;
+    qDebug() << "Waiting Cycles Stats: Total:" << totalWaitingCycles << "Min:" << minWaitingCycles
+             << "Max:" << maxWaitingCycles
+             << "Avg:" << (static_cast<double>(totalWaitingCycles) / packetsSent.size());
 }
 
 void Simulator::printRoutingTable(const QString &routerId)
 {
-    qDebug() << "Printing routing table for router:" << routerId;
+    qDebug() << "Routing table for router:" << routerId;
 }
 
 void Simulator::listUsedRouters()
 {
     QSet<QString> usedRouters;
-
     for (const PacketPtr_t &packet : packetsSent) {
-        if (packet) {
-            const QList<QString> &path = packet->path();
-            for (const QString &ip : path) {
-                usedRouters.insert(ip);
-            }
+        for (const QString &ip : packet->path()) {
+            usedRouters.insert(ip);
         }
     }
 
-    qDebug() << "List of routers used during the simulation:" << usedRouters.size();
-    for (const QString &routerIp : usedRouters) {
-        qDebug() << routerIp;
-    }
+    qDebug() << "Routers used in simulation:" << usedRouters;
 }
 
 void Simulator::listPoorRouters()
 {
-    QList<IPv4Ptr_t> allRouterPtrs = network.getAllRoutersIPs();
-    QSet<QString> allRouters;
-    for (const IPv4Ptr_t &ipPtr : allRouterPtrs) {
-        if (ipPtr) {
-            allRouters.insert(ipPtr->toString());
-        }
+    QSet<QString> allRouters, usedRouters;
+    for (const IPv4Ptr_t &ip : network.getAllRoutersIPs()) {
+        allRouters.insert(ip->toString());
     }
 
-    QSet<QString> usedRouters;
     for (const PacketPtr_t &packet : packetsSent) {
-        if (packet) {
-            const QList<QString> &path = packet->path();
-            for (const QString &ip : path) {
-                usedRouters.insert(ip);
-            }
+        for (const QString &ip : packet->path()) {
+            usedRouters.insert(ip);
         }
     }
 
     QSet<QString> poorRouters = allRouters - usedRouters;
+    qDebug() << "Routers not used during simulation:" << poorRouters;
+}
 
-    qDebug() << "List of poor routers (not used during the simulation):" << poorRouters.size();
-    for (const QString &routerIp : poorRouters) {
-        qDebug() << routerIp;
+void Simulator::listTopRouters()
+{
+    QMap<QString, int> routerUsage;
+
+    for (const PacketPtr_t &packet : packetsSent) {
+        if (packet) {
+            for (const QString &ip : packet->path()) {
+                routerUsage[ip]++;
+            }
+        }
+    }
+
+    QList<QPair<QString, int>> usageList;
+    for (auto it = routerUsage.constBegin(); it != routerUsage.constEnd(); ++it) {
+        usageList.append(qMakePair(it.key(), it.value()));
+    }
+
+    std::sort(usageList.begin(), usageList.end(), [](const auto &a, const auto &b) {
+        return a.second > b.second;
+    });
+
+    qDebug() << "Top routers by packet deliveries:";
+    for (int i = 0; i < qMin(4, usageList.size()); ++i) {
+        qDebug() << "Router:" << usageList[i].first << "Packets:" << usageList[i].second;
     }
 }
 
 void Simulator::exitSimulation()
 {
-    qDebug() << "Exiting simulation.";
-}
-
-void Simulator::listTopRouters()
-{
-    QMap<QString, int> routerFrequency;
-    for (const PacketPtr_t &packet : packetsSent) {
-        if (packet) {
-            const QList<QString> &path = packet->path();
-            for (const QString &ip : path) {
-                routerFrequency[ip]++;
-            }
-        }
-    }
-
-    QList<QPair<QString, int>> frequencyList;
-    for (auto it = routerFrequency.begin(); it != routerFrequency.end(); ++it) {
-        frequencyList.append(qMakePair(it.key(), it.value()));
-    }
-
-    std::sort(frequencyList.begin(),
-              frequencyList.end(),
-              [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
-                  return a.second > b.second;
-              });
-
-    qDebug() << "Top 4 routers that delivered the most packets:";
-    for (int i = 0; i < qMin(4, frequencyList.size()); ++i) {
-        qDebug() << "Router:" << frequencyList[i].first
-                 << "- Delivered packets:" << frequencyList[i].second;
-    }
+    qDebug() << "Simulation ended.";
 }

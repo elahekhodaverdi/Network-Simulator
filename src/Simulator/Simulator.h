@@ -1,9 +1,13 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+#include <QDebug>
 #include <QFile>
 #include <QObject>
+#include <QSet>
 #include <QSharedPointer>
+#include <QTextStream>
+#include <QVector>
 #include "../EventsCoordinator/EventsCoordinator.h"
 #include "../Globals/Globals.h"
 #include "../Network/Network.h"
@@ -12,7 +16,6 @@
 class Simulator : public QObject
 {
     Q_OBJECT
-
 
 public:
     explicit Simulator(QObject *parent = nullptr);
@@ -40,10 +43,11 @@ private:
     QSharedPointer<EventsCoordinator> eventsCoordinator;
 
     Network network;
-    int numOfRoutersDone;
-    UT::Phase currentPhase;
+    int numOfRoutersDone = 0;
+    UT::Phase currentPhase = UT::Phase::Idle;
     QVector<PacketPtr_t> packetsSent;
-    int numOfPackets{0};
+    int numOfPackets = 0;
+
     void goToNextPhase(UT::Phase nextPhase);
     void start();
     void analysis();
@@ -56,11 +60,6 @@ private:
     void listPoorRouters();
     void listTopRouters();
     void exitSimulation();
-
-    QFile commandFile;
-    QTextStream commandStream;
-    qint64 lastCommandFilePosition = 0;
-    bool isFileOpen = false;
 };
 
 #endif // SIMULATOR_H
