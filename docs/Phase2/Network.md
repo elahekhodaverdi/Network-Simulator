@@ -18,28 +18,26 @@ The `Network` class models the simulation network, managing its autonomous syste
 
 #### **Static Methods**
 
-1. **`findASById`**
-   - Searches for and retrieves an autonomous system by its ID.
-   - Returns `nullptr` if no matching autonomous system is found.
+1. **`findASById`**  
+   - Searches for and retrieves an autonomous system by its ID.  
+   - Returns `nullptr` if no matching autonomous system is found.  
 
-2. **`getAllRoutersIPs`**
-   - Collects and returns a list of all router IPs across the autonomous systems.
 
-   ```cpp
-   QList<IPv4Ptr_t> Network::getAllRoutersIPs()
-   {
-       QList<IPv4Ptr_t> allRoutersIPs;
-       for (AutonomousSystemPtr_t AS : autonomousSystems) {
-           allRoutersIPs.append(AS->getAllRoutersIPs());
-       }
-       return allRoutersIPs;
-   }
-   ```
+2. **`findRouterById`**  
+   - Searches for and retrieves a router by its ID across all autonomous systems.  
+   - Returns `nullptr` if no matching router is found.  
 
-3. **`numOfRouters`**
 
-Calculates and returns the total number of routers in all autonomous systems.
+3. **`getAllRoutersIPs`**  
+   - Collects and returns a list of all router IPs across the autonomous systems.  
 
-4. **`numOfBrokenRouters`**
+4. **`numOfRouters`**  
+   - Calculates and returns the total number of routers in all autonomous systems.  
 
-Calculates and returns the total number of broken routers across all autonomous systems.
+5. **`numOfBrokenRouters`**  
+   - Calculates and returns the total number of broken routers across all autonomous systems.  
+
+6. **`reset`**  
+   - Resets the network by clearing all PCs and autonomous systems.  
+   - Frees up resources used by the network.  
+

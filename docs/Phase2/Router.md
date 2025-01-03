@@ -1,87 +1,63 @@
 ## Router Class
 
-The `Router` class models a network router in a simulated network environment. As a derived class of `Node`, it incorporates routing-specific functionality and is equipped to handle dynamic networking scenarios. It also utilizes threading capabilities through `QThread` for concurrent operations.
+The `Router` class represents a network router that extends the functionality of the `Node` class. It handles various tasks such as managing ports, routing packets, interacting with a DHCP server, and supporting different routing protocols like OSPF and RIP. It is designed to function within a simulation environment.
 
 ### Fields
 
-1. **`ports`**:  
-   - Stores a list of pointers to the router's ports.  
-   - Initialized during object creation, with each port dynamically allocated and assigned a unique port number.
-
-2. **`ipVersion`**:  
-   - Specifies the IP version used by the router.  
-   - Default value is `UT::IPVersion::IPv4`.
-
-3. **`buffer`**:  
-   - A queue of packets pending to be processed or forwarded by the router.
-
-4. **`DHCPServer`**:  
-   - A boolean indicating whether the router is configured as a DHCP server.
-
-5. **`broken`**:  
-   - A boolean indicating whether the router is inoperable.  
-   - When true, the router halts packet processing.
-
-6. **`routingTable`**:  
-   - A list of routing table entries, each containing destination, subnet mask, next hop, output port, metric, and routing protocol.
-
-7. **`maxPorts`**:  
-   - The maximum number of ports available on the router.  
-   - Default value is 5.
-
-### Methods Explanation
-
-1. **Constructor**:  
-   - Initializes the router with a specified ID and MAC address.  
-   - Dynamically allocates ports, assigns port numbers, and sets up signal-slot connections for packet handling.  
-   - Moves the router object to its thread for asynchronous operations.  
-
-2. **Destructor**:  
-   - Ensures proper cleanup of ports by unbinding them from the `PortBindingManager` and disconnecting signals.  
-   - Stops the thread before destruction.
-
-3. **`void setRouterAsDHCPServer()`**:  
-   - Configures the router as a DHCP server by setting the `DHCPServer` flag to true.
-
-4. **`void setRouterBroken()`**:  
-   - Marks the router as inoperable by setting the `broken` flag to true.
-
-5. **`bool routerIsBroken() const`**:  
-   - Returns the status of the `broken` flag, indicating whether the router is operable.
-
-6. **`PortPtr_t getAnUnboundPort() const`**:  
-   - Retrieves the first unbound port from the router's list of ports.  
-   - Returns `nullptr` if all ports are bound.
-
-7. **`int remainingPorts() const`**:  
-   - Returns the number of unbound ports available for use.
-
-8. **`void setIP(IPv4Ptr_t ip)`**:  
-   - Assigns the specified IP address to the router and updates all ports with the router's IP.
-
-9. **`void printRoutingTable() const`**:  
-   - Outputs the router's routing table, displaying entries such as destination, next hop, output port, and metric.
-
-10. **`bool isDHCPServer() const`**:  
-    - Returns the status of the `DHCPServer` flag.
-
-11. **`void addRoutingTableEntry(...)`**:  
-    - Adds an entry to the routing table with the specified destination, subnet mask, next hop, output port, metric, and routing protocol.
-
-12. **`void sendPacket(QVector<QSharedPointer<PC>> selectedPCs)`**:  
-    - Processes the first packet in the buffer and attempts to forward it through the appropriate port based on the routing table.  
-    - Increments the waiting cycles for remaining packets in the buffer.  
-    - Emits a `newPacket` signal to send the packet.
-
-13. **`void receivePacket(const PacketPtr_t &data, uint8_t port_number)`**:  
-    - Handles incoming packets received on a specific port.  
-    - Adds the packet to the buffer if the router is operational.
-
-14. **`uint8_t findSendPort(IPv4Ptr_t destIP)`**:  
-    - Determines the output port number for a given destination IP using the routing table.  
-    - Returns 0 if no route is found.
+- **`maxPorts`:** Specifies the maximum number of ports that the router can support.
+- **`maxBufferSize`:** Defines the maximum size of the packet buffer.
+- **`broken`:** Indicates whether the router is in a broken state and cannot process packets.
+- **`dhcpServer`:** Manages DHCP operations if the router is acting as a DHCP server.
+- **`ports`:** Stores the list of ports associated with the router.
+- **`buffer`:** Temporarily holds packets before they are processed or forwarded.
+- **`routingProtocol`:** Holds the instance of the currently active routing protocol (e.g., OSPF, RIP).
+- **`ipVersion`:** Specifies the IP version the router is using (default: IPv4).
+- **`packetsToSend`:** Maps ports to packets that are ready to be sent.
 
 ### Signals
 
-1. **`void newPacket(const PacketPtr_t &data, uint8_t port_number)`**:  
-   - Emitted when a packet is ready to be sent through a specific port.
+Signals are used in the `Router` class to enable communication between components in the Qt framework. They facilitate event-driven programming and ensure modularity.
+
+- **`routingProtocolIsDone`:** Emitted when the routing protocol completes its operation.
+- **`newPacket`:** Signals that a new packet is ready for transmission.
+- **`packetReceived`:** Emitted when a packet is received.
+
+### Methods Explanations
+
+1. **`Router` (Constructor):** Initializes the router by setting up ports, configuring the routing protocol, and starting the thread for the router's operations.
+
+2. **`~Router` (Destructor):** Cleans up resources by unbinding ports, disconnecting signals, and stopping the thread.
+
+3. **`markAsBroken`:** Marks the router as broken, disabling its ability to process most packets.
+
+4. **`isBroken`:** Returns the router's broken status.
+
+5. **`setIP`:** Assigns an IP address to the router and updates its routing protocol and ports with the new address.
+
+6. **`setAsDHCPServer`:** Configures the router to function as a DHCP server within a specified IP range.
+
+7. **`getPorts`:** Returns the list of ports.
+
+8. **`getAnUnboundPort`:** Retrieves an unbound port that is available for use.
+
+9. **`numRemainingPorts`:** Calculates the number of unbound ports remaining.
+
+10. **`addPacketTobBuffer`:** Adds a packet to the router's buffer for later processing.
+
+11. **`handleNewTick`:** Handles events associated with a new simulation phase, updating the buffer, sending packets, and interacting with the routing protocol.
+
+12. **`updateBuffer`:** Processes the packet buffer, preparing packets for transmission based on routing decisions.
+
+13. **`handlePhaseChange`:** Manages actions specific to different simulation phases, such as DHCP, neighbor identification, and routing.
+
+14. **`initializeRoutingProtocol`:** Instantiates and configures the routing protocol based on the simulation configuration.
+
+15. **`connectPortsToSignals`:** Establishes connections between port signals and router methods to facilitate packet handling.
+
+16. **`receivePacket`:** Processes incoming packets, decrementing their TTL and handling them based on their type.
+
+17. **`handleControlPacket`:** Processes control packets, such as DHCP messages and routing requests.
+
+18. **`printRoutingTable`:** Outputs the current routing table.
+
+19. **`numBoundPorts`:** Returns the number of currently bound ports.

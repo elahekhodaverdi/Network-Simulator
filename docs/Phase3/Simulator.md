@@ -22,7 +22,7 @@ The Simulator class is a singleton responsible for managing the entire simulatio
 
 ### Slots
 
-1. **r`outerIsDone()`**: Updates the number of completed routers for the current phase and transitions to the next phase if conditions are met.
+1. **`routerIsDone()`**: Updates the number of completed routers for the current phase and transitions to the next phase if conditions are met.
 2. **`neighboursIdentified()`**: Transitions the simulation to the `Routing` phase.
 3. **`executionIsDone()`**: Transitions the simulation to the `Analysis` phase.
 4. **`incNumOfPackets(int num)`**: Increments the total packet count by the specified number.

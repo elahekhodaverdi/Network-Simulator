@@ -1,52 +1,59 @@
 ## Port Class
 
-The `Port` class represents a network port within a router, managing the sending and receiving of packets. It is designed to be part of a simulated network environment where communication occurs between different nodes and routers. The class provides both public methods and signals/slots, using Qt's `QObject` for event-driven programming.
+The `Port` class represents a network port within a router, responsible for managing the sending and receiving of packets. It is designed to function as part of a simulated network environment, enabling communication between nodes and routers. The class integrates with Qt's `QObject` to support event-driven programming through signals and slots.
 
 ### Fields
 
 1. **`m_number`**:  
-   - Stores the port number of the port.  
-   - This number uniquely identifies the port in the router.
+   - Stores the unique identifier (number) for the port.
 
 2. **`m_numberOfPacketsSent`**:  
-   - Keeps track of the number of packets sent by the port.  
-   - This is incremented each time a packet is sent through this port.
+   - Tracks the total number of packets sent from this port.  
+   - Incremented with each successful packet transmission.
 
 3. **`m_routerIP`**:  
-   - Holds the IP address of the router or the pc that the port belongs to.  
-   - Used for identifying which router the port is part of.
+   - Holds the IP address of the router or PC to which the port belongs.
+
+4. **`m_isInterASConnection`**:  
+   - Boolean flag indicating if the port connects to a different Autonomous System (AS).  
+   - Default value is `false`.
 
 ### Methods Explanation
 
 1. **Constructor**:  
-   The `Port` class provides a constructor to initialize a new port:
+   Initializes the `Port` object with default values.
    - **`Port(QObject *parent = nullptr)`**:  
-     Initializes the port with default values and optionally sets the parent object in a Qt-based application.
+     Creates a new port and optionally sets its parent object.
 
 2. **`sendPacket(const PacketPtr_t &data, uint8_t port_number)`**:  
-   - This method sends a packet through the port if the provided `port_number` matches the port's number.  
-   - It emits the `packetSent` signal when a packet is sent and increments the `m_numberOfPacketsSent` counter.
+   - Sends a packet if the provided `port_number` matches the port's number.  
+   - Emits the `packetSent` signal and increments `m_numberOfPacketsSent`.
 
 3. **`receivePacket(const PacketPtr_t &data)`**:  
-   - This method handles the reception of a packet and emits the `packetReceived` signal.  
-   - It logs the reception of the packet, indicating the port number and router IP.
+   - Processes an incoming packet and emits the `packetReceived` signal with the packet data and port number.
 
 4. **`getPortNumber()`**:  
-   - Returns the port number of the port.
+   - Returns the port's unique identifier.
 
 5. **`getRouterIP()`**:  
-   - Returns the IP address of the router associated with the port.
+   - Retrieves the IP address of the router or PC associated with this port.
 
 6. **`setPortNumber(uint8_t number)`**:  
-   - Sets the port number of the port.
+   - Assigns a unique number to the port.
 
 7. **`setRouterIP(QString routerIP)`**:  
-   - Sets the IP address of the router associated with the port.
+   - Assigns an IP address to the router or PC associated with the port.
+
+8. **`setIsInterASConnection()`**:  
+   - Marks the port as part of an inter-AS connection.
+
+9. **`isInterAsConnection()`**:  
+   - Returns `true` if the port is an inter-AS connection, otherwise `false`.
 
 ### Signals
 
-1. **`void packetSent(const PacketPtr_t &data)`**:  
-   - A Qt signal emitted when a packet is successfully sent from the port.
+1. **`packetSent(const PacketPtr_t &data)`**:  
+   - Emitted when a packet is successfully sent through the port.
 
-2. **`void packetReceived(const PacketPtr_t &data, uint8_t port_number)`**:  
-   - A Qt signal emitted when a packet is received at the port, carrying the packet data and port number.
+2. **`packetReceived(const PacketPtr_t &data, uint8_t port_number)`**:  
+   - Emitted when a packet is received by the port, providing the packet data and port number. 
