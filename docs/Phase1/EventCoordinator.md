@@ -23,6 +23,8 @@ The header file defines the structure of the `EventsCoordinator` class:
   - `startSimulation`: Prepares and begins the simulation.  
   - `stopSimulation`: Stops the simulation gracefully.  
   - `run`: The main function executed by the thread to manage events.  
+  - `reset`: Resets simulation state and variables.
+  - `cleanup`: Cleans up and releases resources.
   - `runExecutionCycle`: Handles a single execution cycle of the simulation.  
   - `onTimerTick`: Processes timer events and manages phase-based logic.  
   - `changePhase`: Changes the operational phase of the system.  
@@ -83,7 +85,7 @@ EventsCoordinator::~EventsCoordinator()
   - Deletes the singleton instance and sets the pointer to `nullptr`.  
 
 
-#### **`startSimulation` Function**  
+#### **`startSimulation`**  
 
 This is where the simulation setup happens:  
 
@@ -128,7 +130,7 @@ void EventsCoordinator::startSimulation()
    - Sets `m_running` to `true` and begins thread execution.  
 
 
-#### **`stopSimulation` Function**  
+#### **`stopSimulation`**  
 
 ```cpp
 void EventsCoordinator::stopSimulation()
@@ -145,7 +147,7 @@ void EventsCoordinator::stopSimulation()
 - Stops the simulation, halts the timer, and signals completion.  
 
 
-#### **`run` Function**  
+#### **`run`**  
 
 ```cpp
 void EventsCoordinator::run()
@@ -163,7 +165,7 @@ void EventsCoordinator::run()
 - Enters an event loop to process timer ticks.  
 
 
-#### **`runExecutionCycle` Function**  
+#### **`runExecutionCycle`**  
 
 ```cpp
 void EventsCoordinator::runExecutionCycle()
@@ -189,7 +191,7 @@ void EventsCoordinator::runExecutionCycle()
 - Executes a single cycle by selecting PCs to receive packets and emitting a signal.  
 
 
-#### **`onTimerTick` Function**  
+#### **`onTimerTick`**  
 
 ```cpp
 void EventsCoordinator::onTimerTick()
