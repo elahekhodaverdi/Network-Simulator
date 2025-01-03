@@ -1,8 +1,11 @@
 #include "Simulator.h"
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
+#include <QString>
 #include "../Topology/TopologyBuilder.h"
 #include "../Utils/ConfigReader.h"
+#include <iostream>
 
 SimulationConfig Simulator::simulationConfig;
 
@@ -131,10 +134,6 @@ void Simulator::incNumOfPackets(int num)
 {
     numOfPackets += num;
 }
-
-#include <QDebug>
-#include <QString>
-#include <iostream>
 
 void Simulator::analysis()
 {
@@ -302,6 +301,6 @@ void Simulator::listTopRouters()
 void Simulator::exitSimulation()
 {
     qDebug() << "Exiting simulation...";
-    EventsCoordinator::instance()->release();
+    EventsCoordinator::instance()->cleanup();
     QCoreApplication::quit();
 }

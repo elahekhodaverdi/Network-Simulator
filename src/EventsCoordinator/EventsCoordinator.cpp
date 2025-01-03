@@ -13,6 +13,8 @@ EventsCoordinator::EventsCoordinator(QThread *parent)
 EventsCoordinator::~EventsCoordinator()
 {
     delete m_dataGenerator;
+    this->quit();
+    this->wait();
 }
 
 EventsCoordinator *EventsCoordinator::instance(QThread *parent)
@@ -25,12 +27,16 @@ EventsCoordinator *EventsCoordinator::instance(QThread *parent)
 
 void EventsCoordinator::release()
 {
-    delete m_self;
+    if (!m_self)
+        delete m_self;
     m_self = nullptr;
 }
 
 void EventsCoordinator::startSimulation()
 {
+    if (m_timer && !m_timer->isActive()) {
+        m_timer->start();
+    }
     m_dataArray.assign(m_durationMs / m_intervalMs, 0);
     size_t TOTAL_PACKETS = m_dataArray.size();
     std::fill(m_dataArray.begin(), m_dataArray.end(), 0);
@@ -63,17 +69,15 @@ void EventsCoordinator::stopSimulation()
     if (m_timer) {
         m_timer->stop();
     }
-    wait();
-    Q_EMIT executionIsDone();
 }
 
 void EventsCoordinator::run()
 {
     m_timer = QSharedPointer<QTimer>::create();
     connect(m_timer.get(), &QTimer::timeout, this, &EventsCoordinator::onTimerTick);
-
-    m_timer->start(m_intervalMs);
-
+    m_timer->setInterval(m_intervalMs);
+    m_timer->start();
+    m_timer->moveToThread(this->thread());
     exec();
 }
 
@@ -156,7 +160,17 @@ QString EventsCoordinator::phaseToString(UT::Phase phase)
 
 void EventsCoordinator::reset()
 {
+    stopSimulation();
     m_running = false;
     m_numExecutionCycles = 0;
     ticksInCurrentPhase = 0;
+}
+
+void EventsCoordinator::cleanup()
+{
+    EventsCoordinator::instance()->stopSimulation();
+
+    QObject::disconnect(EventsCoordinator::instance(), nullptr, nullptr, nullptr);
+
+    EventsCoordinator::release();
 }
