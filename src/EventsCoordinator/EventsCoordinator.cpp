@@ -1,4 +1,5 @@
 #include "EventsCoordinator.h"
+#include "../Simulator/Simulator.h"
 #include <random>
 #include <algorithm>
 #include <QThread>
@@ -38,7 +39,7 @@ void EventsCoordinator::startSimulation()
         m_timer->start();
     }
     m_dataArray.assign(m_durationMs / m_intervalMs, 0);
-    size_t TOTAL_PACKETS = m_dataArray.size();
+    size_t TOTAL_PACKETS = Simulator::instance()->simulationConfig.packetsPerSimulation;
     std::fill(m_dataArray.begin(), m_dataArray.end(), 0);
 
     for (size_t i = 0; i < TOTAL_PACKETS; ++i) {
