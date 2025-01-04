@@ -104,7 +104,7 @@ void EventsCoordinator::onTimerTick()
     ticksInCurrentPhase++;
     switch (m_currentPhase) {
     case UT::Phase::IdentifyNeighbours:
-        if (ticksInCurrentPhase >= 2) {
+        if (ticksInCurrentPhase >= 12) {
             Q_EMIT neighboursDetectionIsDone();
         }
         break;
