@@ -14,6 +14,7 @@ void OSPF::startRouting()
 
 void OSPF::addNewNeighbour(const IPv4Ptr_t &neighbourIP, PortPtr_t outPort)
 {
+
     neighbourPorts[neighbourIP] = outPort;
 
     if (!lsDatabase.contains(m_routerIP)) {

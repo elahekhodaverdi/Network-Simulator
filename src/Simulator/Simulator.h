@@ -60,6 +60,7 @@ private:
     void listPoorRouters();
     void listTopRouters();
     void exitSimulation();
+    void listTopPCs();
 };
 
 #endif // SIMULATOR_H

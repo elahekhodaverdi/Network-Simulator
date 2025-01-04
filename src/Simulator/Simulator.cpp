@@ -169,6 +169,8 @@ void Simulator::analysis()
             listPoorRouters();
         } else if (commandLine == "Top-routers") {
             listTopRouters();
+        }else if (commandLine == "Top-pcs"){
+            listTopPCs();
         } else {
             qDebug() << "Unknown command.";
         }
@@ -295,6 +297,30 @@ void Simulator::listTopRouters()
     qDebug() << "Top routers by packet deliveries:";
     for (int i = 0; i < qMin(4, usageList.size()); ++i) {
         qDebug() << "Router:" << usageList[i].first << "Packets:" << usageList[i].second;
+    }
+}
+
+void Simulator::listTopPCs()
+{
+    QMap<QString, int> PCUsage;
+
+    for (const PacketPtr_t &packet : packetsSent)
+        PCUsage[packet->ipHeader()->destIp()->toString()]++;
+        //PCUsage[packet->ipHeader()->destIp()->toString()]
+
+
+    QList<QPair<QString, int>> usageList;
+    for (auto it = PCUsage.constBegin(); it != PCUsage.constEnd(); ++it) {
+        usageList.append(qMakePair(it.key(), it.value()));
+    }
+
+    std::sort(usageList.begin(), usageList.end(), [](const auto &a, const auto &b) {
+        return a.second > b.second;
+    });
+
+    qDebug() << "Top routers by packet deliveries:";
+    for (int i = 0; i < qMin(4, usageList.size()); ++i) {
+        qDebug() << "PC:" << usageList[i].first << "Packets:" << usageList[i].second;
     }
 }
 
