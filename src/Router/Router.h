@@ -30,7 +30,7 @@ public:
     PortPtr_t getAnUnboundPort() const;
     QList<PortPtr_t> getPorts() const;
     void setIP(IPv4Ptr_t ip) override;
-    void setAsDHCPServer(QString ipRange);
+    void setAsDHCPServer(int asID);
 
 public Q_SLOTS:
     void handleNewTick(const UT::Phase phase) override;

@@ -39,7 +39,7 @@ public:
     QList<QString> path();
     QSharedPointer<IPHeader> ipHeader();
     UT::PacketControlType controlType();
-
+    DataLinkHeader dataLinkHeader();
     ~Packet();
 
 private:

@@ -103,8 +103,7 @@ void AutonomousSystem::setDHCPServer(int dhcpId)
     RouterPtr_t router = findRouterById(dhcpId);
     if (router) {
         dhcpServer = router;
-        QString ipRange = QString("192.168.%1.").arg(id * 100);
-        router->setAsDHCPServer(ipRange);
+        router->setAsDHCPServer(id);
     } else {
         qWarning() << "DHCP Server with ID" << dhcpId << "not found in the list of routers.";
     }

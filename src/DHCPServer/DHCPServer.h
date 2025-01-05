@@ -11,7 +11,7 @@ class DHCPServer : public QObject
     Q_OBJECT
 
 public:
-    explicit DHCPServer(QString ipRange, QObject *parent = nullptr);
+    explicit DHCPServer(int m_asID, QObject *parent = nullptr);
     ~DHCPServer() override;
 
     void handleDiscoveryPacket(PacketPtr_t packet);
@@ -24,7 +24,7 @@ private:
     QList<int> sentOffers;
     QList<QString> sentAcks;
     QString m_ipRange;
-
+    int m_asID;
 };
 
 #endif      // DHCPSERVER_H

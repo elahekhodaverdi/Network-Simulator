@@ -3,9 +3,11 @@
 #include <QJsonDocument>
 #include <QThread>
 
-DHCPServer::DHCPServer(QString ipRange, QObject *parent) :
-    QObject {parent}, m_ipRange(ipRange)
+DHCPServer::DHCPServer(int asID, QObject *parent)
+    : QObject{parent}
+    , m_asID(asID)
 {
+    m_ipRange = QString("192.168.%1.").arg(asID * 100);
 }
 
 DHCPServer::~DHCPServer()

@@ -138,9 +138,9 @@ void Router::handlePhaseChange(const UT::Phase nextPhase){
     }
 }
 
-void Router::setAsDHCPServer(QString ipRange)
+void Router::setAsDHCPServer(int asID)
 {
-    dhcpServer = QSharedPointer<DHCPServer>::create(ipRange);
+    dhcpServer = QSharedPointer<DHCPServer>::create(asID);
     QObject::connect(dhcpServer.get(),
                      &DHCPServer::newPacket,
                      this,

@@ -104,6 +104,11 @@ UT::PacketControlType Packet::controlType(){
     return m_controlType.value();
 }
 
+DataLinkHeader Packet::dataLinkHeader()
+{
+    return m_dataLinkHeader;
+}
+
 bool Packet::isDHCPPacket()
 {
     return (m_controlType.value() == UT::PacketControlType::DHCPAcknowledge)
