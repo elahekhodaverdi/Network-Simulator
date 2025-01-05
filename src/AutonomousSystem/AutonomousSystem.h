@@ -19,6 +19,7 @@ public:
     int numOfRouters();
     int numOfBrokenRouters();
     RouterPtr_t findRouterById(int id);
+    void cleanLogFiles();
 
 private:
     int id;

@@ -61,6 +61,7 @@ private:
     void listTopRouters();
     void exitSimulation();
     void listTopPCs();
+    void cleanLogFiles();
 };
 
 #endif // SIMULATOR_H

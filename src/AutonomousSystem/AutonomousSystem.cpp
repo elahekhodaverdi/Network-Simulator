@@ -303,3 +303,8 @@ void AutonomousSystem::disconnectPCsSignalsToSimulator(PCPtr_t pc)
                         pc.get(),
                         &PC::setShouldSendPacket);
 }
+
+void AutonomousSystem::cleanLogFiles()
+{
+    dhcpServer->cleanLogFiles();
+}

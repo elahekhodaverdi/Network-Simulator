@@ -313,6 +313,11 @@ void Router::addPacketForBroadcast(const PacketPtr_t &packet, PortPtr_t triggeri
 
 void Router::routingIsDone()
 {
-    // qDebug() << "emit protocol" << m_id;
     Q_EMIT routingProtocolIsDone();
+}
+
+void Router::cleanLogFiles()
+{
+    if (isDHCPServer())
+        dhcpServer->cleanLogFile();
 }

@@ -169,7 +169,9 @@ void Simulator::analysis()
             listPoorRouters();
         } else if (commandLine == "Top-routers") {
             listTopRouters();
-        }else if (commandLine == "Top-pcs"){
+        } else if (commandLine == "Clean") {
+            cleanLogFiles();
+        } else if (commandLine == "Top-pcs") {
             listTopPCs();
         } else {
             qDebug() << "Unknown command.";
@@ -306,7 +308,6 @@ void Simulator::listTopPCs()
 
     for (const PacketPtr_t &packet : packetsSent)
         PCUsage[packet->ipHeader()->destIp()->toString()]++;
-        //PCUsage[packet->ipHeader()->destIp()->toString()]
 
 
     QList<QPair<QString, int>> usageList;
@@ -329,4 +330,9 @@ void Simulator::exitSimulation()
     qDebug() << "Exiting simulation...";
     EventsCoordinator::instance()->cleanup();
     QCoreApplication::quit();
+}
+
+void Simulator::cleanLogFiles()
+{
+    network.cleanLogFiles();
 }

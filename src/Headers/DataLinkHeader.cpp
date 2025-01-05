@@ -1,5 +1,5 @@
 #include "DataLinkHeader.h"
-
+#include <QDebug>
 DataLinkHeader::DataLinkHeader(QObject *parent)
     :QObject{parent}
 {}
@@ -23,7 +23,6 @@ void DataLinkHeader::setDestinationMACAddress(const MACAddress &address)
 {
     m_destinationMACAddress = address;
 }
-
 
 MACAddress DataLinkHeader::sourceMACAddress() const
 {

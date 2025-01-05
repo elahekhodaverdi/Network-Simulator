@@ -24,6 +24,11 @@ MACAddress::MACAddress(QString address)
     }
 }
 
+MACAddress::MACAddress(const MACAddress& address)
+{
+    this->m_address = address.m_address;
+}
+
 QString MACAddress::toString() const
 {
     QString string;
@@ -51,4 +56,12 @@ bool MACAddress::operator==(const MACAddress& other) const
             return false;
     }
     return true;
+}
+
+MACAddress& MACAddress::operator=(const MACAddress& other)
+{
+    if (this != &other) {
+        m_address = other.m_address;
+    }
+    return *this;
 }

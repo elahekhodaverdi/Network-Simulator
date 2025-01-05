@@ -72,3 +72,9 @@ RouterPtr_t Network::findRouterById(int id)
     }
     return nullptr;
 }
+
+void Network::cleanLogFiles()
+{
+    for (AutonomousSystemPtr_t as : autonomousSystems)
+        as->cleanLogFiles();
+}

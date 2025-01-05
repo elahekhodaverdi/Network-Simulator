@@ -16,6 +16,7 @@ public:
     static int numOfRouters();
     static int numOfBrokenRouters();
     static void reset();
+    static void cleanLogFiles();
 
 public:
     static QList<PCPtr_t> PCs;
