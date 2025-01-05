@@ -52,13 +52,6 @@ void EventsCoordinator::startSimulation()
             break;
         }
     }
-    int totalPackets = 0;
-    QString res = "";
-    for (size_t i = 0; i < m_dataArray.size(); ++i) {
-        res += ":" + QString::number(m_dataArray[i]);
-        totalPackets += m_dataArray[i];
-    }
-    qDebug() << totalPackets << "Number of Packets in each Cycle: " << res;
 
     m_running = true;
     start();
