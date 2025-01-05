@@ -29,6 +29,7 @@ public:
     void setIPHeader(QSharedPointer<IPHeader> ipHeader);
     void setControlType(UT::PacketControlType controlType);
     bool isDHCPPacket();
+    bool isForwardedFrom(const QString& ip);
 
     UT::PacketType packetType();
     QByteArray payload();

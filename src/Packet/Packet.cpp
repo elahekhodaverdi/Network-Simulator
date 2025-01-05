@@ -112,3 +112,12 @@ bool Packet::isDHCPPacket()
            || (m_controlType.value() == UT::PacketControlType::DHCPOffer)
            || (m_controlType.value() == UT::PacketControlType::DHCPNak);
 }
+
+bool Packet::isForwardedFrom(const QString& ip)
+{
+    for (const QString path : m_path) {
+        if (path == ip)
+            return true;
+    }
+    return false;
+}

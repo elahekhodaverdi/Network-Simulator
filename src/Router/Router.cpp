@@ -225,6 +225,8 @@ void Router::receivePacket(const PacketPtr_t &data, uint8_t portNumber)
         return;
     if (broken && !data->isDHCPPacket())
         return;
+    if (m_IP && data->isForwardedFrom(m_IP->toString()))
+        return;
 
     data->ipHeader()->decTTL();
     if (data->packetType() == UT::PacketType::Control) {
