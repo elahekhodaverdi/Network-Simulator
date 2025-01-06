@@ -17,6 +17,7 @@ DataLinkHeader::DataLinkHeader(const DataLinkHeader& dataLinkHeader, QObject *pa
 void DataLinkHeader::setSourceMACAddress(const MACAddress &address)
 {
     m_sourceMACAddress = address;
+
 }
 
 void DataLinkHeader::setDestinationMACAddress(const MACAddress &address)

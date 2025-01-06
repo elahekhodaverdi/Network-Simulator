@@ -126,3 +126,7 @@ bool Packet::isForwardedFrom(const QString& ip)
     }
     return false;
 }
+
+void Packet::setSourceMacAddress(MACAddress address){
+    m_dataLinkHeader.setSourceMACAddress(address);
+}

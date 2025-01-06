@@ -28,6 +28,7 @@ public:
     void setTotalCycles(uint32_t totalCycles);
     void setIPHeader(QSharedPointer<IPHeader> ipHeader);
     void setControlType(UT::PacketControlType controlType);
+    void setSourceMacAddress(MACAddress address);
     bool isDHCPPacket();
     bool isForwardedFrom(const QString& ip);
 

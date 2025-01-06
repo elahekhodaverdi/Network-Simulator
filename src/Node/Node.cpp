@@ -39,9 +39,7 @@ void Node::sendDiscoveryDHCP(){
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
     packet->setIPHeader(ipHeader);
-    packet->dataLinkHeader().setSourceMACAddress(m_MACAddress);
-    qDebug() << "It's me, Im the problem its me"
-             << packet->dataLinkHeader().sourceMACAddress().toString() << m_MACAddress.toString();
+    packet->setSourceMacAddress(m_MACAddress);
     ipHeader->setTTL(5);
     packet->setPacketType(UT::PacketType::Control);
     packet->setControlType(UT::PacketControlType::DHCPDiscovery);
@@ -52,7 +50,7 @@ void Node::sendDiscoveryDHCP(){
 void Node::sendRequestDHCP(){
     PacketPtr_t packet = PacketPtr_t::create(DataLinkHeader());
     QSharedPointer<IPHeader> ipHeader = QSharedPointer<IPHeader>::create();
-    packet->dataLinkHeader().setSourceMACAddress(m_MACAddress);
+    packet->setSourceMacAddress(m_MACAddress);
     ipHeader->setSourceIp(m_IP);
     packet->setIPHeader(ipHeader);
     packet->setPacketType(UT::PacketType::Control);
